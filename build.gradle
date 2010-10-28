@@ -1,0 +1,11 @@
+apply plugin: 'groovy'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  groovy: 'org.codehaus.groovy:groovy:1.7.5'
+  runtime: 'org.liquibase:liquibase-core:1.9.5'
+}
+
