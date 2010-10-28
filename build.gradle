@@ -1,5 +1,7 @@
 apply plugin: 'groovy'
 
+defaultTasks('build')
+
 repositories {
   mavenCentral()
 }
