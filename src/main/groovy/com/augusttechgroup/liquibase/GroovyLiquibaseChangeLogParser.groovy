@@ -38,11 +38,6 @@ class GroovyLiquibaseChangeLogParser
 
       def script = shell.parse(inputStream)
       script.metaClass.methodMissing = changeLogMethodMissing
-
-//      script.metaClass.databaseChangeLog = { params, closure ->
-//        println params
-//      }
-
       script.run()
     }
     finally {
@@ -56,13 +51,6 @@ class GroovyLiquibaseChangeLogParser
   }
 
 
-  def getChangeLogMethodMissing() {
-    { name, args ->
-      println "${name}(${args})"
-    }
-  }
-
-
   boolean supports(String changeLogFile, ResourceAccessor resourceAccessor) {
     changeLogFile.endsWith('.groovy')
   }
@@ -72,4 +60,33 @@ class GroovyLiquibaseChangeLogParser
     PRIORITY_DEFAULT
   }
 
+
+  def getChangeLogMethodMissing() {
+    { name, args ->
+      switch(name) {
+        case 'databaseChangeLog':
+          break
+          
+        case 'preConditions':
+          break
+          
+        case 'include':
+          break
+          
+        case 'changeSet':
+          break
+          
+        default:
+          throw new ChangeLogParseException("Unrecognized root element ${name}")
+          break
+      }
+    }
+  }
+
+
+  class DatabaseChangeLogDelegate {
+    
+  }
+
 }
+

@@ -1,4 +1,4 @@
-databaseChangeLog(logicalFilePath: '/root/changelog.groovy') {
-  
-  
+databaseChangeLog() {
+
+
 }
