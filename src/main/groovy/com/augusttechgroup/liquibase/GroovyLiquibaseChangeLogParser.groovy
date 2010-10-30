@@ -72,7 +72,7 @@ class GroovyLiquibaseChangeLogParser
     { name, args ->
       switch(name) {
         case 'databaseChangeLog':
-          
+          processDatabaseChangeLogRootElement(databaseChangeLog, args)
           break
           
         case 'preConditions':
@@ -92,9 +92,38 @@ class GroovyLiquibaseChangeLogParser
   }
 
 
-  class DatabaseChangeLogDelegate {
-    
+  private def processDatabaseChangeLogRootElement(databaseChangeLog, args) {
+    switch(args.size()) {
+      case 0:
+        throw new ChangeLogParseException("databaseChangeLog element cannot be empty")
+      
+      case 1:
+        def closure = args[0]
+        if(!(closure instanceof Closure)) {
+          throw new ChangeLogParseException("databaseChangeLog element must be followed by a closure (databaseChangeLog { ... })")
+        }
+        def delegate = new DatabaseChangeLogDelegate(databaseChangeLog)
+        closure.delegate = delegate
+        closure.call()
+        break
+        
+      case 2:
+        def params = args[0]
+        def closure = args[1]
+        if(!(params instanceof Map)) {
+          throw new ChangeLogParseException("databaseChangeLog element must take parameters followed by a closure (databaseChangeLog(key: value) { ... })")
+        }
+        if(!(closure instanceof Closure)) {
+          throw new ChangeLogParseException("databaseChangeLog element must take parameters followed by a closure (databaseChangeLog(key: value) { ... })")
+        }
+        def delegate = new DatabaseChangeLogDelegate(params, databaseChangeLog)
+        closure.delegate = delegate
+        closure.call()
+        break
+        
+      default:
+        throw new ChangeLogParseException("databaseChangeLog element has too many parameters: ${args}")
+    }
   }
-
 }
 

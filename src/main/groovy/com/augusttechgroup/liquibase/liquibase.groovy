@@ -11,4 +11,6 @@ changeLogFile = 'src/test/changelog/basic-changelog.groovy'
 resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
 parser = ChangeLogParserFactory.getInstance().getParser(changeLogFile, resourceAccessor)
 
-parser.parse(changeLogFile, null, resourceAccessor)
+def changeLog = parser.parse(changeLogFile, null, resourceAccessor)
+
+println changeLog.changeSets

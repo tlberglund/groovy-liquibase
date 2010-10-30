@@ -60,6 +60,14 @@ class RootElementTests {
     def changeLog = parser.parse(SIMPLE_CHANGELOG, null, resourceAccessor)
     assertNotNull "Parsed DatabaseChangeLog was null", changeLog
     assertTrue "Parser result was not a DatabaseChangeLog", changeLog instanceof DatabaseChangeLog
+    assertEquals '.', changeLog.logicalFilePath
+    
+    def changeSets = changeLog.changeSets
+    assertEquals 1, changeSets.size()
+    def changeSet = changeSets[0]
+    assertNotNull "ChangeSet was null", changeSet
+    assertEquals 'tlberglund', changeSet.author
+    assertEquals 'change-set-001', changeSet.id
   }
 
 }
