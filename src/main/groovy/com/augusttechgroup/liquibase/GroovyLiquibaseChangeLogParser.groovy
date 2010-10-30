@@ -14,7 +14,7 @@ import liquibase.parser.ChangeLogParser
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.changelog.ChangeLogParameters
 import liquibase.resource.ResourceAccessor
-
+import liquibase.exception.ChangeLogParseException
 
 class GroovyLiquibaseChangeLogParser
   implements ChangeLogParser {
@@ -23,12 +23,43 @@ class GroovyLiquibaseChangeLogParser
   DatabaseChangeLog parse(String physicalChangeLogLocation,
                           ChangeLogParameters changeLogParameters,
                           ResourceAccessor resourceAccessor) {
-    def input = resourceAccessor.getResourceAsStream(physicalChangeLogLocation)
 
-    def changeLog = new DatabaseChangeLog(physicalChangeLogLocation)
-    databaseChangeLog.setChangeLogParameters(changeLogParameters);
+    def inputStream = resourceAccessor.getResourceAsStream(physicalChangeLogLocation)
+    if(!inputStream) {
+        throw new ChangeLogParseException(physicalChangeLogLocation + " does not exist")
+    }
 
-    println input
+    try {
+      def changeLog = new DatabaseChangeLog(physicalChangeLogLocation)
+      changeLog.setChangeLogParameters(changeLogParameters)
+
+      def binding = new Binding()
+      def shell = new GroovyShell(binding)
+
+      def script = shell.parse(inputStream)
+      script.metaClass.methodMissing = changeLogMethodMissing
+
+//      script.metaClass.databaseChangeLog = { params, closure ->
+//        println params
+//      }
+
+      script.run()
+    }
+    finally {
+      try {
+        inputStream.close()
+      }
+      catch(Exception e) {
+        // Can't do much more than hope for the best here
+      }
+    }
+  }
+
+
+  def getChangeLogMethodMissing() {
+    { name, args ->
+      println "${name}(${args})"
+    }
   }
 
 
