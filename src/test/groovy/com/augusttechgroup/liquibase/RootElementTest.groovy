@@ -11,30 +11,56 @@
 package com.augusttechgroup.liquibase
 
 import com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser
-import liquibase.parser.*
+
+import liquibase.parser.ChangeLogParserFactory
 import liquibase.resource.FileSystemResourceAccessor
+import liquibase.changelog.DatabaseChangeLog
 
 import org.junit.Test
 import org.junit.Before
 import org.junit.Ignore
 import static org.junit.Assert.*
 
+
 class RootElementTests {
 
+  final def EMPTY_CHANGELOG = 'src/test/changelog/empty-changelog.groovy'
+  final def SIMPLE_CHANGELOG = 'src/test/changelog/simple-changelog.groovy'
+  
+  def resourceAccessor
+  def parserFactory
+  
+  
   @Before
   void registerParser() {
+    resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
+    parserFactory = ChangeLogParserFactory.instance
     ChangeLogParserFactory.getInstance().register(new GroovyLiquibaseChangeLogParser())
   }
   
   
   @Test
-  void parseGroovyChangelog() {
-    def changeLogFile = 'src/test/changelog/basic-changelog.groovy'
-    def resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
-    def parser = ChangeLogParserFactory.getInstance().getParser(changeLogFile, resourceAccessor)
+  void parseEmptyChangelog() {
+    def parser = parserFactory.getParser(EMPTY_CHANGELOG, resourceAccessor)
 
     assertNotNull "Groovy changelog parser was not found", parser
 
-    parser.parse(changeLogFile, null, resourceAccessor)
+    def changeLog = parser.parse(EMPTY_CHANGELOG, null, resourceAccessor)
+    assertNotNull "Parsed DatabaseChangeLog was null", changeLog
+    assertTrue "Parser result was not a DatabaseChangeLog", changeLog instanceof DatabaseChangeLog
   }
+
+
+  @Test
+  void parseSimpleChangelog() {
+    def parser = parserFactory.getParser(SIMPLE_CHANGELOG, resourceAccessor)
+
+    assertNotNull "Groovy changelog parser was not found", parser
+
+    def changeLog = parser.parse(SIMPLE_CHANGELOG, null, resourceAccessor)
+    assertNotNull "Parsed DatabaseChangeLog was null", changeLog
+    assertTrue "Parser result was not a DatabaseChangeLog", changeLog instanceof DatabaseChangeLog
+  }
+
 }
+

@@ -16,6 +16,7 @@ import liquibase.changelog.ChangeLogParameters
 import liquibase.resource.ResourceAccessor
 import liquibase.exception.ChangeLogParseException
 
+
 class GroovyLiquibaseChangeLogParser
   implements ChangeLogParser {
 
@@ -36,9 +37,15 @@ class GroovyLiquibaseChangeLogParser
       def binding = new Binding()
       def shell = new GroovyShell(binding)
 
+      // Parse the script, give it the local changeLog instance, give it access
+      // to root-level method delegates, and call.
       def script = shell.parse(inputStream)
+      script.metaClass.getDatabaseChangeLog = { -> changeLog }
       script.metaClass.methodMissing = changeLogMethodMissing
       script.run()
+      
+      // The changeLog will have been populated by the script
+      return changeLog
     }
     finally {
       try {
@@ -65,6 +72,7 @@ class GroovyLiquibaseChangeLogParser
     { name, args ->
       switch(name) {
         case 'databaseChangeLog':
+          
           break
           
         case 'preConditions':
