@@ -12,6 +12,8 @@ package com.augusttechgroup.liquibase
 
 import com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser
 
+import liquibase.exception.ChangeLogParseException
+import liquibase.parser.ChangeLogParser
 import liquibase.parser.ChangeLogParserFactory
 import liquibase.resource.FileSystemResourceAccessor
 import liquibase.changelog.DatabaseChangeLog
@@ -69,6 +71,32 @@ class RootElementTests {
     assertEquals 'tlberglund', changeSet.author
     assertEquals 'change-set-001', changeSet.id
   }
+  
 
+  @Test(expected=ChangeLogParseException)
+  void parsingEmptyDatabaseChangeLogFails() {
+    def changeLogFile = createFileFrom("""
+databaseChangeLog()
+""")
+    def parser = parserFactory.getParser(changeLogFile.absolutePath, resourceAccessor)
+    def changeLog = parser.parse(changeLogFile.absolutePath, null, resourceAccessor)
+  }
+
+
+  @Test(expected=ChangeLogParseException)
+  void parsingClosurelessDatabaseChangeLogFails() {
+    def changeLogFile = createFileFrom("""
+databaseChangeLog(key: 'value')
+""")
+    def parser = parserFactory.getParser(changeLogFile.absolutePath, resourceAccessor)
+    def changeLog = parser.parse(changeLogFile.absolutePath, null, resourceAccessor)
+  }
+
+
+  private def createFileFrom(text) {
+    def file = File.createTempFile('liquibase-', '.groovy')
+    file.deleteOnExit()
+    file << text
+  }
 }
 

@@ -16,6 +16,8 @@ import liquibase.changelog.ChangeLogParameters
 import liquibase.resource.ResourceAccessor
 import liquibase.exception.ChangeLogParseException
 
+import com.augusttechgroup.liquibase.delegate.DatabaseChangeLogDelegate
+
 
 class GroovyLiquibaseChangeLogParser
   implements ChangeLogParser {
@@ -93,6 +95,7 @@ class GroovyLiquibaseChangeLogParser
 
 
   private def processDatabaseChangeLogRootElement(databaseChangeLog, args) {
+    println args
     switch(args.size()) {
       case 0:
         throw new ChangeLogParseException("databaseChangeLog element cannot be empty")

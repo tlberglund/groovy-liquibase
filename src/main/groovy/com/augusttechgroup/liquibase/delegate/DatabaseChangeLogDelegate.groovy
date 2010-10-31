@@ -8,7 +8,7 @@
 // Licensed under the GNU Lesser General Public License v2.1
 //
 
-package com.augusttechgroup.liquibase
+package com.augusttechgroup.liquibase.delegate
 
 
 import liquibase.changelog.ChangeSet
@@ -50,6 +50,11 @@ class DatabaseChangeLogDelegate {
 		if(params.onValidationFail) {
   		changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(params.onValidationFail)
 		}
+		
+		def delegate = new ChangeSetDelegate()
+		closure.delegate = delegate
+		
+		closure.call()
 		
 		databaseChangeLog.addChangeSet(changeSet)
   }  
