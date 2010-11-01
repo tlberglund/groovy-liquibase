@@ -348,25 +348,5 @@ databaseChangeLog(logicalFilePath: '') {
       arg('--skip:1')
     }
   }
-  
-  
-  changeSet(id: '', author: 'tlberglund') {
     
-  }
-  
-  
-  changeSet(id: '', author: 'tlberglund') {
-    
-  }
-  
-  
-  changeSet(id: '', author: 'tlberglund') {
-    
-  }
-  
-  
-  changeSet(id: '', author: 'tlberglund') {
-    
-  }
-  
 }

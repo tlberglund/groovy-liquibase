@@ -51,7 +51,7 @@ class DatabaseChangeLogDelegate {
   		changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(params.onValidationFail)
 		}
 		
-		def delegate = new ChangeSetDelegate()
+		def delegate = new ChangeSetDelegate(changeSet: changeSet)
 		closure.delegate = delegate
 		
 		closure.call()
