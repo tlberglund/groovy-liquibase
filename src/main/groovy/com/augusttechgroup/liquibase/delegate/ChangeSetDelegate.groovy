@@ -10,7 +10,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
-import liquibase.changelog.ChangeSet
+import liquibase.change.core.AddColumnChange
 
 
 class ChangeSetDelegate {
@@ -43,7 +43,17 @@ class ChangeSetDelegate {
   }
   
   void addColumn(Map params, Closure closure) {
+    def addColumn = new AddColumnChange()
+    addColumn.schemaName = params.schemaName
+    addColumn.tableName = params.tableName
+
+    def change = new AddColumnChange()
+
+    def columnDelegate = new ColumnDelegate(change, params)
+    closure.delegate = columnDelegate
+    closure.call()
     
+    changeSet.addChange(addColumn)
   }
   
   void renameColumn(Map params) {

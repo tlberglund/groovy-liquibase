@@ -20,6 +20,7 @@ import liquibase.changelog.DatabaseChangeLog
 import liquibase.changelog.ChangeSet
 import liquibase.change.CheckSum
 import liquibase.change.core.RawSQLChange
+import liquibase.change.core.AddColumnChange
 
 import org.junit.Test
 import org.junit.Before
@@ -103,9 +104,9 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
     assertEquals 2, changes.size()
     assertEquals(new RawSQLChange("UPDATE monkey_table SET emotion='angry' WHERE status='PENDING'").sql, changes[0].sql)
     assertEquals(new RawSQLChange("ALTER TABLE monkey_table DROP COLUMN angry").sql, changes[1].sql)
-    
   }
   
+
   private def buildChangeSet(Closure closure) {
     closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
     closure.call()
