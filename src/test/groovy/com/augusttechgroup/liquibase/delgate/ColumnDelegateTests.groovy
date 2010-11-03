@@ -10,16 +10,9 @@
 
 package com.augusttechgroup.liquibase.delegate
 
-import com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser
-
-import liquibase.parser.ChangeLogParserFactory
-import liquibase.resource.FileSystemResourceAccessor
-import liquibase.changelog.ChangeSet
-import liquibase.change.core.AddColumnChange
 import liquibase.change.ColumnConfig
 
 import org.junit.Test
-import org.junit.Before
 import static org.junit.Assert.*
 import java.sql.Timestamp
 

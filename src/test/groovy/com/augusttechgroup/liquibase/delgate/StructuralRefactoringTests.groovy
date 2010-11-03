@@ -48,7 +48,8 @@ class StructuralRefactoringTests {
 		  true)
   }
 
-  
+  // TODO gotta ignore this until column support is ready
+  @Ignore
   @Test void addMinimalColumnWithoutConstraints() {
     buildChangeSet {
       addColumn(schemaName: 'oracle_use_only', tableName: 'animal') {

@@ -65,13 +65,13 @@ databaseChangeLog(logicalFilePath: '') {
         
         // Pass a closure
         constraints {
-          nullable(false)
-          primaryKey(true)
+          nullable(false)//
+          primaryKey(true)//
           unique(true)
           uniqueConstraintName('make_it_unique_yo')
-          foreignKeyName('key_to_monkey')
-          references('monkey_table')
-          deleteCascade(true)
+          foreignKeyName('key_to_monkey')//
+          references('monkey_table')//
+          deleteCascade(true)//
           deferrable(true)
           initiallyDeferred(false)
         }
