@@ -21,6 +21,7 @@ import org.junit.Test
 import org.junit.Before
 import org.junit.Ignore
 import static org.junit.Assert.*
+import liquibase.change.core.RenameColumnChange
 
 
 class StructuralRefactoringTests {
@@ -50,11 +51,30 @@ class StructuralRefactoringTests {
 
   @Test void addMinimalColumnWithoutConstraints() {
     buildChangeSet {
+      addColumn(tableName: 'animal') {
+        column(name: 'monkey_status', type: 'varchar(98)')
+      }
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof AddColumnChange
+    assertNull changes[0].schemaName
+    assertEquals 'animal', changes[0].tableName
+    def columns = changes[0].columns
+    assertNotNull columns
+    assertEquals 1, columns.size()
+  }
+
+
+  @Test void addColumnIncludingTablespace() {
+    buildChangeSet {
       addColumn(schemaName: 'oracle_use_only', tableName: 'animal') {
         column(name: 'monkey_status', type: 'varchar(98)')
       }
     }
-    
+
     def changes = changeSet.changes
     assertNotNull changes
     assertEquals 1, changes.size()
@@ -65,6 +85,25 @@ class StructuralRefactoringTests {
     assertNotNull columns
     assertEquals 1, columns.size()
   }
+
+
+
+  @Test void renameColumn() {
+    buildChangeSet {
+      renameColumn(tableName: 'monkey', oldColumnName: 'fail', newColumnName: 'win', columnDataType: 'varchar(9001)')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof RenameColumnChange
+    assertNull changes[0].schemaName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'fail', changes[0].oldColumnName
+    assertEquals 'win', changes[0].newColumnName
+    assertEquals 'varchar(9001)', changes[0].columnDataType
+  }
+
 
 
   private def buildChangeSet(Closure closure) {

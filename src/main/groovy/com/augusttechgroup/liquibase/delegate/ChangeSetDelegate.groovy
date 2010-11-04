@@ -11,37 +11,45 @@
 package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.core.AddColumnChange
+import liquibase.change.core.RenameColumnChange
 
 
 class ChangeSetDelegate {
   def changeSet
 
+
   void comment(String text) {
     changeSet.comments = text
   }
-  
+
+
   void preConditions(Closure closure) {
 
   }
-  
+
+
   //TODO Verify that this works. Don't fully understand addValidCheckSum() yet...
   void validCheckSum(String checksum) {
     println "ADDING ${checksum} to ${changeSet}"
     changeSet.addValidCheckSum(checksum)
   }
-  
+
+
   void rollback(String sql) {
     changeSet.addRollBackSQL(sql)
   }
 
+
   void rollback(Closure closure) {
     changeSet.addRollBackSQL(closure.call().toString())
   }
+
   
   void rollback(Map params) {
     //TODO implement after changeSet processing is substantially implemented (testing requires it)
   }
-  
+
+
   void addColumn(Map params, Closure closure) {
     def addColumn = new AddColumnChange()
     addColumn.schemaName = params.schemaName
@@ -57,31 +65,43 @@ class ChangeSetDelegate {
     
     changeSet.addChange(addColumn)
   }
-  
+
+
   void renameColumn(Map params) {
-    
+    def renameColumn = new RenameColumnChange()
+    ['schemaName', 'tableName', 'oldColumnName', 'newColumnName', 'columnDataType'].each { paramName ->
+      renameColumn[paramName] = params[paramName]
+    }
+
+    changeSet.addChange(renameColumn)
   }
-  
+
+
   void modifyColumn(Map params, Closure closure) {
     
   }
-  
+
+
   void dropColumn(Map params) {
     
   }
-  
+
+
   void alterSequence(Map params) {
     
   }
-  
+
+
   void createTable(Map params, Closure closure) {
     
   }
-  
+
+
   void renameTable(Map params) {
     
   }
-  
+
+
   void dropTable(Map params) {
     
   }
