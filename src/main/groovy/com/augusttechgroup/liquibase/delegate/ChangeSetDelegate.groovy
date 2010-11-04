@@ -47,11 +47,13 @@ class ChangeSetDelegate {
     addColumn.schemaName = params.schemaName
     addColumn.tableName = params.tableName
 
-    def change = new AddColumnChange()
-
-    def columnDelegate = new ColumnDelegate(change, params)
+    def columnDelegate = new ColumnDelegate()
     closure.delegate = columnDelegate
     closure.call()
+
+    columnDelegate.columns.each { column ->
+      addColumn.addColumn(column)
+    }
     
     changeSet.addChange(addColumn)
   }

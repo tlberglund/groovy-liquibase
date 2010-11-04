@@ -222,4 +222,34 @@ class ColumnDelegateTests
   }
 
 
+  @Test
+  void buildMultipleColumns() {
+    def closure = {
+      column(name: 'column-1', type: 'varchar', value: 'value')
+      column(name: 'column-2', type: 'integer', valueNumeric: 42)
+      column(name: 'column-3', type: 'boolean', valueBoolean: true)
+    }
+
+    def columnDelegate = new ColumnDelegate()
+    closure.delegate = columnDelegate
+    closure.call()
+
+    def columns = columnDelegate.columns
+    assertNotNull columns
+    assertEquals 3, columns.size()
+    assertTrue columns[0] instanceof ColumnConfig
+    assertTrue columns[1] instanceof ColumnConfig
+    assertTrue columns[2] instanceof ColumnConfig
+
+    assertEquals 'column-1', columns[0].name
+    assertEquals 'varchar', columns[0].type
+    assertEquals 'value', columns[0].value
+    assertEquals 'column-2', columns[1].name
+    assertEquals 'integer', columns[1].type
+    assertEquals 42, columns[1].valueNumeric
+    assertEquals 'column-3', columns[2].name
+    assertEquals 'boolean', columns[2].type
+    assertTrue columns[2].valueBoolean
+  }
+
 }
