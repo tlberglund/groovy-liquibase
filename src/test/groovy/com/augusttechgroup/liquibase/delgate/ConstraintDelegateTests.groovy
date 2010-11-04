@@ -48,6 +48,39 @@ class ConstraintDelegateTests
   }
 
 
+  @Test
+  void primaryKeyConstraintFromClosureWithMultipleCalls() {
+    def closure = {
+      constraint {
+        nullable(false)
+      }
+      constraint {
+        primaryKey(true)
+      }
+    }
+
+    def delegate = new ConstraintDelegate()
+    closure.delegate = delegate
+    closure.call()
+
+    def constraint = delegate.constraint
+    assertNotNull constraint
+    assertTrue constraint instanceof ConstraintsConfig
+    assertFalse constraint.nullable
+    assertTrue constraint.isPrimaryKey()
+    assertNull constraint.primaryKeyName
+    assertNull constraint.primaryKeyTablespace
+    assertNull constraint.references
+    assertFalse constraint.isUnique()
+    assertNull constraint.uniqueConstraintName
+    assertNull constraint.check
+    assertFalse constraint.deleteCascade
+    assertNull constraint.foreignKeyName
+    assertFalse constraint.initiallyDeferred
+    assertFalse constraint.isDeferrable()
+  }
+
+
 
   @Test
   void simplePrimaryKeyConstraintFromMap() {
