@@ -23,11 +23,11 @@ class ConstraintDelegate {
                                        deleteCascade: false,
                                        initiallyDeferred: false,
                                        deferrable: false,
-                                       nullable: false)
+                                       nullable: true)
   }
 
 
-  def constraint(Map params) {
+  def constraint(Map params = [:]) {
     params.each { key, value ->
       constraint[key] = value
     }

@@ -14,10 +14,39 @@ import org.junit.Test
 import static org.junit.Assert.*
 
 import liquibase.change.ConstraintsConfig
-import org.junit.Ignore
+
 
 class ConstraintDelegateTests
 {
+
+
+  @Test
+  void verifyDefaultConstraints() {
+    def closure = {
+      constraint()
+    }
+
+    def delegate = new ConstraintDelegate()
+    closure.delegate = delegate
+    closure.call()
+
+    def constraint = delegate.constraint
+    assertNotNull constraint
+    assertTrue constraint instanceof ConstraintsConfig
+    assertTrue constraint.isNullable()
+    assertFalse constraint.isPrimaryKey()
+    assertNull constraint.primaryKeyName
+    assertNull constraint.primaryKeyTablespace
+    assertNull constraint.references
+    assertFalse constraint.isUnique()
+    assertNull constraint.uniqueConstraintName
+    assertNull constraint.check
+    assertFalse constraint.isDeleteCascade()
+    assertNull constraint.foreignKeyName
+    assertFalse constraint.isInitiallyDeferred()
+    assertFalse constraint.isDeferrable()
+  }
+
 
   @Test
   void primaryKeyConstraintFromMapWithMultipleCalls() {
@@ -33,7 +62,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertFalse constraint.nullable
+    assertFalse constraint.isNullable()
     assertTrue constraint.isPrimaryKey()
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
@@ -41,9 +70,9 @@ class ConstraintDelegateTests
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
     assertNull constraint.check
-    assertFalse constraint.deleteCascade
+    assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
-    assertFalse constraint.initiallyDeferred
+    assertFalse constraint.isInitiallyDeferred()
     assertFalse constraint.isDeferrable()
   }
 
@@ -66,7 +95,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertFalse constraint.nullable
+    assertFalse constraint.isNullable()
     assertTrue constraint.isPrimaryKey()
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
@@ -74,9 +103,9 @@ class ConstraintDelegateTests
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
     assertNull constraint.check
-    assertFalse constraint.deleteCascade
+    assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
-    assertFalse constraint.initiallyDeferred
+    assertFalse constraint.isInitiallyDeferred()
     assertFalse constraint.isDeferrable()
   }
 
@@ -95,7 +124,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertFalse constraint.nullable
+    assertFalse constraint.isNullable()
     assertTrue constraint.isPrimaryKey()
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
@@ -103,9 +132,9 @@ class ConstraintDelegateTests
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
     assertNull constraint.check
-    assertFalse constraint.deleteCascade
+    assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
-    assertFalse constraint.initiallyDeferred
+    assertFalse constraint.isInitiallyDeferred()
     assertFalse constraint.isDeferrable()
   }
 
@@ -134,9 +163,9 @@ class ConstraintDelegateTests
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
     assertNull constraint.check
-    assertFalse constraint.deleteCascade
+    assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
-    assertFalse constraint.initiallyDeferred
+    assertFalse constraint.isInitiallyDeferred()
     assertFalse constraint.isDeferrable()
   }
 
@@ -154,7 +183,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertFalse constraint.nullable
+    assertFalse constraint.isNullable()
     assertTrue constraint.isPrimaryKey()
     assertEquals 'primary_key', constraint.primaryKeyName
     assertEquals 'key_tablespace', constraint.primaryKeyTablespace
@@ -162,9 +191,9 @@ class ConstraintDelegateTests
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
     assertNull constraint.check
-    assertFalse constraint.deleteCascade
+    assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
-    assertFalse constraint.initiallyDeferred
+    assertFalse constraint.isInitiallyDeferred()
     assertFalse constraint.isDeferrable()
   }
 
@@ -187,7 +216,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertFalse constraint.nullable
+    assertFalse constraint.isNullable()
     assertTrue constraint.isPrimaryKey()
     assertEquals 'primary_key', constraint.primaryKeyName
     assertEquals 'key_tablespace', constraint.primaryKeyTablespace
@@ -195,9 +224,9 @@ class ConstraintDelegateTests
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
     assertNull constraint.check
-    assertFalse constraint.deleteCascade
+    assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
-    assertFalse constraint.initiallyDeferred
+    assertFalse constraint.isInitiallyDeferred()
     assertFalse constraint.isDeferrable()
   }
 
@@ -215,7 +244,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertTrue constraint.nullable
+    assertTrue constraint.isNullable()
     assertFalse constraint.isPrimaryKey()
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
@@ -250,7 +279,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertTrue constraint.nullable
+    assertTrue constraint.isNullable()
     assertFalse constraint.isPrimaryKey()
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
@@ -278,7 +307,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertFalse constraint.isNullable()
+    assertTrue constraint.isNullable()
     assertFalse constraint.isPrimaryKey()
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
@@ -310,7 +339,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertFalse constraint.isNullable()
+    assertTrue constraint.isNullable()
     assertFalse constraint.isPrimaryKey()
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
@@ -338,7 +367,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertTrue constraint.nullable
+    assertTrue constraint.isNullable()
     assertFalse constraint.isPrimaryKey()
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
@@ -346,9 +375,9 @@ class ConstraintDelegateTests
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
     assertNull constraint.check
-    assertFalse constraint.deleteCascade
+    assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
-    assertFalse constraint.initiallyDeferred
+    assertFalse constraint.isInitiallyDeferred()
     assertFalse constraint.isDeferrable()
   }
 
@@ -368,7 +397,7 @@ class ConstraintDelegateTests
     def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
-    assertTrue constraint.nullable
+    assertTrue constraint.isNullable()
     assertFalse constraint.isPrimaryKey()
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
@@ -376,11 +405,9 @@ class ConstraintDelegateTests
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
     assertNull constraint.check
-    assertFalse constraint.deleteCascade
+    assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
-    assertFalse constraint.initiallyDeferred
+    assertFalse constraint.isInitiallyDeferred()
     assertFalse constraint.isDeferrable()
   }
-
-
 }

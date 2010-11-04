@@ -141,4 +141,36 @@ class ColumnDelegateTests
     assertEquals 'No boolean comment', column.remarks
   }
 
+
+  @Test
+  void buildStringColumnWithConstraintsInMap() {
+    def closure = {
+      column(name: 'column-name',
+             type: 'varchar',
+             value: 'value',
+             defaultValue: 'default-string-value',
+             autoIncrement: true,
+             remarks: 'No comment') {
+        constraints(nullable: true)
+      }
+    }
+
+    def columnDelegate = new ColumnDelegate()
+    closure.delegate = columnDelegate
+    closure.call()
+
+    def columns = columnDelegate.columns
+    assertNotNull columns
+    assertEquals 1, columns.size()
+    def column = columns[0]
+    assertTrue column instanceof ColumnConfig
+
+    assertEquals 'column-name', column.name
+    assertEquals 'varchar', column.type
+    assertEquals 'value', column.value
+    assertEquals 'default-string-value', column.defaultValue
+    assertTrue column.autoIncrement
+    assertEquals 'No comment', column.remarks
+  }
+
 }
