@@ -24,6 +24,13 @@ class ColumnDelegate {
       column[key] = value
     }
 
+    if(closure) {
+      def constraintDelegate = new ConstraintDelegate()
+      closure.delegate = constraintDelegate
+      closure.call()
+      column.constraints = constraintDelegate.constraint
+    }
+
     columns << column
   }
 

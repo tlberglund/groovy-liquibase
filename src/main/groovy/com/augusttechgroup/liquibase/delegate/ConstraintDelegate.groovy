@@ -27,14 +27,14 @@ class ConstraintDelegate {
   }
 
 
-  def constraint(Map params = [:]) {
+  def constraints(Map params = [:]) {
     params.each { key, value ->
       constraint[key] = value
     }
   }
 
 
-  def constraint(Closure closure) {
+  def constraints(Closure closure) {
     closure.delegate = this
     closure.call()
   }

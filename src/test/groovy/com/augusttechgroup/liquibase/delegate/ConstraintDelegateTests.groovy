@@ -23,7 +23,7 @@ class ConstraintDelegateTests
   @Test
   void verifyDefaultConstraints() {
     def closure = {
-      constraint()
+      constraints()
     }
 
     def delegate = new ConstraintDelegate()
@@ -51,8 +51,8 @@ class ConstraintDelegateTests
   @Test
   void primaryKeyConstraintFromMapWithMultipleCalls() {
     def closure = {
-      constraint(nullable: false)
-      constraint(primaryKey: true)
+      constraints(nullable: false)
+      constraints(primaryKey: true)
     }
 
     def delegate = new ConstraintDelegate()
@@ -80,10 +80,10 @@ class ConstraintDelegateTests
   @Test
   void primaryKeyConstraintFromClosureWithMultipleCalls() {
     def closure = {
-      constraint {
+      constraints {
         nullable(false)
       }
-      constraint {
+      constraints {
         primaryKey(true)
       }
     }
@@ -114,7 +114,7 @@ class ConstraintDelegateTests
   @Test
   void simplePrimaryKeyConstraintFromMap() {
     def closure = {
-      constraint(nullable: false, primaryKey: true)
+      constraints(nullable: false, primaryKey: true)
     }
 
     def delegate = new ConstraintDelegate()
@@ -142,7 +142,7 @@ class ConstraintDelegateTests
   @Test
   void simplePrimaryKeyConstraintFromClosure() {
     def closure = {
-      constraint {
+      constraints {
         nullable(false)
         primaryKey(true)
       }
@@ -173,7 +173,7 @@ class ConstraintDelegateTests
   @Test
   void richPrimaryKeyConstraintFromMap() {
     def closure = {
-      constraint(nullable: false, primaryKey: true, primaryKeyName: 'primary_key', primaryKeyTablespace: 'key_tablespace')
+      constraints(nullable: false, primaryKey: true, primaryKeyName: 'primary_key', primaryKeyTablespace: 'key_tablespace')
     }
 
     def delegate = new ConstraintDelegate()
@@ -201,7 +201,7 @@ class ConstraintDelegateTests
   @Test
   void richPrimaryKeyConstraintFromClosure() {
     def closure = {
-      constraint {
+      constraints {
         nullable(false)
         primaryKey(true)
         primaryKeyName('primary_key')
@@ -234,7 +234,7 @@ class ConstraintDelegateTests
   @Test
   void foreignKeyConstraintFromMap() {
     def closure = {
-      constraint(nullable: true, foreignKeyName: 'foreign_key', references: 'monkey(id)', deleteCascade: true, deferrable: true, initiallyDeferred: true)
+      constraints(nullable: true, foreignKeyName: 'foreign_key', references: 'monkey(id)', deleteCascade: true, deferrable: true, initiallyDeferred: true)
     }
 
     def delegate = new ConstraintDelegate()
@@ -262,7 +262,7 @@ class ConstraintDelegateTests
   @Test
   void foreignKeyConstraintFromClosure() {
     def closure = {
-      constraint {
+      constraints {
         nullable(true)
         foreignKeyName('foreign_key')
         references('monkey(id)')
@@ -297,7 +297,7 @@ class ConstraintDelegateTests
   @Test
   void uniqueConstraintFromMap() {
     def closure = {
-      constraint(unique: true, uniqueConstraintName: 'unique_column', check: 'check')
+      constraints(unique: true, uniqueConstraintName: 'unique_column', check: 'check')
     }
 
     def delegate = new ConstraintDelegate()
@@ -325,7 +325,7 @@ class ConstraintDelegateTests
   @Test
   void uniqueConstraintFromClosure() {
     def closure = {
-      constraint {
+      constraints {
         unique(true)
         uniqueConstraintName('unique_column')
         check('check')
@@ -357,7 +357,7 @@ class ConstraintDelegateTests
   @Test
   void simpleNullableConstraintFromMap() {
     def closure = {
-      constraint(nullable: true)
+      constraints(nullable: true)
     }
 
     def delegate = new ConstraintDelegate()
@@ -385,7 +385,7 @@ class ConstraintDelegateTests
   @Test
   void simpleNullableConstraintFromClosure() {
     def closure = {
-      constraint {
+      constraints {
         nullable(true)
       }
     }

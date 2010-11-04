@@ -15,6 +15,7 @@ import liquibase.change.ColumnConfig
 import org.junit.Test
 import static org.junit.Assert.*
 import java.sql.Timestamp
+import liquibase.change.ConstraintsConfig
 
 
 class ColumnDelegateTests
@@ -151,7 +152,7 @@ class ColumnDelegateTests
              defaultValue: 'default-string-value',
              autoIncrement: true,
              remarks: 'No comment') {
-        constraints(nullable: true)
+        constraints(nullable: false, unique: true)
       }
     }
 
@@ -171,6 +172,54 @@ class ColumnDelegateTests
     assertEquals 'default-string-value', column.defaultValue
     assertTrue column.autoIncrement
     assertEquals 'No comment', column.remarks
+
+    def constraints = column.constraints
+    assertNotNull constraints
+    assertTrue constraints instanceof ConstraintsConfig
+    assertTrue constraints.isUnique()
+    assertFalse constraints.isNullable()
   }
+
+
+  @Test
+  void buildStringColumnWithConstraintsInClosure() {
+    def closure = {
+      column(name: 'column-name',
+             type: 'varchar',
+             value: 'value',
+             defaultValue: 'default-string-value',
+             autoIncrement: true,
+             remarks: 'No comment') {
+        constraints {
+          nullable(false)
+          unique(true)
+        }
+      }
+    }
+
+    def columnDelegate = new ColumnDelegate()
+    closure.delegate = columnDelegate
+    closure.call()
+
+    def columns = columnDelegate.columns
+    assertNotNull columns
+    assertEquals 1, columns.size()
+    def column = columns[0]
+    assertTrue column instanceof ColumnConfig
+
+    assertEquals 'column-name', column.name
+    assertEquals 'varchar', column.type
+    assertEquals 'value', column.value
+    assertEquals 'default-string-value', column.defaultValue
+    assertTrue column.autoIncrement
+    assertEquals 'No comment', column.remarks
+
+    def constraints = column.constraints
+    assertNotNull constraints
+    assertTrue constraints instanceof ConstraintsConfig
+    assertTrue constraints.isUnique()
+    assertFalse constraints.isNullable()
+  }
+
 
 }
