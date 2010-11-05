@@ -26,6 +26,9 @@ import liquibase.change.core.DropColumnChange
 import liquibase.change.core.AlterSequenceChange
 import liquibase.change.core.CreateTableChange
 import liquibase.change.ColumnConfig
+import liquibase.change.core.RenameTableChange
+import liquibase.change.core.DropTableChange
+import liquibase.change.core.CreateViewChange
 
 
 class StructuralRefactoringTests {
@@ -169,6 +172,59 @@ class StructuralRefactoringTests {
     assertEquals 'int', columns[1].type
   }
 
+
+  @Test
+  void renameTable() {
+    buildChangeSet {
+      renameTable(schemaName: 'schema', oldTableName: 'fail_table', newTableName: 'win_table')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof RenameTableChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'fail_table', changes[0].oldTableName
+    assertEquals 'win_table', changes[0].newTableName
+  }
+
+
+  @Test
+  void dropTable() {
+    buildChangeSet {
+      dropTable(schemaName: 'schema', tableName: 'fail_table')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof DropTableChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'fail_table', changes[0].tableName
+  }
+
+
+  @Test
+  void createView() {
+    buildChangeSet {
+      createView(schemaName: 'schema', viewName: 'monkey_view', replaceIfExists: true) {
+        "SELECT * FROM monkey WHERE state='angry'"
+      }
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof CreateViewChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'monkey_view', changes[0].viewName
+    assertTrue changes[0].replaceIfExists
+    assertEquals "SELECT * FROM monkey WHERE state='angry'", changes[0].selectQuery
+
+  }
+
+
+  
   private def buildChangeSet(Closure closure) {
     closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
     closure.call()

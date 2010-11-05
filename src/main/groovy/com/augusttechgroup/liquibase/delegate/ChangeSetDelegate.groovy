@@ -15,6 +15,9 @@ import liquibase.change.core.RenameColumnChange
 import liquibase.change.core.DropColumnChange
 import liquibase.change.core.AlterSequenceChange
 import liquibase.change.core.CreateTableChange
+import liquibase.change.core.RenameTableChange
+import liquibase.change.core.DropTableChange
+import liquibase.change.core.CreateViewChange
 
 
 class ChangeSetDelegate {
@@ -86,16 +89,18 @@ class ChangeSetDelegate {
 
 
   void renameTable(Map params) {
-    
+    addMapBasedChange(RenameTableChange, params, ['schemaName', 'oldTableName', 'newTableName'])
   }
 
 
   void dropTable(Map params) {
-    
+    addMapBasedChange(DropTableChange, params, ['schemaName', 'tableName'])
   }
   
   void createView(Map params, Closure closure) {
-    
+    def change = makeChangeFromMap(CreateViewChange, params, ['schemaName', 'viewName', 'replaceIfExists'])
+    change.selectQuery = closure.call()
+    changeSet.addChange(change)
   }
   
   void renameView(Map params) {
