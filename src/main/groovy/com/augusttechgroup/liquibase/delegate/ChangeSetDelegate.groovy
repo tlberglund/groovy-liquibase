@@ -12,6 +12,9 @@ package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.core.AddColumnChange
 import liquibase.change.core.RenameColumnChange
+import liquibase.change.core.DropColumnChange
+import liquibase.change.core.AlterSequenceChange
+import liquibase.change.core.CreateTableChange
 
 
 class ChangeSetDelegate {
@@ -51,49 +54,34 @@ class ChangeSetDelegate {
 
 
   void addColumn(Map params, Closure closure) {
-    def addColumn = new AddColumnChange()
-    addColumn.schemaName = params.schemaName
-    addColumn.tableName = params.tableName
-
-    def columnDelegate = new ColumnDelegate()
-    closure.delegate = columnDelegate
-    closure.call()
-
-    columnDelegate.columns.each { column ->
-      addColumn.addColumn(column)
-    }
-    
-    changeSet.addChange(addColumn)
+    def change = makeColumnarChangeFromMap(AddColumnChange, closure, params, ['schemaName', 'tableName'])
+    changeSet.addChange(change)
   }
 
 
   void renameColumn(Map params) {
-    def renameColumn = new RenameColumnChange()
-    ['schemaName', 'tableName', 'oldColumnName', 'newColumnName', 'columnDataType'].each { paramName ->
-      renameColumn[paramName] = params[paramName]
-    }
-
-    changeSet.addChange(renameColumn)
+    addMapBasedChange(RenameColumnChange, params, ['schemaName', 'tableName', 'oldColumnName', 'newColumnName', 'columnDataType'])
   }
 
 
   void modifyColumn(Map params, Closure closure) {
-    
+    //TODO Figure out how the heck modifyColumn works.
   }
 
 
   void dropColumn(Map params) {
-    
+    addMapBasedChange(DropColumnChange, params, ['schemaName', 'tableName', 'columnName'])
   }
 
 
   void alterSequence(Map params) {
-    
+    addMapBasedChange(AlterSequenceChange, params, ['sequenceName', 'incrementBy'])
   }
 
 
   void createTable(Map params, Closure closure) {
-    
+    def change = makeColumnarChangeFromMap(CreateTableChange, closure, params, ['schemaName', 'tablespace', 'tableName', 'remarks'])
+    changeSet.addChange(change)
   }
 
 
@@ -242,5 +230,36 @@ class ChangeSetDelegate {
   void executeCommand(Map params, Closure closure) {
     
   }
+
+
+  def makeColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
+    def change = makeChangeFromMap(klass, params, paramNames)
+
+    def columnDelegate = new ColumnDelegate()
+    closure.delegate = columnDelegate
+    closure.call()
+
+    columnDelegate.columns.each { column ->
+      change.addColumn(column)
+    }
+
+    return change
+  }
+
   
+  private def makeChangeFromMap(Class klass, Map sourceMap, List paramNames) {
+    def change = klass.newInstance()
+    paramNames.each { name ->
+      change[name] = sourceMap[name]
+    }
+
+    return change
+  }
+
+
+  private void addMapBasedChange(Class klass, Map sourceMap, List paramNames) {
+    changeSet.addChange(makeChangeFromMap(klass, sourceMap, paramNames))
+  }
+
+
 }
