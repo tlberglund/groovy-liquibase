@@ -10,40 +10,34 @@
 
 package com.augusttechgroup.liquibase.delegate
 
-import com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser
-
-import liquibase.parser.ChangeLogParserFactory
-import liquibase.resource.FileSystemResourceAccessor
 import liquibase.changelog.ChangeSet
 import liquibase.change.core.AddColumnChange
 
 import org.junit.Test
 import org.junit.Before
-import org.junit.Ignore
 import static org.junit.Assert.*
+
+import liquibase.change.ColumnConfig
 import liquibase.change.core.RenameColumnChange
 import liquibase.change.core.DropColumnChange
 import liquibase.change.core.AlterSequenceChange
 import liquibase.change.core.CreateTableChange
-import liquibase.change.ColumnConfig
 import liquibase.change.core.RenameTableChange
 import liquibase.change.core.DropTableChange
 import liquibase.change.core.CreateViewChange
+import liquibase.change.core.RenameViewChange
+import liquibase.change.core.DropViewChange
+import liquibase.change.core.MergeColumnChange
+import liquibase.change.core.CreateProcedureChange
 
 
 class StructuralRefactoringTests {
 
-  def resourceAccessor
-  def parserFactory
   def changeSet
     
 
   @Before
   void registerParser() {
-    resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
-    parserFactory = ChangeLogParserFactory.instance
-    ChangeLogParserFactory.getInstance().register(new GroovyLiquibaseChangeLogParser())
-
 		changeSet = new ChangeSet(
 		  'generic-changeset-id',
 		  'tlberglund',
@@ -220,9 +214,79 @@ class StructuralRefactoringTests {
     assertEquals 'monkey_view', changes[0].viewName
     assertTrue changes[0].replaceIfExists
     assertEquals "SELECT * FROM monkey WHERE state='angry'", changes[0].selectQuery
-
   }
 
+
+  @Test
+  void renameView() {
+    buildChangeSet {
+      renameView(schemaName: 'schema', oldViewName: 'fail_view', newViewName: 'win_view')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof RenameViewChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'fail_view', changes[0].oldViewName
+    assertEquals 'win_view', changes[0].newViewName
+  }
+
+
+  @Test
+  void dropView() {
+    buildChangeSet {
+      dropView(schemaName: 'schema', viewName: 'fail_view')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof DropViewChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'fail_view', changes[0].viewName
+  }
+
+
+  @Test
+  void mergeColumns() {
+   // mergeColumns(schemaName: '', tableName: '', column1Name: '', column2Name: '', finalColumnName: '', finalColumnType: '', joinString: ' ')
+    buildChangeSet {
+      mergeColumns(schemaName: 'schema', tableName: 'table', column1Name: 'first_name', column2Name: 'last_name', finalColumnName: 'full_name', finalColumnType: 'varchar(99)', joinString: ' ')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof MergeColumnChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'table', changes[0].tableName
+    assertEquals 'first_name', changes[0].column1Name
+    assertEquals 'last_name', changes[0].column2Name
+    assertEquals 'full_name', changes[0].finalColumnName
+    assertEquals 'varchar(99)', changes[0].finalColumnType
+    assertEquals ' ', changes[0].joinString
+  }
+
+
+  @Test
+  void createStoredProcedure() {
+    def sql = """\
+CREATE OR REPLACE PROCEDURE testMonkey
+IS
+BEGIN
+ -- do something with the monkey
+END;"""
+    buildChangeSet {
+      createStoredProcedure sql
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof CreateProcedureChange
+    assertEquals sql, changes[0].procedureBody
+  }
 
   
   private def buildChangeSet(Closure closure) {

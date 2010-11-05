@@ -18,6 +18,10 @@ import liquibase.change.core.CreateTableChange
 import liquibase.change.core.RenameTableChange
 import liquibase.change.core.DropTableChange
 import liquibase.change.core.CreateViewChange
+import liquibase.change.core.RenameViewChange
+import liquibase.change.core.DropViewChange
+import liquibase.change.core.MergeColumnChange
+import liquibase.change.core.CreateProcedureChange
 
 
 class ChangeSetDelegate {
@@ -97,27 +101,35 @@ class ChangeSetDelegate {
     addMapBasedChange(DropTableChange, params, ['schemaName', 'tableName'])
   }
   
+
   void createView(Map params, Closure closure) {
     def change = makeChangeFromMap(CreateViewChange, params, ['schemaName', 'viewName', 'replaceIfExists'])
     change.selectQuery = closure.call()
     changeSet.addChange(change)
   }
-  
+
+
   void renameView(Map params) {
-    
+    addMapBasedChange(RenameViewChange, params, ['schemaName', 'oldViewName', 'newViewName'])
   }
-  
+
+
   void dropView(Map params) {
-    
+    addMapBasedChange(DropViewChange, params, ['schemaName', 'viewName'])
   }
-  
+
+
   void mergeColumns(Map params) {
-    
+    addMapBasedChange(MergeColumnChange, params, ['schemaName', 'tableName', 'column1Name', 'column2Name', 'finalColumnName', 'finalColumnType', 'joinString'])
   }
-  
+
+
   void createStoredProcedure(String storedProc) {
-    
+    def change = new CreateProcedureChange()
+    change.procedureBody = storedProc
+    changeSet.addChange(change)
   }
+
   
   void addLookupTable(Map params) {
     
