@@ -50,6 +50,7 @@ class StructuralRefactoringTests {
 		  true)
   }
 
+
   @Test void addMinimalColumnWithoutConstraints() {
     buildChangeSet {
       addColumn(tableName: 'animal') {

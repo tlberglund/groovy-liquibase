@@ -83,9 +83,6 @@ class GroovyLiquibaseChangeLogParser
         case 'include':
           break
           
-        case 'changeSet':
-          break
-          
         default:
           throw new ChangeLogParseException("Unrecognized root element ${name}")
           break

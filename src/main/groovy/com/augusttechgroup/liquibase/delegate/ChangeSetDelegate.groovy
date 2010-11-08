@@ -22,6 +22,8 @@ import liquibase.change.core.RenameViewChange
 import liquibase.change.core.DropViewChange
 import liquibase.change.core.MergeColumnChange
 import liquibase.change.core.CreateProcedureChange
+import liquibase.change.core.AddLookupTableChange
+import liquibase.change.core.AddNotNullConstraintChange
 
 
 class ChangeSetDelegate {
@@ -132,11 +134,11 @@ class ChangeSetDelegate {
 
   
   void addLookupTable(Map params) {
-    
+    addMapBasedChange(AddLookupTableChange, params, ['existingTableName', 'existingTableSchemaName', 'existingColumnName', 'newTableName', 'newTableSchemaName', 'newColumnName', 'newColumnDataType', 'constraintName'])
   }
   
-  void addNotNullConstrains(Map params) {
-    
+  void addNotNullConstraint(Map params) {
+    addMapBasedChange(AddNotNullConstraintChange, params, ['schemaName', 'tableName', 'columnName', 'defaultNullValue', 'columnDataType'])
   }
   
   void dropNotNullConstraint(Map params) {
