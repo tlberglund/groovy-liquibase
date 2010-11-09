@@ -36,6 +36,7 @@ import liquibase.change.core.AddForeignKeyConstraintChange
 import liquibase.change.core.DropForeignKeyConstraintChange
 import liquibase.change.core.AddPrimaryKeyChange
 import liquibase.change.core.DropPrimaryKeyChange
+import liquibase.change.core.InsertDataChange
 
 
 class ChangeSetDelegate {
@@ -216,7 +217,8 @@ class ChangeSetDelegate {
 
   
   void insert(Map params, Closure closure) {
-    
+    def change = makeColumnarChangeFromMap(InsertDataChange, closure, params, ['schemaName', 'tableName'])
+    changeSet.addChange(change)
   }
   
   void loadData(Map params, Closure clousre) {
