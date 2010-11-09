@@ -26,6 +26,8 @@ import liquibase.change.core.AddLookupTableChange
 import liquibase.change.core.AddNotNullConstraintChange
 import liquibase.change.core.DropNotNullConstraintChange
 import liquibase.change.core.AddUniqueConstraintChange
+import liquibase.change.core.DropUniqueConstraintChange
+import liquibase.change.core.CreateSequenceChange
 
 
 class ChangeSetDelegate {
@@ -156,11 +158,11 @@ class ChangeSetDelegate {
 
   
   void dropUniqueConstraint(Map params) {
-    
+    addMapBasedChange(DropUniqueConstraintChange, params, ['tableName', 'schemaName', 'constraintName'])
   }
   
   void createSequence(Map params) {
-    
+    addMapBasedChange(CreateSequenceChange, params, ['sequenceName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered', 'startValue'])
   }
   
   void dropSequence(Map params) {

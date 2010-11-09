@@ -19,6 +19,8 @@ import liquibase.change.core.AddLookupTableChange
 import liquibase.change.core.AddNotNullConstraintChange
 import liquibase.change.core.DropNotNullConstraintChange
 import liquibase.change.core.AddUniqueConstraintChange
+import liquibase.change.core.DropUniqueConstraintChange
+import liquibase.change.core.CreateSequenceChange
 
 
 class DataQualityRefactoringTests
@@ -123,6 +125,41 @@ class DataQualityRefactoringTests
     assertEquals 'unique_constraint', changes[0].constraintName
   }
 
+
+  @Test
+  void dropUniqueConstraint() {
+    buildChangeSet {
+      dropUniqueConstraint(tableName: 'table', schemaName: 'schema', constraintName: 'unique_constraint')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof DropUniqueConstraintChange
+    assertEquals 'table', changes[0].tableName
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'unique_constraint', changes[0].constraintName
+  }
+
+
+  @Test
+  void createSequence() {
+    buildChangeSet {
+      createSequence(sequenceName: 'sequence', schemaName: 'schema', incrementBy: 42, minValue: 7, maxValue: 6.023E24, ordered: true, startValue: 8)
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof CreateSequenceChange
+    assertEquals 'sequence', changes[0].sequenceName
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 42G, changes[0].incrementBy
+    assertEquals 7G, changes[0].minValue
+    assertEquals 6023000000000000000000000, changes[0].maxValue
+    assertEquals 8G, changes[0].startValue
+    assertTrue changes[0].ordered
+  }
 
   
   private def buildChangeSet(Closure closure) {
