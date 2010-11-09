@@ -18,6 +18,7 @@ import liquibase.changelog.ChangeSet
 import liquibase.change.core.AddForeignKeyConstraintChange
 import liquibase.change.core.DropForeignKeyConstraintChange
 import liquibase.change.core.AddPrimaryKeyChange
+import liquibase.change.core.DropPrimaryKeyChange
 
 
 class ReferentialIntegrityRefactoringTests
@@ -120,6 +121,22 @@ class ReferentialIntegrityRefactoringTests
     assertEquals 'schema', changes[0].schemaName
     assertEquals 'tablespace', changes[0].tablespace
     assertEquals 'id', changes[0].columnNames
+  }
+
+
+  @Test
+  void dropPrimaryKey() {
+    buildChangeSet {
+      dropPrimaryKey(tableName: 'monkey', schemaName: 'schema', constraintName: 'pk_monkey')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof DropPrimaryKeyChange
+    assertEquals 'pk_monkey', changes[0].constraintName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'schema', changes[0].schemaName
   }
 
 

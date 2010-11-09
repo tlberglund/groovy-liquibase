@@ -35,6 +35,7 @@ import liquibase.change.core.DropDefaultValueChange
 import liquibase.change.core.AddForeignKeyConstraintChange
 import liquibase.change.core.DropForeignKeyConstraintChange
 import liquibase.change.core.AddPrimaryKeyChange
+import liquibase.change.core.DropPrimaryKeyChange
 
 
 class ChangeSetDelegate {
@@ -210,8 +211,9 @@ class ChangeSetDelegate {
 
   
   void dropPrimaryKey(Map params) {
-    
+   addMapBasedChange(DropPrimaryKeyChange, params, ['tableName', 'schemaName', 'constraintName']) 
   }
+
   
   void insert(Map params, Closure closure) {
     
