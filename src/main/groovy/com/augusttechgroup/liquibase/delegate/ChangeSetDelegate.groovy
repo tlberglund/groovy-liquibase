@@ -29,6 +29,9 @@ import liquibase.change.core.AddUniqueConstraintChange
 import liquibase.change.core.DropUniqueConstraintChange
 import liquibase.change.core.CreateSequenceChange
 import liquibase.change.core.DropSequenceChange
+import liquibase.change.core.AddAutoIncrementChange
+import liquibase.change.core.AddDefaultValueChange
+import liquibase.change.core.DropDefaultValueChange
 
 
 class ChangeSetDelegate {
@@ -161,26 +164,32 @@ class ChangeSetDelegate {
   void dropUniqueConstraint(Map params) {
     addMapBasedChange(DropUniqueConstraintChange, params, ['tableName', 'schemaName', 'constraintName'])
   }
-  
+
+
   void createSequence(Map params) {
     addMapBasedChange(CreateSequenceChange, params, ['sequenceName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered', 'startValue'])
   }
-  
+
+
   void dropSequence(Map params) {
     addMapBasedChange(DropSequenceChange, params, ['sequenceName'])
   }
   
+
   void addAutoIncrement(Map params) {
-    
+    addMapBasedChange(AddAutoIncrementChange, params, ['tableName', 'columnName', 'columnDataType'])
   }
-  
+
+
   void addDefaultValue(Map params) {
-    
+    addMapBasedChange(AddDefaultValueChange, params, ['tableName', 'schemaName', 'columnName', 'defaultValue', 'defaultValueNumeric', 'defaultValueBoolean', 'defaultValueDate'])
   }
-  
+
+
   void dropDefaultValue(Map params) {
-    
+    addMapBasedChange(DropDefaultValueChange, params, ['tableName', 'schemaName', 'columnName'])
   }
+
   
   void addForeignKeyConstraint(Map params) {
     

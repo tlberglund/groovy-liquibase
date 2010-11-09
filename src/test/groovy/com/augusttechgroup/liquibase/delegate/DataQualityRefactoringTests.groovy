@@ -22,6 +22,9 @@ import liquibase.change.core.AddUniqueConstraintChange
 import liquibase.change.core.DropUniqueConstraintChange
 import liquibase.change.core.CreateSequenceChange
 import liquibase.change.core.DropSequenceChange
+import liquibase.change.core.AddAutoIncrementChange
+import liquibase.change.core.AddDefaultValueChange
+import liquibase.change.core.DropDefaultValueChange
 
 
 class DataQualityRefactoringTests
@@ -176,7 +179,108 @@ class DataQualityRefactoringTests
     assertEquals 'sequence', changes[0].sequenceName
   }
 
-  
+
+
+  @Test
+  void addAutoIncrement() {
+    buildChangeSet {
+      addAutoIncrement(tableName: 'monkey', columnName: 'angry', columnDataType: 'boolean')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof AddAutoIncrementChange
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'angry', changes[0].columnName
+    assertEquals 'boolean', changes[0].columnDataType
+  }
+
+
+  @Test
+  void addDefaultValueString() {
+    buildChangeSet {
+      addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'emotion', defaultValue: 'angry')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof AddDefaultValueChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'emotion', changes[0].columnName
+    assertEquals 'angry', changes[0].defaultValue
+  }
+
+
+  @Test
+  void addDefaultValueNumeric() {
+    buildChangeSet {
+      addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'strength', defaultValueNumeric: 2.718281828459045G)
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof AddDefaultValueChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'strength', changes[0].columnName
+    assertEquals '2.718281828459045', changes[0].defaultValueNumeric
+  }
+
+
+  @Test
+  void addDefaultValueBoolean() {
+    buildChangeSet {
+      addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'strength', defaultValueBoolean: true)
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof AddDefaultValueChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'strength', changes[0].columnName
+    assertTrue changes[0].defaultValueBoolean
+  }
+
+
+  @Test
+  void addDefaultValueDate() {
+    buildChangeSet {
+      addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'birthdate', defaultValueDate: '20101109T130400Z')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof AddDefaultValueChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'birthdate', changes[0].columnName
+    assertEquals '20101109T130400Z', changes[0].defaultValueDate
+  }
+
+
+  @Test
+  void dropDefaultValueDate() {
+    buildChangeSet {
+      dropDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'emotion')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof DropDefaultValueChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'emotion', changes[0].columnName
+  }
+
+
   private def buildChangeSet(Closure closure) {
     closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
     closure.call()
