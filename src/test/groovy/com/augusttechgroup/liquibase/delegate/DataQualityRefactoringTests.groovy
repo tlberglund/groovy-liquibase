@@ -17,6 +17,8 @@ import static org.junit.Assert.*
 import liquibase.changelog.ChangeSet
 import liquibase.change.core.AddLookupTableChange
 import liquibase.change.core.AddNotNullConstraintChange
+import liquibase.change.core.DropNotNullConstraintChange
+import liquibase.change.core.AddUniqueConstraintChange
 
 
 class DataQualityRefactoringTests
@@ -84,9 +86,45 @@ class DataQualityRefactoringTests
     assertEquals 'emotion', changes[0].columnName
     assertEquals 'angry', changes[0].defaultNullValue
     assertEquals 'varchar(75)', changes[0].columnDataType
-
   }
 
+
+  @Test
+  void dropNotNullConstraint() {
+    buildChangeSet {
+      dropNotNullConstraint(schemaName: 'schema', tableName: 'monkey', columnName: 'emotion', columnDataType: 'varchar(75)')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof DropNotNullConstraintChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'emotion', changes[0].columnName
+    assertEquals 'varchar(75)', changes[0].columnDataType
+  }
+
+
+  @Test
+  void addUniqueConstraint() {
+    buildChangeSet {
+      addUniqueConstraint(tablespace: 'tablespace', schemaName: 'schema', tableName: 'monkey', columnNames: 'species, emotion', constraintName: 'unique_constraint')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof AddUniqueConstraintChange
+    assertEquals 'tablespace', changes[0].tablespace
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'species, emotion', changes[0].columnNames
+    assertEquals 'unique_constraint', changes[0].constraintName
+  }
+
+
+  
   private def buildChangeSet(Closure closure) {
     closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
     closure.call()
