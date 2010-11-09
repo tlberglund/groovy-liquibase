@@ -32,6 +32,9 @@ import liquibase.change.core.DropSequenceChange
 import liquibase.change.core.AddAutoIncrementChange
 import liquibase.change.core.AddDefaultValueChange
 import liquibase.change.core.DropDefaultValueChange
+import liquibase.change.core.AddForeignKeyConstraintChange
+import liquibase.change.core.DropForeignKeyConstraintChange
+import liquibase.change.core.AddPrimaryKeyChange
 
 
 class ChangeSetDelegate {
@@ -192,16 +195,19 @@ class ChangeSetDelegate {
 
   
   void addForeignKeyConstraint(Map params) {
-    
+    addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'deleteCascade', 'onDelete', 'onUpdate'])
   }
-  
+
+
   void dropForeignKeyConstraint(Map params) {
-    
+    addMapBasedChange(DropForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableSchemaName'])
   }
+
   
   void addPrimaryKey(Map params) {
-    
+    addMapBasedChange(AddPrimaryKeyChange, params, ['tableName', 'schemaName', 'columnNames', 'constraintName', 'tablespace'])  
   }
+
   
   void dropPrimaryKey(Map params) {
     
@@ -287,7 +293,9 @@ class ChangeSetDelegate {
   private def makeChangeFromMap(Class klass, Map sourceMap, List paramNames) {
     def change = klass.newInstance()
     paramNames.each { name ->
-      change[name] = sourceMap[name]
+      if(sourceMap[name] != null) {
+        change[name] = sourceMap[name]
+      }
     }
 
     return change
