@@ -28,6 +28,7 @@ import liquibase.change.core.DropNotNullConstraintChange
 import liquibase.change.core.AddUniqueConstraintChange
 import liquibase.change.core.DropUniqueConstraintChange
 import liquibase.change.core.CreateSequenceChange
+import liquibase.change.core.DropSequenceChange
 
 
 class ChangeSetDelegate {
@@ -166,7 +167,7 @@ class ChangeSetDelegate {
   }
   
   void dropSequence(Map params) {
-    
+    addMapBasedChange(DropSequenceChange, params, ['sequenceName'])
   }
   
   void addAutoIncrement(Map params) {

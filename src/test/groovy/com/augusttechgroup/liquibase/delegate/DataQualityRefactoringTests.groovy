@@ -21,6 +21,7 @@ import liquibase.change.core.DropNotNullConstraintChange
 import liquibase.change.core.AddUniqueConstraintChange
 import liquibase.change.core.DropUniqueConstraintChange
 import liquibase.change.core.CreateSequenceChange
+import liquibase.change.core.DropSequenceChange
 
 
 class DataQualityRefactoringTests
@@ -159,6 +160,20 @@ class DataQualityRefactoringTests
     assertEquals 6023000000000000000000000, changes[0].maxValue
     assertEquals 8G, changes[0].startValue
     assertTrue changes[0].ordered
+  }
+
+
+  @Test
+  void dropSequence() {
+    buildChangeSet {
+      dropSequence(sequenceName: 'sequence')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof DropSequenceChange
+    assertEquals 'sequence', changes[0].sequenceName
   }
 
   
