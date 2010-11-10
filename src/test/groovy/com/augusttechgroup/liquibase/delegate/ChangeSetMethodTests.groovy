@@ -12,15 +12,11 @@ package com.augusttechgroup.liquibase.delegate
 
 import com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser
 
-import liquibase.exception.ChangeLogParseException
-import liquibase.parser.ChangeLogParser
 import liquibase.parser.ChangeLogParserFactory
 import liquibase.resource.FileSystemResourceAccessor
-import liquibase.changelog.DatabaseChangeLog
 import liquibase.changelog.ChangeSet
 import liquibase.change.CheckSum
 import liquibase.change.core.RawSQLChange
-import liquibase.change.core.AddColumnChange
 
 import org.junit.Test
 import org.junit.Before

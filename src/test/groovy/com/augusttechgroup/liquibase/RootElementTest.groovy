@@ -10,17 +10,13 @@
 
 package com.augusttechgroup.liquibase
 
-import com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser
-
 import liquibase.exception.ChangeLogParseException
-import liquibase.parser.ChangeLogParser
 import liquibase.parser.ChangeLogParserFactory
 import liquibase.resource.FileSystemResourceAccessor
 import liquibase.changelog.DatabaseChangeLog
 
 import org.junit.Test
 import org.junit.Before
-import org.junit.Ignore
 import static org.junit.Assert.*
 
 
