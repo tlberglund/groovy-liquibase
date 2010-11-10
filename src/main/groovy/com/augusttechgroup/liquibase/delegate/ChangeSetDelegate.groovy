@@ -40,6 +40,7 @@ import liquibase.change.core.InsertDataChange
 import liquibase.change.core.LoadDataColumnConfig
 import liquibase.change.core.LoadDataChange
 import liquibase.change.core.LoadUpdateDataChange
+import liquibase.change.core.UpdateDataChange
 
 
 class ChangeSetDelegate {
@@ -243,9 +244,11 @@ class ChangeSetDelegate {
     def change = makeLoadDataColumnarChangeFromMap(LoadUpdateDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding', 'primaryKey'])
     changeSet.addChange(change)
   }
-  
+
+
   void update(Map params, Closure closure) {
-    
+    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['schemaName', 'tableName'])
+    changeSet.addChange(change)
   }
   
   void delete(Map params, Closure closure) {
@@ -318,6 +321,12 @@ class ChangeSetDelegate {
 
     columnDelegate.columns.each { column ->
       change.addColumn(column)
+    }
+
+    // It is a bit sloppy to do this here from a coherence standpoint, but where clauses mostly
+    // only get used when we are dealing with columns
+    if(columnDelegate.whereClause != null) {
+      change.whereClause = columnDelegate.whereClause
     }
 
     return change

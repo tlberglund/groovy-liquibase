@@ -279,6 +279,25 @@ class ColumnDelegateTests
   }
 
 
+  @Test
+  void columnClosureCanContainWhereClause() {
+    def closure = {
+      column(name: 'monkey', type: 'VARCHAR(50)')
+      where "emotion='angry'"
+    }
+
+    def columnDelegate = new ColumnDelegate()
+    closure.delegate = columnDelegate
+    closure.call()
+
+    def columns = columnDelegate.columns
+    assertNotNull columns
+    assertEquals 1, columns.size()
+    def column = columns[0]
+    assertTrue column instanceof ColumnConfig
+    assertEquals "emotion='angry'", columnDelegate.whereClause
+  }
+
 
   @Test
   void buildloadDataColumnConfigColumnWithIndex() {

@@ -21,6 +21,7 @@ import java.sql.Timestamp
 import liquibase.change.core.LoadDataChange
 import liquibase.change.core.LoadDataColumnConfig
 import liquibase.change.core.LoadUpdateDataChange
+import liquibase.change.core.UpdateDataChange
 
 
 class NonRefactoringTransformationTests
@@ -283,6 +284,43 @@ class NonRefactoringTransformationTests
     assertEquals 'emotion', columns[0].name
     assertEquals 'header_emotion', columns[0].header
     assertEquals 'STRING', columns[0].type
+  }
+
+
+  @Test
+  void updateData() {
+    //TODO make these tests timezone-insensitive
+    def now = '2010-11-02 07:52:04'
+    def sqlNow = new Timestamp(1288702324000)
+    buildChangeSet {
+      update(schemaName: 'schema', tableName: 'monkey') {
+        column(name: 'rfid_tag', valueNumeric: 5023442)
+        column(name: 'emotion', value: 'angry')
+        column(name: 'last_updated', valueDate: now)
+        column(name: 'active', valueBoolean: true)
+        where "id=882"
+      }
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof UpdateDataChange
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'id=882', changes[0].whereClause
+    def columns = changes[0].columns
+    assertNotNull columns
+    assertTrue columns.every { column -> column instanceof ColumnConfig}
+    assertEquals 4, columns.size()
+    assertEquals 'rfid_tag', columns[0].name
+    assertEquals 5023442, columns[0].valueNumeric
+    assertEquals 'emotion', columns[1].name
+    assertEquals 'angry', columns[1].value
+    assertEquals 'last_updated', columns[2].name
+    assertEquals sqlNow, columns[2].valueDate
+    assertEquals 'active', columns[3].name
+    assertTrue columns[3].valueBoolean
   }
 
 

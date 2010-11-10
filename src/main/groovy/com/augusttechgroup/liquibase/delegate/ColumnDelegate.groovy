@@ -16,6 +16,17 @@ import liquibase.change.ColumnConfig
 class ColumnDelegate {
   def columns = []
   def columnConfigClass = ColumnConfig
+  def whereClause
+
+
+  //
+  // This arguably does not cohere with the overall purpose of the class,
+  // but in the whole entire DSL, where clauses pretty much only occur in
+  // column-y (not to be confused with calumny) places.
+  //
+  def where(String whereClause) {
+    this.whereClause = whereClause
+  }
 
 
   def column(Map params, Closure closure = null) {
