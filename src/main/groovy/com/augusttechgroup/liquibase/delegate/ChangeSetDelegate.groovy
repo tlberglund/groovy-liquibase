@@ -46,6 +46,9 @@ import liquibase.change.core.StopChange
 import liquibase.change.core.CreateIndexChange
 import liquibase.change.core.DropIndexChange
 import liquibase.change.core.RawSQLChange
+import liquibase.change.core.SQLFileChange
+import liquibase.change.core.ExecuteShellCommandChange
+import liquibase.change.custom.CustomChangeWrapper
 
 
 class ChangeSetDelegate {
@@ -301,12 +304,27 @@ class ChangeSetDelegate {
 
   
   void sqlFile(Map params) {
-    
+    addMapBasedChange(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter'])
   }
-  
-  void customChange(Map params, Closure closure) {
-    
+
+
+  void customChange(Map params, Closure closure = null) {
+    def change = new CustomChangeWrapper()
+    change.classLoader = this.class.classLoader
+    change.className = params['class']
+
+    if(closure) {
+      def delegate = new KeyValueDelegate()
+      closure.delegate = delegate
+      closure.call()
+      delegate.map.each { key, value ->
+        change.setParam(key, value.toString())
+      }
+    }
+
+    changeSet.addChange(change)
   }
+
 
   /**
    * A Groovy-specific extension that allows a closure to be provided,
@@ -316,9 +334,23 @@ class ChangeSetDelegate {
   void customChange(Closure closure) {
     
   }
+
   
+  void executeCommand(Map params) {
+    addMapBasedChange(ExecuteShellCommandChange, params, ['executable', 'os'])
+  }
+
+
   void executeCommand(Map params, Closure closure) {
-    
+    def change = makeChangeFromMap(ExecuteShellCommandChange, params, ['executable', 'os'])
+    def delegate = new ArgumentDelegate()
+    closure.delegate = delegate
+    closure.call()
+    delegate.args.each { arg ->
+      change.addArg(arg)
+    }
+
+    changeSet.addChange(change)
   }
 
 
