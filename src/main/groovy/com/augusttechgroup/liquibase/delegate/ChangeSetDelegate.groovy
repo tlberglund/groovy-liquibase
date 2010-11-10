@@ -43,6 +43,8 @@ import liquibase.change.core.LoadUpdateDataChange
 import liquibase.change.core.UpdateDataChange
 import liquibase.change.core.TagDatabaseChange
 import liquibase.change.core.StopChange
+import liquibase.change.core.CreateIndexChange
+import liquibase.change.core.DropIndexChange
 
 
 class ChangeSetDelegate {
@@ -273,11 +275,13 @@ class ChangeSetDelegate {
 
   
   void createIndex(Map params, Closure closure) {
-    
+    def change = makeColumnarChangeFromMap(CreateIndexChange, closure, params, ['schemaName', 'tableName', 'tablespace', 'indexName', 'unique'])
+    changeSet.addChange(change)
   }
+
   
   void dropIndex(Map params) {
-    
+    addMapBasedChange(DropIndexChange, params, ['tableName', 'indexName'])  
   }
   
   void sql(Map params, Closure closure) {
