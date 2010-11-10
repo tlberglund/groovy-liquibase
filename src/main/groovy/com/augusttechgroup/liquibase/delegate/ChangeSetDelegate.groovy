@@ -41,6 +41,8 @@ import liquibase.change.core.LoadDataColumnConfig
 import liquibase.change.core.LoadDataChange
 import liquibase.change.core.LoadUpdateDataChange
 import liquibase.change.core.UpdateDataChange
+import liquibase.change.core.TagDatabaseChange
+import liquibase.change.core.StopChange
 
 
 class ChangeSetDelegate {
@@ -259,12 +261,16 @@ class ChangeSetDelegate {
 
   
   void tagDatabase(Map params) {
-    
+    addMapBasedChange(TagDatabaseChange, params, ['tag']) 
   }
-  
-  void stop(Map params) {
-    
+
+
+  void stop(String message) {
+    def change = new StopChange()
+    change.message = message
+    changeSet.addChange(change)
   }
+
   
   void createIndex(Map params, Closure closure) {
     

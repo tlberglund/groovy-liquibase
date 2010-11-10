@@ -22,6 +22,8 @@ import liquibase.change.core.LoadDataChange
 import liquibase.change.core.LoadDataColumnConfig
 import liquibase.change.core.LoadUpdateDataChange
 import liquibase.change.core.UpdateDataChange
+import liquibase.change.core.TagDatabaseChange
+import liquibase.change.core.StopChange
 
 
 class NonRefactoringTransformationTests
@@ -339,6 +341,34 @@ class NonRefactoringTransformationTests
     assertEquals 'monkey', changes[0].tableName
     assertEquals 'schema', changes[0].schemaName
     assertEquals "emotion='angry' AND active=true", changes[0].whereClause
+  }
+
+
+  @Test
+  void tagDatabase() {
+    buildChangeSet {
+      tagDatabase(tag: 'monkey')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof TagDatabaseChange
+    assertEquals 'monkey', changes[0].tag
+  }
+
+
+  @Test
+  void stop() {
+    buildChangeSet {
+      stop 'Stop the refactoring. Just...stop.'
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof StopChange
+    assertEquals 'Stop the refactoring. Just...stop.', changes[0].message
   }
 
 
