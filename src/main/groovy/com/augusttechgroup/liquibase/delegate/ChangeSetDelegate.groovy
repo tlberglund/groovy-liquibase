@@ -39,6 +39,7 @@ import liquibase.change.core.DropPrimaryKeyChange
 import liquibase.change.core.InsertDataChange
 import liquibase.change.core.LoadDataColumnConfig
 import liquibase.change.core.LoadDataChange
+import liquibase.change.core.LoadUpdateDataChange
 
 
 class ChangeSetDelegate {
@@ -228,13 +229,19 @@ class ChangeSetDelegate {
     if(params.file instanceof File) {
       params.file = params.file.canonicalPath
     }
+
     def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding'])
     changeSet.addChange(change)
   }
 
   
   void loadUpdateData(Map params, Closure closure) {
-    
+    if(params.file instanceof File) {
+      params.file = params.file.canonicalPath
+    }
+
+    def change = makeLoadDataColumnarChangeFromMap(LoadUpdateDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding', 'primaryKey'])
+    changeSet.addChange(change)
   }
   
   void update(Map params, Closure closure) {
