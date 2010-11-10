@@ -45,6 +45,7 @@ import liquibase.change.core.TagDatabaseChange
 import liquibase.change.core.StopChange
 import liquibase.change.core.CreateIndexChange
 import liquibase.change.core.DropIndexChange
+import liquibase.change.core.RawSQLChange
 
 
 class ChangeSetDelegate {
@@ -220,7 +221,7 @@ class ChangeSetDelegate {
 
   
   void dropPrimaryKey(Map params) {
-   addMapBasedChange(DropPrimaryKeyChange, params, ['tableName', 'schemaName', 'constraintName']) 
+    addMapBasedChange(DropPrimaryKeyChange, params, ['tableName', 'schemaName', 'constraintName']) 
   }
 
   
@@ -284,9 +285,20 @@ class ChangeSetDelegate {
     addMapBasedChange(DropIndexChange, params, ['tableName', 'indexName'])  
   }
   
-  void sql(Map params, Closure closure) {
-    
+
+  void sql(Map params = [:], Closure closure) {
+    def change = makeChangeFromMap(RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter'])
+    change.sql = closure.call()
+    changeSet.addChange(change)
   }
+
+
+  void sql(String sql) {
+    def change = new RawSQLChange()
+    change.sql = sql
+    changeSet.addChange(change)
+  }
+
   
   void sqlFile(Map params) {
     
