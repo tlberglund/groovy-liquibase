@@ -15,10 +15,11 @@ import liquibase.change.ColumnConfig
 
 class ColumnDelegate {
   def columns = []
+  def columnConfigClass = ColumnConfig
 
 
   def column(Map params, Closure closure = null) {
-    def column = new ColumnConfig()
+    def column = columnConfigClass.newInstance()
 
     params.each { key, value ->
       column[key] = value

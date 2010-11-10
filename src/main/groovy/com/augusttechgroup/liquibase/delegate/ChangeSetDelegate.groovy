@@ -37,6 +37,8 @@ import liquibase.change.core.DropForeignKeyConstraintChange
 import liquibase.change.core.AddPrimaryKeyChange
 import liquibase.change.core.DropPrimaryKeyChange
 import liquibase.change.core.InsertDataChange
+import liquibase.change.core.LoadDataColumnConfig
+import liquibase.change.core.LoadDataChange
 
 
 class ChangeSetDelegate {
@@ -221,9 +223,15 @@ class ChangeSetDelegate {
     changeSet.addChange(change)
   }
   
-  void loadData(Map params, Closure clousre) {
-    
+  
+  void loadData(Map params, Closure closure) {
+    if(params.file instanceof File) {
+      params.file = params.file.canonicalPath
+    }
+    def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding'])
+    changeSet.addChange(change)
   }
+
   
   void loadUpdateData(Map params, Closure closure) {
     
@@ -276,6 +284,21 @@ class ChangeSetDelegate {
   
   void executeCommand(Map params, Closure closure) {
     
+  }
+
+
+  def makeLoadDataColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
+    def change = makeChangeFromMap(klass, params, paramNames)
+
+    def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig)
+    closure.delegate = columnDelegate
+    closure.call()
+
+    columnDelegate.columns.each { column ->
+      change.addColumn(column)
+    }
+
+    return change
   }
 
 

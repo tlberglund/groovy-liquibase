@@ -16,6 +16,7 @@ import org.junit.Test
 import static org.junit.Assert.*
 import java.sql.Timestamp
 import liquibase.change.ConstraintsConfig
+import liquibase.change.core.LoadDataColumnConfig
 
 
 class ColumnDelegateTests
@@ -83,7 +84,8 @@ class ColumnDelegateTests
 
   @Test
   void buildSimpleDateColumn() {
-    def now = "2010-11-02 06:52:04"
+    //TODO make these tests timezone-insensitive
+    def now = "2010-11-02 07:52:04"
     def sqlNow = new Timestamp(1288702324000)
     def closure = {
       column(name: 'column-name',
@@ -250,6 +252,55 @@ class ColumnDelegateTests
     assertEquals 'column-3', columns[2].name
     assertEquals 'boolean', columns[2].type
     assertTrue columns[2].valueBoolean
+  }
+
+
+  @Test
+  void buildloadDataColumnConfigColumnWithHeaders() {
+    def closure = {
+      column(header: 'header-name',
+             name: 'database-column-name',
+             type: 'STRING')
+    }
+
+    def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig)
+    closure.delegate = columnDelegate
+    closure.call()
+
+    def columns = columnDelegate.columns
+    assertNotNull columns
+    assertEquals 1, columns.size()
+    def column = columns[0]
+    assertTrue column instanceof LoadDataColumnConfig
+
+    assertEquals 'database-column-name', column.name
+    assertEquals 'header-name', column.header
+    assertEquals 'STRING', column.type
+  }
+
+
+
+  @Test
+  void buildloadDataColumnConfigColumnWithIndex() {
+    def closure = {
+      column(index: 3,
+             name: 'database-column-name',
+             type: 'STRING')
+    }
+
+    def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig)
+    closure.delegate = columnDelegate
+    closure.call()
+
+    def columns = columnDelegate.columns
+    assertNotNull columns
+    assertEquals 1, columns.size()
+    def column = columns[0]
+    assertTrue column instanceof LoadDataColumnConfig
+
+    assertEquals 'database-column-name', column.name
+    assertEquals 3, column.index
+    assertEquals 'STRING', column.type
   }
 
 }
