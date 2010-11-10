@@ -250,10 +250,13 @@ class ChangeSetDelegate {
     def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['schemaName', 'tableName'])
     changeSet.addChange(change)
   }
-  
+
+
   void delete(Map params, Closure closure) {
-    
+    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['schemaName', 'tableName'])
+    changeSet.addChange(change)
   }
+
   
   void tagDatabase(Map params) {
     

@@ -324,6 +324,24 @@ class NonRefactoringTransformationTests
   }
 
 
+  @Test
+  void deleteData() {
+    buildChangeSet {
+      delete(schemaName: 'schema', tableName: 'monkey') {
+        where "emotion='angry' AND active=true"
+      }
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof UpdateDataChange
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals "emotion='angry' AND active=true", changes[0].whereClause
+  }
+
+
   private def buildChangeSet(Closure closure) {
     closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
     closure.call()
