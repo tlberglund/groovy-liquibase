@@ -17,10 +17,12 @@ import liquibase.changelog.ChangeSet
 class DatabaseChangeLogDelegate {
   def databaseChangeLog
   def params
-  
+
+
   DatabaseChangeLogDelegate(databaseChangeLog) {
     this([:], databaseChangeLog)
   }
+
   
   DatabaseChangeLogDelegate(Map params, databaseChangeLog) {
     this.params = params
@@ -61,8 +63,9 @@ class DatabaseChangeLogDelegate {
 
 
   void preConditions(Map params = [:], Closure closure) {
-    def delegate = new PreconditionDelegate()
-    
+    def delegate = new PreconditionDelegate(params)
+    closure.call()
+    databaseChangeLog.preconditions = delegate.preconditions
   }
 
 }
