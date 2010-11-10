@@ -332,7 +332,9 @@ class ChangeSetDelegate {
    * Database.
    */
   void customChange(Closure closure) {
-    
+    //TODO Figure out how to implement closure-based custom changes
+    // It's not easy, since the closure would probably need the Database object to be
+    // interesting, and that's not available at parse time.
   }
 
   
