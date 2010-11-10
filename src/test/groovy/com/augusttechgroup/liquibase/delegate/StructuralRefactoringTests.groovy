@@ -10,11 +10,9 @@
 
 package com.augusttechgroup.liquibase.delegate
 
-import liquibase.changelog.ChangeSet
 import liquibase.change.core.AddColumnChange
 
 import org.junit.Test
-import org.junit.Before
 import static org.junit.Assert.*
 
 import liquibase.change.ColumnConfig
@@ -31,25 +29,9 @@ import liquibase.change.core.MergeColumnChange
 import liquibase.change.core.CreateProcedureChange
 
 
-class StructuralRefactoringTests {
-
-  def changeSet
-    
-
-  @Before
-  void registerParser() {
-		changeSet = new ChangeSet(
-		  'generic-changeset-id',
-		  'tlberglund',
-		  false,
-		  false,
-		  '/filePath',
-		  '/physicalFilePath',
-		  'context',
-		  'mysql',
-		  true)
-  }
-
+class StructuralRefactoringTests
+  extends ChangeSetTests
+{
 
   @Test void addMinimalColumnWithoutConstraints() {
     buildChangeSet {
@@ -289,11 +271,4 @@ END;"""
     assertEquals sql, changes[0].procedureBody
   }
 
-  
-  private def buildChangeSet(Closure closure) {
-    closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
-    closure.call()
-    changeSet
-  }
-  
 }

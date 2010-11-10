@@ -11,10 +11,8 @@
 package com.augusttechgroup.liquibase.delegate
 
 import org.junit.Test
-import org.junit.Before
 import static org.junit.Assert.*
 
-import liquibase.changelog.ChangeSet
 import liquibase.change.core.AddLookupTableChange
 import liquibase.change.core.AddNotNullConstraintChange
 import liquibase.change.core.DropNotNullConstraintChange
@@ -28,24 +26,8 @@ import liquibase.change.core.DropDefaultValueChange
 
 
 class DataQualityRefactoringTests
+  extends ChangeSetTests
 {
-  def changeSet
-
-
-  @Before
-  void registerParser() {
-		changeSet = new ChangeSet(
-		  'generic-changeset-id',
-		  'tlberglund',
-		  false,
-		  false,
-		  '/filePath',
-		  '/physicalFilePath',
-		  'context',
-		  'mysql',
-		  true)
-  }
-
 
   @Test
   void addLookupTable() {
@@ -280,11 +262,4 @@ class DataQualityRefactoringTests
     assertEquals 'emotion', changes[0].columnName
   }
 
-
-  private def buildChangeSet(Closure closure) {
-    closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
-    closure.call()
-    changeSet
-  }
-  
 }

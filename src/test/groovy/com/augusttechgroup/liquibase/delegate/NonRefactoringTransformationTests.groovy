@@ -27,24 +27,8 @@ import liquibase.change.core.StopChange
 
 
 class NonRefactoringTransformationTests
+  extends ChangeSetTests
 {
-  def changeSet
-
-
-  @Before
-  void registerParser() {
-		changeSet = new ChangeSet(
-		  'generic-changeset-id',
-		  'tlberglund',
-		  false,
-		  false,
-		  '/filePath',
-		  '/physicalFilePath',
-		  'context',
-		  'mysql',
-		  true)
-  }
-
 
   @Test
   void insertData() {
@@ -371,11 +355,5 @@ class NonRefactoringTransformationTests
     assertEquals 'Stop the refactoring. Just...stop.', changes[0].message
   }
 
-
-  private def buildChangeSet(Closure closure) {
-    closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
-    closure.call()
-    changeSet
-  }
 
 }

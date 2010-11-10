@@ -11,10 +11,8 @@
 package com.augusttechgroup.liquibase.delegate
 
 import org.junit.Test
-import org.junit.Before
 import static org.junit.Assert.*
 
-import liquibase.changelog.ChangeSet
 import liquibase.change.core.AddForeignKeyConstraintChange
 import liquibase.change.core.DropForeignKeyConstraintChange
 import liquibase.change.core.AddPrimaryKeyChange
@@ -22,24 +20,8 @@ import liquibase.change.core.DropPrimaryKeyChange
 
 
 class ReferentialIntegrityRefactoringTests
+  extends ChangeSetTests
 {
-  def changeSet
-
-
-  @Before
-  void registerParser() {
-		changeSet = new ChangeSet(
-		  'generic-changeset-id',
-		  'tlberglund',
-		  false,
-		  false,
-		  '/filePath',
-		  '/physicalFilePath',
-		  'context',
-		  'mysql',
-		  true)
-  }
-
 
   @Test
   void addForeignKeyConstraint() {
@@ -137,15 +119,6 @@ class ReferentialIntegrityRefactoringTests
     assertEquals 'pk_monkey', changes[0].constraintName
     assertEquals 'monkey', changes[0].tableName
     assertEquals 'schema', changes[0].schemaName
-  }
-
-
-
-
-  private def buildChangeSet(Closure closure) {
-    closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
-    closure.call()
-    changeSet
   }
 
 }
