@@ -5,7 +5,7 @@
 // http://augusttechgroup.com
 // Littleton, CO
 //
-// Licensed under the GNU Lesser General Public License v2.1
+// Licensed under the Apache License 2.0
 //
 
 package com.augusttechgroup.liquibase.delegate

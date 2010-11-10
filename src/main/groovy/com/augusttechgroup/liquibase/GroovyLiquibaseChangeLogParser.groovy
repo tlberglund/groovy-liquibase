@@ -5,7 +5,7 @@
 // http://augusttechgroup.com
 // Littleton, CO
 //
-// Licensed under the GNU Lesser General Public License v2.1
+// Licensed under the Apache License 2.0
 //
 
 package com.augusttechgroup.liquibase
@@ -72,20 +72,11 @@ class GroovyLiquibaseChangeLogParser
 
   def getChangeLogMethodMissing() {
     { name, args ->
-      switch(name) {
-        case 'databaseChangeLog':
-          processDatabaseChangeLogRootElement(databaseChangeLog, args)
-          break
-          
-        case 'preConditions':
-          break
-          
-        case 'include':
-          break
-          
-        default:
-          throw new ChangeLogParseException("Unrecognized root element ${name}")
-          break
+      if(name == 'databaseChangeLog') {
+        processDatabaseChangeLogRootElement(databaseChangeLog, args)
+      }
+      else {
+        throw new ChangeLogParseException("Unrecognized root element ${name}")
       }
     }
   }

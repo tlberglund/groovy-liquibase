@@ -5,7 +5,7 @@
 // http://augusttechgroup.com
 // Littleton, CO
 //
-// Licensed under the GNU Lesser General Public License v2.1
+// Licensed under the Apache License 2.0
 //
 
 package com.augusttechgroup.liquibase.delegate
@@ -356,7 +356,7 @@ class ChangeSetDelegate {
   }
 
 
-  def makeLoadDataColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
+  private def makeLoadDataColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
     def change = makeChangeFromMap(klass, params, paramNames)
 
     def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig)
@@ -371,7 +371,7 @@ class ChangeSetDelegate {
   }
 
 
-  def makeColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
+  private def makeColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
     def change = makeChangeFromMap(klass, params, paramNames)
 
     def columnDelegate = new ColumnDelegate()

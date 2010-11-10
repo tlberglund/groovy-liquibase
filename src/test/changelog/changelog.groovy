@@ -1,6 +1,6 @@
 databaseChangeLog(logicalFilePath: '') {
   
-  preConditions {
+  preConditions(onFail: 'WARN') {
     and {
       dbms(type: 'mysql')
       runningAs(username: 'root')

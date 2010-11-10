@@ -5,7 +5,7 @@
 // http://augusttechgroup.com
 // Littleton, CO
 //
-// Licensed under the GNU Lesser General Public License v2.1
+// Licensed under the Apache License 2.0
 //
 
 package com.augusttechgroup.liquibase.delegate
@@ -31,7 +31,7 @@ class DatabaseChangeLogDelegate {
   }
   
   
-  def changeSet(Map params, closure) {
+  void changeSet(Map params, closure) {
 		def changeSet = new ChangeSet(
 		  params.id,
 		  params.author,
@@ -57,5 +57,12 @@ class DatabaseChangeLogDelegate {
 		closure.call()
 		
 		databaseChangeLog.addChangeSet(changeSet)
-  }  
+  }
+
+
+  void preConditions(Map params = [:], Closure closure) {
+    def delegate = new PreconditionDelegate()
+    
+  }
+
 }

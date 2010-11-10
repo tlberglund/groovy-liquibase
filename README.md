@@ -7,4 +7,4 @@ Presently a work in progress. The project aim is to create as close a match for 
 Work is currently being done by Tim Berglund of the [August Technology Group](http://augusttechgroup.com).
 
 ## License
-This code is released under the GNU Lesser Public License 2.1, just like Liquibase.
+This code is released under the Apache Public License 2.0, just like Liquibase 2.0.
