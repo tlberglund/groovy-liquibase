@@ -24,6 +24,8 @@ import liquibase.precondition.core.ForeignKeyExistsPrecondition
 import liquibase.precondition.core.IndexExistsPrecondition
 import liquibase.precondition.core.SequenceExistsPrecondition
 import liquibase.precondition.core.PrimaryKeyExistsPrecondition
+import liquibase.precondition.core.AndPrecondition
+import liquibase.precondition.core.OrPrecondition
 
 /**
  * <p></p>
@@ -96,12 +98,28 @@ class PreconditionDelegate
 
   
   def and(Closure closure) {
-
+    def precondition = nestedPrecondition(AndPrecondition, closure)
+    preconditions.addNestedPrecondition(precondition)
   }
 
 
   def or(Closure closure) {
-
+    def precondition = nestedPrecondition(OrPrecondition, closure)
+    preconditions.addNestedPrecondition(precondition)
   }
-  
+
+
+  private def nestedPrecondition(Class preconditionClass, Closure closure) {
+    def delegate = new PreconditionDelegate()
+    closure.delegate = delegate
+    closure.resolveStrategy = Closure.DELEGATE_ONLY
+    closure.call()
+
+    def nestedPrecondition = preconditionClass.newInstance()
+    delegate.preconditions.each { precondition ->
+      nestedPrecondition.addNestedPrecondition(precondition)
+    }
+
+    return nestedPrecondition
+  }
 }

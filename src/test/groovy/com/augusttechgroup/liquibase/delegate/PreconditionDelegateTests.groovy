@@ -27,6 +27,8 @@ import liquibase.precondition.core.ForeignKeyExistsPrecondition
 import liquibase.precondition.core.IndexExistsPrecondition
 import liquibase.precondition.core.SequenceExistsPrecondition
 import liquibase.precondition.core.PrimaryKeyExistsPrecondition
+import liquibase.precondition.core.AndPrecondition
+import liquibase.precondition.core.OrPrecondition
 
 
 class PreconditionDelegateTests
@@ -280,11 +282,57 @@ class PreconditionDelegateTests
 
   @Test
   void andClause() {
-    def closure = {
+    def c = {
       and {
-        
+        dbms(type: 'mysql')
+        runningAs(username: 'tlberglund')
       }
     }
+
+    def delegate = new PreconditionDelegate()
+    c.delegate = delegate
+    c.call()
+    def container = delegate.preconditions
+
+    assertNotNull container
+    assertTrue container instanceof PreconditionContainer
+    def preconditions = container.nestedPreconditions
+    assertNotNull preconditions
+    assertEquals 1, preconditions.size()
+    assertTrue preconditions[0] instanceof AndPrecondition
+    def andedPreconditions = preconditions[0].nestedPreconditions[0].nestedPreconditions
+    assertNotNull andedPreconditions
+    assertEquals 2, andedPreconditions.size()
+    assertTrue andedPreconditions[0] instanceof DBMSPrecondition
+    assertTrue andedPreconditions[1] instanceof RunningAsPrecondition
+  }
+
+
+  @Test
+  void orClause() {
+    def c = {
+      or {
+        dbms(type: 'mysql')
+        runningAs(username: 'tlberglund')
+      }
+    }
+
+    def delegate = new PreconditionDelegate()
+    c.delegate = delegate
+    c.call()
+    def container = delegate.preconditions
+
+    assertNotNull container
+    assertTrue container instanceof PreconditionContainer
+    def preconditions = container.nestedPreconditions
+    assertNotNull preconditions
+    assertEquals 1, preconditions.size()
+    assertTrue preconditions[0] instanceof OrPrecondition
+    def andedPreconditions = preconditions[0].nestedPreconditions[0].nestedPreconditions
+    assertNotNull andedPreconditions
+    assertEquals 2, andedPreconditions.size()
+    assertTrue andedPreconditions[0] instanceof DBMSPrecondition
+    assertTrue andedPreconditions[1] instanceof RunningAsPrecondition
   }
 
 }
