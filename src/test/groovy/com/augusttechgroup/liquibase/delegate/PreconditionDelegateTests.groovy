@@ -37,22 +37,6 @@ class PreconditionDelegateTests
 {
 
   @Test
-  void preconditionParameterOptions() {
-    def params = [onFail: 'WARN', onError: 'HALT', onUpdateSQL: 'IGNORE', onFailMessage: 'fail-message!!!1!!1one!', onErrorMessage: 'error-message']
-    def delegate = new PreconditionDelegate(params)
-    def preconditions = delegate.preconditions
-
-    assertNotNull preconditions
-    assertTrue preconditions instanceof PreconditionContainer
-    assertEquals FailOption.WARN, preconditions.onFail
-    assertEquals ErrorOption.HALT, preconditions.onError
-    assertEquals OnSqlOutputOption.IGNORE, preconditions.onSqlOutput
-    assertEquals 'fail-message!!!1!!1one!', preconditions.onFailMessage
-    assertEquals 'error-message', preconditions.onErrorMessage
-  }
-
-
-  @Test
   void dbms() {
     def c = {
       dbms(type: 'mysql')
@@ -61,11 +45,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -83,11 +64,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -105,11 +83,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -129,11 +104,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -153,11 +125,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -176,11 +145,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -199,11 +165,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -222,11 +185,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -245,11 +205,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -268,11 +225,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -294,15 +248,12 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertEquals 1, preconditions.size()
     assertTrue preconditions[0] instanceof AndPrecondition
-    def andedPreconditions = preconditions[0].nestedPreconditions[0].nestedPreconditions
+    def andedPreconditions = preconditions[0].nestedPreconditions
     assertNotNull andedPreconditions
     assertEquals 2, andedPreconditions.size()
     assertTrue andedPreconditions[0] instanceof DBMSPrecondition
@@ -322,15 +273,12 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertEquals 1, preconditions.size()
     assertTrue preconditions[0] instanceof OrPrecondition
-    def andedPreconditions = preconditions[0].nestedPreconditions[0].nestedPreconditions
+    def andedPreconditions = preconditions[0].nestedPreconditions
     assertNotNull andedPreconditions
     assertEquals 2, andedPreconditions.size()
     assertTrue andedPreconditions[0] instanceof DBMSPrecondition
@@ -349,11 +297,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertEquals 1, preconditions.size()
     assertTrue preconditions[0] instanceof SqlPrecondition
@@ -375,11 +320,8 @@ class PreconditionDelegateTests
     def delegate = new PreconditionDelegate()
     c.delegate = delegate
     c.call()
-    def container = delegate.preconditions
 
-    assertNotNull container
-    assertTrue container instanceof PreconditionContainer
-    def preconditions = container.nestedPreconditions
+    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertEquals 1, preconditions.size()
     assertTrue preconditions[0] instanceof CustomPreconditionWrapper

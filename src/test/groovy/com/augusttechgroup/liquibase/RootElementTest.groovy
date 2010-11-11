@@ -14,10 +14,15 @@ import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParserFactory
 import liquibase.resource.FileSystemResourceAccessor
 import liquibase.changelog.DatabaseChangeLog
+import liquibase.precondition.core.PreconditionContainer
+import liquibase.precondition.core.PreconditionContainer.FailOption
+import liquibase.precondition.core.PreconditionContainer.ErrorOption
+import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
 
 import org.junit.Test
 import org.junit.Before
 import static org.junit.Assert.*
+import com.augusttechgroup.liquibase.delegate.DatabaseChangeLogDelegate
 
 
 class RootElementTests {
@@ -89,6 +94,30 @@ databaseChangeLog(key: 'value')
   }
 
 
+  @Test
+  void preconditionParameters() {
+    def closure = {
+      preConditions(onFail: 'WARN', onError: 'MARK_RAN', onUpdateSQL: 'TEST', onFailMessage: 'fail-message!!!1!!1one!', onErrorMessage: 'error-message') {
+        
+      }
+    }
+
+    def databaseChangeLog = new DatabaseChangeLog('changelog.xml')
+    def delegate = new DatabaseChangeLogDelegate(databaseChangeLog)
+    closure.delegate = delegate
+    closure.call()
+
+    def preconditions = databaseChangeLog.preconditions
+    assertNotNull preconditions
+    assertTrue preconditions instanceof PreconditionContainer
+    assertEquals FailOption.WARN, preconditions.onFail
+    assertEquals ErrorOption.MARK_RAN, preconditions.onError
+    assertEquals OnSqlOutputOption.TEST, preconditions.onSqlOutput
+    assertEquals 'fail-message!!!1!!1one!', preconditions.onFailMessage
+    assertEquals 'error-message', preconditions.onErrorMessage
+  }
+
+  
   private def createFileFrom(text) {
     def file = File.createTempFile('liquibase-', '.groovy')
     file.deleteOnExit()

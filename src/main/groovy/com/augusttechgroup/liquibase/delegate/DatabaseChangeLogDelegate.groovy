@@ -12,6 +12,10 @@ package com.augusttechgroup.liquibase.delegate
 
 
 import liquibase.changelog.ChangeSet
+import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
+import liquibase.precondition.core.PreconditionContainer.ErrorOption
+import liquibase.precondition.core.PreconditionContainer.FailOption
+import liquibase.precondition.core.PreconditionContainer
 
 
 class DatabaseChangeLogDelegate {
@@ -63,9 +67,41 @@ class DatabaseChangeLogDelegate {
 
 
   void preConditions(Map params = [:], Closure closure) {
-    def delegate = new PreconditionDelegate(params)
+    def preconditions = new PreconditionContainer()
+    
+    if(params.onFail) {
+      preconditions.onFail = FailOption."${params.onFail}"
+    }
+
+    if(params.onError) {
+      preconditions.onError = ErrorOption."${params.onError}"
+    }
+
+    if(params.onUpdateSQL) {
+      preconditions.onSqlOutput = OnSqlOutputOption."${params.onUpdateSQL}"
+    }
+
+    preconditions.onFailMessage = params.onFailMessage
+    preconditions.onErrorMessage = params.onErrorMessage
+
+    def delegate = new PreconditionDelegate()
     closure.call()
-    databaseChangeLog.preconditions = delegate.preconditions
+
+    delegate.preconditions.each { precondition ->
+      preconditions.addNestedPrecondition(precondition)
+    }
+
+    databaseChangeLog.preconditions = preconditions
+  }
+
+
+  void include(Map params = [:]) {
+
+  }
+
+
+  void property(Map params = [:]) {
+    
   }
 
 }
