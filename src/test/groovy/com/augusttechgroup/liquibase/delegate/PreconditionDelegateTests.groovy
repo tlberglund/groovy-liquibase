@@ -29,6 +29,8 @@ import liquibase.precondition.core.SequenceExistsPrecondition
 import liquibase.precondition.core.PrimaryKeyExistsPrecondition
 import liquibase.precondition.core.AndPrecondition
 import liquibase.precondition.core.OrPrecondition
+import liquibase.precondition.core.SqlPrecondition
+import liquibase.precondition.CustomPreconditionWrapper
 
 
 class PreconditionDelegateTests
@@ -335,4 +337,54 @@ class PreconditionDelegateTests
     assertTrue andedPreconditions[1] instanceof RunningAsPrecondition
   }
 
+
+  @Test
+  void sqlCheck() {
+    def c = {
+      sqlCheck(expectedResult: 'angry') {
+        "SELECT emotion FROM monkey WHERE id=2884"
+      }
+    }
+
+    def delegate = new PreconditionDelegate()
+    c.delegate = delegate
+    c.call()
+    def container = delegate.preconditions
+
+    assertNotNull container
+    assertTrue container instanceof PreconditionContainer
+    def preconditions = container.nestedPreconditions
+    assertNotNull preconditions
+    assertEquals 1, preconditions.size()
+    assertTrue preconditions[0] instanceof SqlPrecondition
+    assertEquals 'angry', preconditions[0].expectedResult
+    assertEquals 'SELECT emotion FROM monkey WHERE id=2884', preconditions[0].sql
+  }
+
+
+
+  @Test
+  void customPreconditionFails() {
+    def c = {
+      customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
+        emotion('angry')
+        'rfid-tag'(28763)
+      }
+    }
+
+    def delegate = new PreconditionDelegate()
+    c.delegate = delegate
+    c.call()
+    def container = delegate.preconditions
+
+    assertNotNull container
+    assertTrue container instanceof PreconditionContainer
+    def preconditions = container.nestedPreconditions
+    assertNotNull preconditions
+    assertEquals 1, preconditions.size()
+    assertTrue preconditions[0] instanceof CustomPreconditionWrapper
+    // There is no way to examine these parameters once they are set in a CustomPreconditionWrapper
+    //assertEquals 'angry', preconditions[0].expectedResult
+    //assertEquals 'SELECT emotion FROM monkey WHERE id=2884', preconditions[0].sql
+  }
 }

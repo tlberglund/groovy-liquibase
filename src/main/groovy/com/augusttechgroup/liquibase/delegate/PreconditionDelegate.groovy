@@ -26,6 +26,8 @@ import liquibase.precondition.core.SequenceExistsPrecondition
 import liquibase.precondition.core.PrimaryKeyExistsPrecondition
 import liquibase.precondition.core.AndPrecondition
 import liquibase.precondition.core.OrPrecondition
+import liquibase.precondition.core.SqlPrecondition
+import liquibase.precondition.CustomPreconditionWrapper
 
 /**
  * <p></p>
@@ -88,12 +90,26 @@ class PreconditionDelegate
 
 
   def sqlCheck(Map params = [:], Closure closure) {
-
+    def precondition = new SqlPrecondition()
+    precondition.expectedResult = params.expectedResult
+    precondition.sql = closure.call()
+    preconditions.addNestedPrecondition(precondition)
   }
 
 
   def customPrecondition(Map params = [:], Closure closure) {
-    
+    def delegate = new KeyValueDelegate()
+    closure.delegate = delegate
+    closure.resolveStrategy = Closure.DELEGATE_ONLY
+    closure.call()
+
+    def precondition = new CustomPreconditionWrapper()
+    precondition.className = params.className
+    delegate.map.each { key, value ->
+      precondition.setParam(key, value.toString())
+    }
+
+    preconditions.addNestedPrecondition(precondition)
   }
 
   
