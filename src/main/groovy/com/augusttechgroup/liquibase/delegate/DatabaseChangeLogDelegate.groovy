@@ -112,8 +112,6 @@ class DatabaseChangeLogDelegate {
   }
 
 
-  
-
   void property(Map params = [:]) {
     
   }
