@@ -14,6 +14,16 @@ import liquibase.precondition.core.PreconditionContainer
 import liquibase.precondition.core.PreconditionContainer.FailOption
 import liquibase.precondition.core.PreconditionContainer.ErrorOption
 import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
+import liquibase.precondition.core.DBMSPrecondition
+import liquibase.precondition.core.RunningAsPrecondition
+import liquibase.precondition.core.ChangeSetExecutedPrecondition
+import liquibase.precondition.core.ColumnExistsPrecondition
+import liquibase.precondition.core.TableExistsPrecondition
+import liquibase.precondition.core.ViewExistsPrecondition
+import liquibase.precondition.core.ForeignKeyExistsPrecondition
+import liquibase.precondition.core.IndexExistsPrecondition
+import liquibase.precondition.core.SequenceExistsPrecondition
+import liquibase.precondition.core.PrimaryKeyExistsPrecondition
 
 /**
  * <p></p>
@@ -23,9 +33,21 @@ import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
 class PreconditionDelegate
 {
   def preconditions
+  final preconditionToClass = [
+    dbms: [class: DBMSPrecondition, params: ['type']],
+    runningAs: [class: RunningAsPrecondition, params: ['username']],
+    changeSetExecuted: [class: ChangeSetExecutedPrecondition, params: ['id', 'author', 'changeLogFile']],
+    columnExists: [class: ColumnExistsPrecondition, params: ['schemaName', 'columnName', 'columnName']],
+    tableExists: [class: TableExistsPrecondition, params: ['schemaName', 'tableName']],
+    viewExists: [class: ViewExistsPrecondition, params: ['schemaName', 'viewName']],
+    foreignKeyConstraintExists: [class: ForeignKeyExistsPrecondition, params: ['schemaName', 'foreignKeyName']],
+    indexExists: [class: IndexExistsPrecondition, params: ['schemaName', 'indexName']],
+    sequenceExists: [class: SequenceExistsPrecondition, params: ['schemaName', 'sequenceName']],
+    primaryKeyExists: [class: PrimaryKeyExistsPrecondition, params: ['schemaName', 'primaryKeyName', 'tableName']]
+  ]
 
-
-  PreconditionDelegate(Map params) {
+  
+  PreconditionDelegate(Map params = [:]) {
     preconditions = new PreconditionContainer()
 
     if(params.onFail) {
@@ -43,4 +65,43 @@ class PreconditionDelegate
     preconditions.onFailMessage = params.onFailMessage
     preconditions.onErrorMessage = params.onErrorMessage
   }
+
+
+  //
+  // Handles all non-nesting preconditions named in the preconditionToClass map.
+  //
+  void methodMissing(String name, args) {
+    def preconditionData = preconditionToClass[name]
+    if(preconditionData) {
+      def precondition = preconditionData['class'].newInstance()
+      def params = args[0]
+      if(params != null && params instanceof Map) {
+        args[0].each { key, value ->
+          precondition[key] = value
+        }
+      }
+      preconditions.addNestedPrecondition(precondition)
+    }
+  }
+
+
+  def sqlCheck(Map params = [:], Closure closure) {
+
+  }
+
+
+  def customPrecondition(Map params = [:], Closure closure) {
+    
+  }
+
+  
+  def and(Closure closure) {
+
+  }
+
+
+  def or(Closure closure) {
+
+  }
+  
 }
