@@ -52,7 +52,8 @@ class StructuralRefactoringTests
   }
 
 
-  @Test void addColumnIncludingTablespace() {
+  @Test
+  void addColumnIncludingTablespace() {
     buildChangeSet {
       addColumn(schemaName: 'oracle_use_only', tableName: 'animal') {
         column(name: 'monkey_status', type: 'varchar(98)')

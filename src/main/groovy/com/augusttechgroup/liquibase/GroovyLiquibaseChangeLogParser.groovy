@@ -29,7 +29,7 @@ class GroovyLiquibaseChangeLogParser
 
     def inputStream = resourceAccessor.getResourceAsStream(physicalChangeLogLocation)
     if(!inputStream) {
-        throw new ChangeLogParseException(physicalChangeLogLocation + " does not exist")
+      throw new ChangeLogParseException(physicalChangeLogLocation + " does not exist")
     }
 
     try {
@@ -43,6 +43,7 @@ class GroovyLiquibaseChangeLogParser
       // to root-level method delegates, and call.
       def script = shell.parse(inputStream)
       script.metaClass.getDatabaseChangeLog = { -> changeLog }
+      script.metaClass.getResourceAccessor = { -> resourceAccessor }
       script.metaClass.methodMissing = changeLogMethodMissing
       script.run()
       
@@ -73,7 +74,7 @@ class GroovyLiquibaseChangeLogParser
   def getChangeLogMethodMissing() {
     { name, args ->
       if(name == 'databaseChangeLog') {
-        processDatabaseChangeLogRootElement(databaseChangeLog, args)
+        processDatabaseChangeLogRootElement(databaseChangeLog, resourceAccessor, args)
       }
       else {
         throw new ChangeLogParseException("Unrecognized root element ${name}")
@@ -82,8 +83,7 @@ class GroovyLiquibaseChangeLogParser
   }
 
 
-  private def processDatabaseChangeLogRootElement(databaseChangeLog, args) {
-    println args
+  private def processDatabaseChangeLogRootElement(databaseChangeLog, resourceAccessor, args) {
     switch(args.size()) {
       case 0:
         throw new ChangeLogParseException("databaseChangeLog element cannot be empty")
@@ -94,7 +94,9 @@ class GroovyLiquibaseChangeLogParser
           throw new ChangeLogParseException("databaseChangeLog element must be followed by a closure (databaseChangeLog { ... })")
         }
         def delegate = new DatabaseChangeLogDelegate(databaseChangeLog)
+        delegate.resourceAccessor = resourceAccessor
         closure.delegate = delegate
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.call()
         break
         

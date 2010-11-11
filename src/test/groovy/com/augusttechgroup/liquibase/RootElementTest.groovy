@@ -18,6 +18,8 @@ import liquibase.precondition.core.PreconditionContainer
 import liquibase.precondition.core.PreconditionContainer.FailOption
 import liquibase.precondition.core.PreconditionContainer.ErrorOption
 import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
+import liquibase.precondition.core.RunningAsPrecondition
+import liquibase.precondition.core.DBMSPrecondition
 
 import org.junit.Test
 import org.junit.Before
@@ -117,6 +119,52 @@ databaseChangeLog(key: 'value')
     assertEquals 'error-message', preconditions.onErrorMessage
   }
 
+
+  @Test
+  void includeChangelog() {
+    def includedChangeLogFile = createFileFrom("""
+databaseChangeLog {
+  preConditions {
+    runningAs(username: 'tlberglund')
+  }
+
+  changeSet(author: 'tlberglund', id: 'included-change-set') {
+    renameTable(oldTableName: 'prosaic_table_name', newTableName: 'monkey')
+  }
+}
+""")
+
+    def rootChangeLogFile = createFileFrom("""
+databaseChangeLog {
+  preConditions {
+    dbms(type: 'mysql')
+  }
+  include(file: '${includedChangeLogFile.canonicalPath}')
+  changeSet(author: 'tlberglund', id: 'root-change-set') {
+    addColumn(tableName: 'monkey') {
+      column(name: 'emotion', type: 'varchar(50)')
+    }
+  }
+}
+""")
+
+    def parser = parserFactory.getParser(rootChangeLogFile.absolutePath, resourceAccessor)
+    def rootChangeLog = parser.parse(rootChangeLogFile.absolutePath, null, resourceAccessor)
+
+    assertNotNull rootChangeLog
+    def changeSets = rootChangeLog.changeSets
+    assertNotNull changeSets
+    assertEquals 2, changeSets.size()
+    assertEquals 'included-change-set', changeSets[0].id
+    assertEquals 'root-change-set', changeSets[1].id
+
+    def preconditions = rootChangeLog.preconditionContainer?.nestedPreconditions
+    assertNotNull preconditions
+    assertEquals 2, preconditions.size()
+    assertTrue preconditions[0] instanceof DBMSPrecondition
+    assertTrue preconditions[1] instanceof RunningAsPrecondition
+  }
+  
   
   private def createFileFrom(text) {
     def file = File.createTempFile('liquibase-', '.groovy')

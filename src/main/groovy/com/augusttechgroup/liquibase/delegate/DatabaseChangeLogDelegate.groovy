@@ -16,11 +16,13 @@ import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
 import liquibase.precondition.core.PreconditionContainer.ErrorOption
 import liquibase.precondition.core.PreconditionContainer.FailOption
 import liquibase.precondition.core.PreconditionContainer
+import liquibase.parser.ChangeLogParserFactory
 
 
 class DatabaseChangeLogDelegate {
   def databaseChangeLog
   def params
+  def resourceAccessor
 
 
   DatabaseChangeLogDelegate(databaseChangeLog) {
@@ -59,7 +61,7 @@ class DatabaseChangeLogDelegate {
 		
 		def delegate = new ChangeSetDelegate(changeSet: changeSet)
 		closure.delegate = delegate
-		
+    closure.resolveStrategy = Closure.DELEGATE_FIRST
 		closure.call()
 		
 		databaseChangeLog.addChangeSet(changeSet)
@@ -85,6 +87,8 @@ class DatabaseChangeLogDelegate {
     preconditions.onErrorMessage = params.onErrorMessage
 
     def delegate = new PreconditionDelegate()
+    closure.delegate = delegate
+    closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()
 
     delegate.preconditions.each { precondition ->
@@ -96,9 +100,19 @@ class DatabaseChangeLogDelegate {
 
 
   void include(Map params = [:]) {
-
+    def includedChangeLogFile = params.file
+    def parser = ChangeLogParserFactory.getInstance().getParser(includedChangeLogFile, resourceAccessor)
+    def includedChangeLog = parser.parse(includedChangeLogFile, null, resourceAccessor)
+    includedChangeLog?.changeSets.each { changeSet ->
+      databaseChangeLog.addChangeSet(changeSet)
+    }
+    includedChangeLog?.preconditionContainer?.nestedPreconditions.each { precondition ->
+      databaseChangeLog.preconditionContainer.addNestedPrecondition(precondition)
+    }
   }
 
+
+  
 
   void property(Map params = [:]) {
     
