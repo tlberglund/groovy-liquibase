@@ -11,13 +11,10 @@
 package com.augusttechgroup.liquibase.delegate
 
 import org.junit.Test
-import org.junit.Before
 import static org.junit.Assert.*
 
-import liquibase.changelog.ChangeSet
 import liquibase.change.core.InsertDataChange
 import liquibase.change.ColumnConfig
-import java.sql.Timestamp
 import liquibase.change.core.LoadDataChange
 import liquibase.change.core.LoadDataColumnConfig
 import liquibase.change.core.LoadUpdateDataChange
@@ -32,9 +29,8 @@ class NonRefactoringTransformationTests
 
   @Test
   void insertData() {
-    //TODO make these tests timezone-insensitive
     def now = '2010-11-02 07:52:04'
-    def sqlNow = new Timestamp(1288702324000)
+    def sqlNow = parseSqlTimestamp(now)
     buildChangeSet {
       insert(schemaName: 'schema', tableName: 'monkey') {
         column(name: 'id', valueNumeric: 502)
@@ -275,9 +271,8 @@ class NonRefactoringTransformationTests
 
   @Test
   void updateData() {
-    //TODO make these tests timezone-insensitive
     def now = '2010-11-02 07:52:04'
-    def sqlNow = new Timestamp(1288702324000)
+    def sqlNow = parseSqlTimestamp(now)
     buildChangeSet {
       update(schemaName: 'schema', tableName: 'monkey') {
         column(name: 'rfid_tag', valueNumeric: 5023442)

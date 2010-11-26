@@ -12,9 +12,13 @@ package com.augusttechgroup.liquibase.delegate
 
 import org.junit.Before
 import liquibase.changelog.ChangeSet
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
+
 
 class ChangeSetTests
 {
+  def sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
   def changeSet
 
   @Before
@@ -36,5 +40,10 @@ class ChangeSetTests
     closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
     closure.call()
     changeSet
+  }
+
+
+  Timestamp parseSqlTimestamp(dateTimeString) {
+    new Timestamp(sdf.parse(dateTimeString).time)
   }
 }

@@ -17,10 +17,12 @@ import static org.junit.Assert.*
 import java.sql.Timestamp
 import liquibase.change.ConstraintsConfig
 import liquibase.change.core.LoadDataColumnConfig
+import java.text.SimpleDateFormat
 
 
 class ColumnDelegateTests
 {
+  def sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
   @Test
   void buildSimpleStringColumn() {
@@ -29,7 +31,6 @@ class ColumnDelegateTests
              type: 'varchar',
              value: 'value',
              defaultValue: 'default-string-value',
-             autoIncrement: true,
              remarks: 'No comment')
     }
 
@@ -47,7 +48,7 @@ class ColumnDelegateTests
     assertEquals 'varchar', column.type
     assertEquals 'value', column.value
     assertEquals 'default-string-value', column.defaultValue
-    assertTrue column.autoIncrement
+    assertNull column.isAutoIncrement()
     assertEquals 'No comment', column.remarks
   }
 
@@ -57,9 +58,9 @@ class ColumnDelegateTests
     def closure = {
       column(name: 'column-name',
              type: 'varchar',
-             value: 'value',
+             valueNumeric: 56,
              defaultValueNumeric: 42,
-             autoIncrement: false,
+             autoIncrement: true,
              remarks: 'No numeric comment')
     }
 
@@ -75,22 +76,21 @@ class ColumnDelegateTests
 
     assertEquals 'column-name', column.name
     assertEquals 'varchar', column.type
-    assertEquals 'value', column.value
+    assertEquals 56, column.valueNumeric
     assertEquals 42, column.defaultValueNumeric
-    assertFalse column.autoIncrement
+    assertTrue column.autoIncrement
     assertEquals 'No numeric comment', column.remarks
   }
 
 
   @Test
   void buildSimpleDateColumn() {
-    //TODO make these tests timezone-insensitive
     def now = "2010-11-02 07:52:04"
-    def sqlNow = new Timestamp(1288702324000)
+    def sqlNow = parseSqlTimestamp(now)
     def closure = {
       column(name: 'column-name',
              type: 'datetime',
-             value: 'value',
+             valueDate: now,
              defaultValueDate: now,
              autoIncrement: false,
              remarks: 'No date comment')
@@ -108,7 +108,7 @@ class ColumnDelegateTests
 
     assertEquals 'column-name', column.name
     assertEquals 'datetime', column.type
-    assertEquals 'value', column.value
+    assertEquals sqlNow, column.valueDate
     assertEquals sqlNow, column.defaultValueDate
     assertFalse column.autoIncrement
     assertEquals 'No date comment', column.remarks
@@ -322,4 +322,8 @@ class ColumnDelegateTests
     assertEquals 'STRING', column.type
   }
 
+
+  private Timestamp parseSqlTimestamp(dateTimeString) {
+    new Timestamp(sdf.parse(dateTimeString).time)
+  }
 }
