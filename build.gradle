@@ -1,25 +1,18 @@
 apply plugin: 'groovy'
 
-defaultTasks('parseGroovy')
-
 repositories {
   mavenCentral()
 }
 
 dependencies {
-  groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.5'
-  testCompile 'junit:junit:4.7'
-//  runtime 'org.liquibase:liquibase-core:1.9.5'
+  groovy 'org.codehaus.groovy:groovy:1.7.5'
+  testCompile 'junit:junit:4.7' //, 'org.dbunit:dbunit:2.4.8'
   compile 'org.liquibase:liquibase-core:2.0-rc6'
 }
 
 task('parseGroovy', dependsOn: 'compileGroovy') << {
-  ant.java(classname: 'com.augusttechgroup.liquibase.liquibase') {
-    classpath {
-      pathelement(path: sourceSets.main.classesDir)
-      sourceSets.main.runtimeClasspath.each { jarPath ->
-        pathelement(location: jarPath)
-      }
-    }
+  javaexec {
+    main = 'com.augusttechgroup.liquibase.liquibase'
+    classpath sourceSets.main.runtimeClasspath, sourceSets.main.classesDir
   }
 }
