@@ -120,7 +120,7 @@ class ColumnDelegateTests
     def closure = {
       column(name: 'column-name',
              type: 'bit',
-             value: 'value',
+             valueBoolean: true,
              defaultValueBoolean: true,
              autoIncrement: false,
              remarks: 'No boolean comment')
@@ -138,7 +138,7 @@ class ColumnDelegateTests
 
     assertEquals 'column-name', column.name
     assertEquals 'bit', column.type
-    assertEquals 'value', column.value
+    assertTrue column.valueBoolean
     assertTrue column.defaultValueBoolean
     assertFalse column.autoIncrement
     assertEquals 'No boolean comment', column.remarks
