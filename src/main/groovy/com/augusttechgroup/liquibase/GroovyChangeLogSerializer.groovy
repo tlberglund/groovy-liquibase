@@ -63,11 +63,33 @@ class GroovyChangeLogSerializer
    */
   String serialize(ColumnConfig columnConfig) {
     def propertyNames = [ 'name', 'type', 'value', 'valueNumeric', 'valueDate', 'valueBoolean', 'valueComputed', 'defaultValue', 'defaultValueNumeric', 'defaultValueDate', 'defaultValueBoolean', 'defaultValueComputed', 'autoIncrement', 'remarks' ]
+    def properties = buildPropertyListFrom(propertyNames, columnConfig)
+    def column = "column(${properties.join(', ')})"
+    if(columnConfig.constraints) {
+      """\
+${column} {
+  ${serialize(columnConfig.constraints)}
+}"""
+    }
+    else {
+      column
+    }
+  }
+
+
+  String serialize(ConstraintsConfig constraintsConfig) {
+    def propertyNames = [ 'nullable', 'primaryKey', 'primaryKeyName', 'primaryKeyTablespace', 'references', 'unique', 'uniqueConstraintName', 'check', 'deleteCascade', 'foreignKeyName', 'initiallyDeferred', 'deferrable' ]
+    def properties = buildPropertyListFrom(propertyNames, constraintsConfig)
+    "constraints(${properties.join(', ')})"
+  }
+
+
+  private buildPropertyListFrom(propertyNames, object) {
     def properties = []
 
     propertyNames.each { propertyName ->
       def propertyString
-      def propertyValue = columnConfig[propertyName]
+      def propertyValue = object[propertyName]
       if(propertyValue != null) {
         switch(propertyValue.class) {
           case Boolean:
@@ -90,42 +112,7 @@ class GroovyChangeLogSerializer
       }
     }
 
-    def column = "column(${properties.join(', ')})"
-    if(columnConfig.constraints) {
-      """\
-${column} {
-  ${serialize(columnConfig.constraints)}
-}"""
-    }
-    else {
-      column
-    }
+    return properties
   }
-
-
-  String serialize(ConstraintsConfig constraintsConfig) {
-    def propertyNames = [ 'nullable', 'primaryKey', 'primaryKeyName', 'primaryKeyTablespace', 'references', 'unique', 'uniqueConstraintName', 'check', 'deleteCascade', 'foreignKeyName', 'initiallyDeferred', 'deferrable' ]
-    def properties = []
-
-    propertyNames.each { propertyName ->
-      def propertyString
-      def propertyValue = constraintsConfig[propertyName]
-      if(propertyValue != null) {
-        switch(propertyValue.class) {
-          case Boolean:
-            propertyString = Boolean.toString(propertyValue)
-            break
-
-          default:
-            propertyString = "'${propertyValue.toString()}'"
-            break
-        }
-        properties << "${propertyName}: ${propertyString}"
-      }
-    }
-
-    "constraints(${properties.join(', ')})"
-  }
-
 
 }

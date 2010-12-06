@@ -21,7 +21,7 @@ class ArchitecturalRefactoringTests
 {
 
   @Test
-  void createIndexWithOneColumn() {
+  void createIndexWithMultipleColumns() {
     buildChangeSet {
       createIndex(schemaName: 'schema', tableName: 'monkey', tablespace: 'tablespace', indexName: 'ndx_monkeys', unique: true) {
         column(name: 'species')
@@ -48,7 +48,7 @@ class ArchitecturalRefactoringTests
 
 
   @Test
-  void createIndexWithMultipleColumns() {
+  void createIndexWithOneColumn() {
     buildChangeSet {
       createIndex(schemaName: 'schema', tableName: 'monkey', tablespace: 'tablespace', indexName: 'ndx_monkeys', unique: true) {
         column(name: 'name')
