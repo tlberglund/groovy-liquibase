@@ -42,45 +42,38 @@ createIndex(indexName: 'ndx_monkeys', schemaName: 'schema', tableName: 'monkey',
   }
 
 
-  @Ignore
   @Test
   void createIndexWithOneColumn() {
-    buildChangeSet {
-      createIndex(schemaName: 'schema', tableName: 'monkey', tablespace: 'tablespace', indexName: 'ndx_monkeys', unique: true) {
-        column(name: 'name')
-      }
-    }
+    def change = [
+      tableName: 'monkey',
+      schemaName: 'schema',
+      tablespace: 'tablespace',
+      indexName: 'ndx_monkeys',
+      unique: true,
+      columns: [
+        [ name: 'name' ] as ColumnConfig
+      ]
+    ] as CreateIndexChange
 
-    def changes = changeSet.changes
-    assertNotNull changes
-    assertEquals 1, changes.size()
-    assertTrue changes[0] instanceof CreateIndexChange
-    assertEquals 'monkey', changes[0].tableName
-    assertEquals 'schema', changes[0].schemaName
-    assertEquals 'tablespace', changes[0].tablespace
-    assertEquals 'ndx_monkeys', changes[0].indexName
-    assertTrue changes[0].unique
-    def columns = changes[0].columns
-    assertNotNull columns
-    assertTrue columns.every { column -> column instanceof ColumnConfig}
-    assertEquals 1, columns.size()
-    assertEquals 'name', columns[0].name
+    def serializedText = serializer.serialize(change)
+    def expectedText = """\
+createIndex(indexName: 'ndx_monkeys', schemaName: 'schema', tableName: 'monkey', tablespace: 'tablespace', unique: true) {
+  column(name: 'name')
+}"""
+    assertEquals expectedText, serializedText
   }
 
 
-  @Ignore
   @Test
   void dropIndex() {
-    buildChangeSet {
-      dropIndex(tableName: 'monkey', indexName: 'ndx_monkeys')
-    }
+    def change = [
+      tableName: 'monkey',
+      indexName: 'ndx_monkeys'
+    ] as DropIndexChange
 
-    def changes = changeSet.changes
-    assertNotNull changes
-    assertEquals 1, changes.size()
-    assertTrue changes[0] instanceof DropIndexChange
-    assertEquals 'monkey', changes[0].tableName
-    assertEquals 'ndx_monkeys', changes[0].indexName
+    def serializedText = serializer.serialize(change)
+    def expectedText = "dropIndex(indexName: 'ndx_monkeys', tableName: 'monkey')"
+    assertEquals expectedText, serializedText
   }
 
 }

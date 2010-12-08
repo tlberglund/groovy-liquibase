@@ -61,11 +61,11 @@ class GroovyChangeLogSerializer
       //   in this case, get its value and append it as { where <value> }
       // A field can be a ColumnConfig
       //   in this case, serialize it as such
-      // A field can be a collection
+      // A field can be a collection ***TESTED***
       //   in this case, loop over it and serialize each of its members iff they are ColumnConfigs
       // A field can have the name procedureBody, sql, or selectQuery
       //   not sure what to do yet
-      // Otherwise, treat the field as a key/value attribute of the change
+      // Otherwise, treat the field as a key/value attribute of the change ***TESTED***
 
       def fieldName = field.name
       def fieldValue = change[fieldName]
