@@ -79,6 +79,9 @@ class GroovyChangeLogSerializer
           children << serialize(it)
         }
       }
+      else if(fieldValue instanceof ColumnConfig) {
+        children << serialize(fieldValue)
+      }
       else {
         attributes << fieldName
       }

@@ -50,9 +50,7 @@ createIndex(indexName: 'ndx_monkeys', schemaName: 'schema', tableName: 'monkey',
       tablespace: 'tablespace',
       indexName: 'ndx_monkeys',
       unique: true,
-      columns: [
-        [ name: 'name' ] as ColumnConfig
-      ]
+      columns: [ [ name: 'name' ] as ColumnConfig ]
     ] as CreateIndexChange
 
     def serializedText = serializer.serialize(change)
