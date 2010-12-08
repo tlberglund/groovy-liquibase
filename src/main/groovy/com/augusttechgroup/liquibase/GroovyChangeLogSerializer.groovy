@@ -18,12 +18,14 @@ import liquibase.sql.visitor.SqlVisitor
 import liquibase.change.ColumnConfig
 import liquibase.util.ISODateFormat
 import liquibase.change.ConstraintsConfig
+import liquibase.change.ChangeProperty
+import liquibase.change.TextNode
 
 import java.sql.Timestamp
 
 
 /**
- * An implementation
+ *
  *
  * @author Tim Berglund
  */
@@ -49,7 +51,57 @@ class GroovyChangeLogSerializer
 
 
   String serialize(Change change) {
-    return null
+    def fields = getChangeFieldsToSerialize(change)
+    def children = []
+    def attributes = []
+    def textBody
+    fields.each { field ->
+
+      // A field can be annotated with @TextNode
+      //   in this case, get its value and append it as { where <value> }
+      // A field can be a ColumnConfig
+      //   in this case, serialize it as such
+      // A field can be a collection
+      //   in this case, loop over it and serialize each of its members iff they are ColumnConfigs
+      // A field can have the name procedureBody, sql, or selectQuery
+      //   not sure what to do yet
+      // Otherwise, treat the field as a key/value attribute of the change
+
+      def fieldName = field.name
+      def fieldValue = change[fieldName]
+
+      def textNodeAnnotation = field.getAnnotation(TextNode)
+      if(textNodeAnnotation) {
+        textBody = fieldValue
+      }
+      else if(fieldValue instanceof Collection) {
+        fieldValue.findAll { it instanceof ColumnConfig }.each {
+          children << serialize(it)
+        }
+      }
+      else {
+        attributes << fieldName
+      }
+    }
+
+    attributes = attributes.sort { it } 
+
+    def serializedChange
+    if(attributes) {
+      serializedChange = "${change.changeMetaData.name}(${buildPropertyListFrom(attributes, change).join(', ')})"
+    }
+    else {
+      serializedChange = "${change.changeMetaData.name}"
+    }
+
+    if(children) {
+      serializedChange = """\
+${serializedChange} {
+  ${children.join("\n  ")}
+}"""
+    }
+
+    return serializedChange
   }
 
 
@@ -79,8 +131,7 @@ ${column} {
 
   String serialize(ConstraintsConfig constraintsConfig) {
     def propertyNames = [ 'nullable', 'primaryKey', 'primaryKeyName', 'primaryKeyTablespace', 'references', 'unique', 'uniqueConstraintName', 'check', 'deleteCascade', 'foreignKeyName', 'initiallyDeferred', 'deferrable' ]
-    def properties = buildPropertyListFrom(propertyNames, constraintsConfig)
-    "constraints(${properties.join(', ')})"
+    "constraints(${buildPropertyListFrom(propertyNames, constraintsConfig).join(', ')})"
   }
 
 
@@ -115,4 +166,20 @@ ${column} {
     return properties
   }
 
+
+  private getChangeFieldsToSerialize(Change change) {
+    def fields = change.class.declaredFields
+
+    // Find all fields that don't have these two excluded names
+    fields = fields.findAll { field -> !(field.name in [ 'serialVersionUID', '$VRc' ]) }
+
+    // Find all fields that don't have the @ChangeProperty(includeInSerialization=false) annotation
+    fields = fields.findAll { field ->
+      def annotation = field.getAnnotation(ChangeProperty)
+      !(annotation && !annotation?.includeInSerialization())
+    }
+
+    return fields
+  }
+  
 }
