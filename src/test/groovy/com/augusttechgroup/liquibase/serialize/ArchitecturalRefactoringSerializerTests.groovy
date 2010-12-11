@@ -11,7 +11,6 @@ import static org.junit.Assert.*
 import liquibase.change.ColumnConfig
 import liquibase.change.core.CreateIndexChange
 import liquibase.change.core.DropIndexChange
-import org.junit.Ignore
 
 
 class ArchitecturalRefactoringSerializerTests

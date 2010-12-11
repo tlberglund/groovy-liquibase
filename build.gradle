@@ -7,7 +7,7 @@ repositories {
 dependencies {
   groovy 'org.codehaus.groovy:groovy:1.7.5'
   testCompile 'junit:junit:4.7' //, 'org.dbunit:dbunit:2.4.8'
-  compile 'org.liquibase:liquibase-core:2.0-rc6'
+  compile 'org.liquibase:liquibase-core:2.0-rc7'
 }
 
 task('parseGroovy', dependsOn: 'compileGroovy') << {

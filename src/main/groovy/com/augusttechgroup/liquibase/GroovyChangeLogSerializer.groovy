@@ -20,7 +20,6 @@ import liquibase.util.ISODateFormat
 import liquibase.change.ConstraintsConfig
 import liquibase.change.ChangeProperty
 import liquibase.change.TextNode
-
 import java.sql.Timestamp
 
 
@@ -63,14 +62,13 @@ class GroovyChangeLogSerializer
       //   in this case, serialize it as such
       // A field can be a collection ***TESTED***
       //   in this case, loop over it and serialize each of its members iff they are ColumnConfigs
-      // A field can have the name procedureBody, sql, or selectQuery
-      //   not sure what to do yet
+      // A field can have the name procedureBody, sql, or selectQuery ***TESTED***
       // Otherwise, treat the field as a key/value attribute of the change ***TESTED***
 
       def fieldName = field.name
       def fieldValue = change[fieldName]
 
-      def textNodeAnnotation = field.getAnnotation(TextNode)
+      def textNodeAnnotation = field.getAnnotation(TextNode.class)
       if(textNodeAnnotation) {
         textBody = fieldValue
       }
@@ -82,7 +80,10 @@ class GroovyChangeLogSerializer
       else if(fieldValue instanceof ColumnConfig) {
         children << serialize(fieldValue)
       }
-      else {
+      else if(fieldName in [ 'procedureBody', 'sql', 'selectQuery' ]) {
+        textBody = fieldValue
+      }
+      else  {
         attributes << fieldName
       }
     }
@@ -101,6 +102,12 @@ class GroovyChangeLogSerializer
       serializedChange = """\
 ${serializedChange} {
   ${children.join("\n  ")}
+}"""
+    }
+    else if(textBody) {
+      serializedChange = """\
+${serializedChange} {
+  "${textBody}"
 }"""
     }
 
