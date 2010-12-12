@@ -53,6 +53,10 @@ class GroovyChangeLogSerializer
     ]
     def children = []
 
+    //
+    // Do these the hard way to keep them out of the map if they're false
+    //
+    
     if(changeSet.isAlwaysRun()) {
       attributes.runAlways = true
     }
@@ -74,7 +78,7 @@ class GroovyChangeLogSerializer
     }
 
     if(changeSet.comments?.trim()) {
-      children << "comment \"${changeSet.comments}\""
+      children << "  comment \"${changeSet.comments.replaceAll('"', '\\\"')}\""
     }
 
     changeSet.changes.each { change -> children << "  ${serialize(change)}" }
@@ -82,7 +86,7 @@ class GroovyChangeLogSerializer
     return """\
 changeSet(${buildPropertyListFrom(attrNames, attributes).join(', ')}) {
 ${children.join('\n')}
-}"""
+}""".toString()
   }
 
 
