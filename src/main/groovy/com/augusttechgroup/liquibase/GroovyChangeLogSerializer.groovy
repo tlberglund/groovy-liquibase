@@ -40,11 +40,53 @@ class GroovyChangeLogSerializer
 
 
   String serialize(DatabaseChangeLog databaseChangeLog) {
+    //TODO This is not implemented in the Liquibase XML serializer either
     return null
   }
 
 
   String serialize(ChangeSet changeSet) {
+    def attrNames = [ 'id', 'author', 'runAlways', 'runOnChange', 'failOnError', 'context', 'dbms' ]
+    def attributes = [
+      id: changeSet.id,
+      author: changeSet.author
+    ]
+    def children = []
+
+    if(changeSet.isAlwaysRun()) {
+      attributes.runAlways = true
+    }
+
+    if(changeSet.isRunOnChange()) {
+      attributes.runOnChange = true
+    }
+
+    if(changeSet.failOnError) {
+      attributes.failOnError = changeSet.failOnError?.toString()
+    }
+
+    if(changeSet.contexts) {
+      attributes.context = changeSet.getContexts().join(',')
+    }
+
+    if(changeSet.dbmsSet) {
+      attributes.dbms = changeSet.dbmsSet.join(',')
+    }
+
+    if(changeSet.comments?.trim()) {
+      children << "comment \"${changeSet.comments}\""
+    }
+
+    changeSet.changes.each { change -> children << "  ${serialize(change)}" }
+
+    return """\
+changeSet(${buildPropertyListFrom(attrNames, attributes).join(', ')}) {
+${children.join('\n')}
+}"""
+  }
+
+
+  String serialize(SqlVisitor visitor) {
     return null
   }
 
@@ -105,14 +147,6 @@ ${serializedChange} {
   }
 
 
-  String serialize(SqlVisitor visitor) {
-    return null
-  }
-
-
-  /*
-    private ConstraintsConfig constraints;
-   */
   String serialize(ColumnConfig columnConfig) {
     def propertyNames = [ 'name', 'type', 'value', 'valueNumeric', 'valueDate', 'valueBoolean', 'valueComputed', 'defaultValue', 'defaultValueNumeric', 'defaultValueDate', 'defaultValueBoolean', 'defaultValueComputed', 'autoIncrement', 'remarks' ]
     def properties = buildPropertyListFrom(propertyNames, columnConfig)

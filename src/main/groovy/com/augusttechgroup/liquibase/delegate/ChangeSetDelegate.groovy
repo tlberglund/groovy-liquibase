@@ -67,7 +67,6 @@ class ChangeSetDelegate {
 
   //TODO Verify that this works. Don't fully understand addValidCheckSum() yet...
   void validCheckSum(String checksum) {
-    println "ADDING ${checksum} to ${changeSet}"
     changeSet.addValidCheckSum(checksum)
   }
 
