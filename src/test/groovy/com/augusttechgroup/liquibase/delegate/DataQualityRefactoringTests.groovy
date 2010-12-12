@@ -199,7 +199,7 @@ class DataQualityRefactoringTests
   @Test
   void addDefaultValueNumeric() {
     buildChangeSet {
-      addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'strength', defaultValueNumeric: 2.718281828459045G)
+      addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'strength', defaultValueNumeric: '2.718281828459045')
     }
 
     def changes = changeSet.changes

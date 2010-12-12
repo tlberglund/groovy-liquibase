@@ -55,16 +55,6 @@ class GroovyChangeLogSerializer
     def attributes = []
     def textBody
     fields.each { field ->
-
-      // A field can be annotated with @TextNode
-      //   in this case, get its value and append it as { where <value> }
-      // A field can be a ColumnConfig
-      //   in this case, serialize it as such
-      // A field can be a collection ***TESTED***
-      //   in this case, loop over it and serialize each of its members iff they are ColumnConfigs
-      // A field can have the name procedureBody, sql, or selectQuery ***TESTED***
-      // Otherwise, treat the field as a key/value attribute of the change ***TESTED***
-
       def fieldName = field.name
       def fieldValue = change[fieldName]
 
@@ -157,6 +147,8 @@ ${column} {
             propertyString = Boolean.toString(propertyValue)
             break
 
+          case BigInteger:
+          case BigDecimal:
           case Number:
             propertyString = propertyValue.toString()
             break
