@@ -45,6 +45,11 @@ class GroovyChangeLogSerializer
   }
 
 
+  String serialize(SqlVisitor visitor) {
+    "${visitor.name}(${buildPropertyListFrom(getChangeFieldsToSerialize(visitor), visitor).join(', ')})"
+  }
+
+
   String serialize(ChangeSet changeSet) {
     def attrNames = [ 'id', 'author', 'runAlways', 'runOnChange', 'failOnError', 'context', 'dbms' ]
     def attributes = [
@@ -87,11 +92,6 @@ class GroovyChangeLogSerializer
 changeSet(${buildPropertyListFrom(attrNames, attributes).join(', ')}) {
 ${children.join('\n')}
 }""".toString()
-  }
-
-
-  String serialize(SqlVisitor visitor) {
-    return null
   }
 
 
