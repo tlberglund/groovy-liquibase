@@ -59,7 +59,7 @@ class DatabaseChangeLogDelegate {
   		changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(params.onValidationFail)
 		}
 		
-		def delegate = new ChangeSetDelegate(changeSet: changeSet)
+		def delegate = new ChangeSetDelegate(changeSet: changeSet, databaseChangeLog: databaseChangeLog)
 		closure.delegate = delegate
     closure.resolveStrategy = Closure.DELEGATE_FIRST
 		closure.call()
@@ -69,33 +69,7 @@ class DatabaseChangeLogDelegate {
 
 
   void preConditions(Map params = [:], Closure closure) {
-    def preconditions = new PreconditionContainer()
-    
-    if(params.onFail) {
-      preconditions.onFail = FailOption."${params.onFail}"
-    }
-
-    if(params.onError) {
-      preconditions.onError = ErrorOption."${params.onError}"
-    }
-
-    if(params.onUpdateSQL) {
-      preconditions.onSqlOutput = OnSqlOutputOption."${params.onUpdateSQL}"
-    }
-
-    preconditions.onFailMessage = params.onFailMessage
-    preconditions.onErrorMessage = params.onErrorMessage
-
-    def delegate = new PreconditionDelegate()
-    closure.delegate = delegate
-    closure.resolveStrategy = Closure.DELEGATE_FIRST
-    closure.call()
-
-    delegate.preconditions.each { precondition ->
-      preconditions.addNestedPrecondition(precondition)
-    }
-
-    databaseChangeLog.preconditions = preconditions
+    databaseChangeLog.preconditions = PreconditionDelegate.buildPreconditionContainer(params, closure)
   }
 
 

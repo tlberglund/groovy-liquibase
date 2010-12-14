@@ -24,33 +24,9 @@ import org.junit.Ignore
 import static org.junit.Assert.*
 
 
-class ChangeSetMethodTests {
-
-  def resourceAccessor
-  def parserFactory
-  def changeSet
-    
-
-  @Before
-  void registerParser() {
-    resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
-    parserFactory = ChangeLogParserFactory.instance
-    ChangeLogParserFactory.getInstance().register(new GroovyLiquibaseChangeLogParser())
-
-		changeSet = new ChangeSet(
-		  'generic-changeset-id',
-		  'tlberglund',
-		  false,
-		  false,
-		  '/filePath',
-		  '/physicalFilePath',
-		  'context',
-		  'mysql',
-		  true)
-  }
-  
-  
-  
+class ChangeSetMethodTests
+  extends ChangeSetTests
+{
   @Test
   void testComments() {
     buildChangeSet {
@@ -65,7 +41,6 @@ class ChangeSetMethodTests {
   void testValidChecksum() {
     def checksum = 'd0763edaa9d9bd2a9516280e9044d885'
     def liquibaseChecksum = CheckSum.parse(checksum)
-    println "TESTING ${liquibaseChecksum}"
     assertFalse "Arbitrary checksum should not be valid before being added", changeSet.isCheckSumValid(liquibaseChecksum)
     buildChangeSet {
       validCheckSum checksum
@@ -87,7 +62,9 @@ class ChangeSetMethodTests {
   }
 
 
-  @Test void testRollbackClosure() {
+  @Ignore
+  @Test
+  void testRollbackByChangeSetId() {
     buildChangeSet {
       rollback {
 """UPDATE monkey_table SET emotion='angry' WHERE status='PENDING';
@@ -103,10 +80,4 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
   }
   
 
-  private def buildChangeSet(Closure closure) {
-    closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
-    closure.call()
-    changeSet
-  }  
-  
 }

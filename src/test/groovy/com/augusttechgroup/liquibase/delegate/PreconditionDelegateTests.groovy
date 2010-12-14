@@ -12,10 +12,6 @@ package com.augusttechgroup.liquibase.delegate
 
 import org.junit.Test
 import static org.junit.Assert.*
-import liquibase.precondition.core.PreconditionContainer
-import liquibase.precondition.core.PreconditionContainer.FailOption
-import liquibase.precondition.core.PreconditionContainer.ErrorOption
-import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
 import liquibase.precondition.core.DBMSPrecondition
 import liquibase.precondition.Precondition
 import liquibase.precondition.core.RunningAsPrecondition

@@ -49,10 +49,13 @@ import liquibase.change.core.RawSQLChange
 import liquibase.change.core.SQLFileChange
 import liquibase.change.core.ExecuteShellCommandChange
 import liquibase.change.custom.CustomChangeWrapper
+import liquibase.exception.RollbackImpossibleException
 
 
 class ChangeSetDelegate {
   def changeSet
+  def databaseChangeLog
+  def inRollback
 
 
   void comment(String text) {
@@ -60,8 +63,8 @@ class ChangeSetDelegate {
   }
 
 
-  void preConditions(Closure closure) {
-
+  void preConditions(Map params = [:], Closure closure) {
+    changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(params, closure)
   }
 
 
@@ -77,18 +80,35 @@ class ChangeSetDelegate {
 
 
   void rollback(Closure closure) {
-    changeSet.addRollBackSQL(closure.call().toString())
+    def delegate = new ChangeSetDelegate(changeSet: changeSet,
+                                         databaseChangeLog: databaseChangeLog,
+                                         inRollback: true)
+    closure.delegate = delegate
+    closure.resolveStrategy = Closure.DELEGATE_FIRST
+    closure.call()
+
+    // The delegate should populate the ChangeSet's rollback change list, so there is nothing
+    // further to do.
   }
 
-  
+
+
   void rollback(Map params) {
-    //TODO implement after changeSet processing is substantially implemented (testing requires it)
+    def referencedChangeSet = databaseChangeLog.getChangeSet(databaseChangeLog.filePath, params.author, params.id)
+    if(referencedChangeSet) {
+      referencedChangeSet.changes.each { change ->
+        changeSet.addRollbackChange(change)
+      }
+    }
+    else {
+      throw new RollbackImpossibleException("Could not find changeSet to use for rollback: ${path}:${author}:${id}")
+    }
   }
 
 
   void addColumn(Map params, Closure closure) {
     def change = makeColumnarChangeFromMap(AddColumnChange, closure, params, ['schemaName', 'tableName'])
-    changeSet.addChange(change)
+    addChange(change)
   }
 
 
@@ -114,7 +134,7 @@ class ChangeSetDelegate {
 
   void createTable(Map params, Closure closure) {
     def change = makeColumnarChangeFromMap(CreateTableChange, closure, params, ['schemaName', 'tablespace', 'tableName', 'remarks'])
-    changeSet.addChange(change)
+    addChange(change)
   }
 
 
@@ -126,12 +146,12 @@ class ChangeSetDelegate {
   void dropTable(Map params) {
     addMapBasedChange(DropTableChange, params, ['schemaName', 'tableName'])
   }
-  
+
 
   void createView(Map params, Closure closure) {
     def change = makeChangeFromMap(CreateViewChange, params, ['schemaName', 'viewName', 'replaceIfExists'])
     change.selectQuery = closure.call()
-    changeSet.addChange(change)
+    addChange(change)
   }
 
 
@@ -153,10 +173,10 @@ class ChangeSetDelegate {
   void createStoredProcedure(String storedProc) {
     def change = new CreateProcedureChange()
     change.procedureBody = storedProc
-    changeSet.addChange(change)
+    addChange(change)
   }
 
-  
+
   void addLookupTable(Map params) {
     addMapBasedChange(AddLookupTableChange, params, ['existingTableName', 'existingTableSchemaName', 'existingColumnName', 'newTableName', 'newTableSchemaName', 'newColumnName', 'newColumnDataType', 'constraintName'])
   }
@@ -166,7 +186,7 @@ class ChangeSetDelegate {
     addMapBasedChange(AddNotNullConstraintChange, params, ['schemaName', 'tableName', 'columnName', 'defaultNullValue', 'columnDataType'])
   }
 
-  
+
   void dropNotNullConstraint(Map params) {
     addMapBasedChange(DropNotNullConstraintChange, params, ['schemaName', 'tableName', 'columnName', 'columnDataType'])
   }
@@ -176,7 +196,7 @@ class ChangeSetDelegate {
     addMapBasedChange(AddUniqueConstraintChange, params, ['tablespace', 'schemaName', 'tableName', 'columnNames', 'constraintName'])
   }
 
-  
+
   void dropUniqueConstraint(Map params) {
     addMapBasedChange(DropUniqueConstraintChange, params, ['tableName', 'schemaName', 'constraintName'])
   }
@@ -190,7 +210,7 @@ class ChangeSetDelegate {
   void dropSequence(Map params) {
     addMapBasedChange(DropSequenceChange, params, ['sequenceName'])
   }
-  
+
 
   void addAutoIncrement(Map params) {
     addMapBasedChange(AddAutoIncrementChange, params, ['tableName', 'columnName', 'columnDataType'])
@@ -206,7 +226,7 @@ class ChangeSetDelegate {
     addMapBasedChange(DropDefaultValueChange, params, ['tableName', 'schemaName', 'columnName'])
   }
 
-  
+
   void addForeignKeyConstraint(Map params) {
     addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'deleteCascade', 'onDelete', 'onUpdate'])
   }
@@ -216,92 +236,92 @@ class ChangeSetDelegate {
     addMapBasedChange(DropForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableSchemaName'])
   }
 
-  
+
   void addPrimaryKey(Map params) {
-    addMapBasedChange(AddPrimaryKeyChange, params, ['tableName', 'schemaName', 'columnNames', 'constraintName', 'tablespace'])  
+    addMapBasedChange(AddPrimaryKeyChange, params, ['tableName', 'schemaName', 'columnNames', 'constraintName', 'tablespace'])
   }
 
-  
+
   void dropPrimaryKey(Map params) {
-    addMapBasedChange(DropPrimaryKeyChange, params, ['tableName', 'schemaName', 'constraintName']) 
+    addMapBasedChange(DropPrimaryKeyChange, params, ['tableName', 'schemaName', 'constraintName'])
   }
 
-  
+
   void insert(Map params, Closure closure) {
     def change = makeColumnarChangeFromMap(InsertDataChange, closure, params, ['schemaName', 'tableName'])
-    changeSet.addChange(change)
+    addChange(change)
   }
-  
-  
+
+
   void loadData(Map params, Closure closure) {
     if(params.file instanceof File) {
       params.file = params.file.canonicalPath
     }
 
     def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding'])
-    changeSet.addChange(change)
+    addChange(change)
   }
 
-  
+
   void loadUpdateData(Map params, Closure closure) {
     if(params.file instanceof File) {
       params.file = params.file.canonicalPath
     }
 
     def change = makeLoadDataColumnarChangeFromMap(LoadUpdateDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding', 'primaryKey'])
-    changeSet.addChange(change)
+    addChange(change)
   }
 
 
   void update(Map params, Closure closure) {
     def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['schemaName', 'tableName'])
-    changeSet.addChange(change)
+    addChange(change)
   }
 
 
   void delete(Map params, Closure closure) {
     def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['schemaName', 'tableName'])
-    changeSet.addChange(change)
+    addChange(change)
   }
 
-  
+
   void tagDatabase(Map params) {
-    addMapBasedChange(TagDatabaseChange, params, ['tag']) 
+    addMapBasedChange(TagDatabaseChange, params, ['tag'])
   }
 
 
   void stop(String message) {
     def change = new StopChange()
     change.message = message
-    changeSet.addChange(change)
+    addChange(change)
   }
 
-  
+
   void createIndex(Map params, Closure closure) {
     def change = makeColumnarChangeFromMap(CreateIndexChange, closure, params, ['schemaName', 'tableName', 'tablespace', 'indexName', 'unique'])
-    changeSet.addChange(change)
+    addChange(change)
   }
 
-  
+
   void dropIndex(Map params) {
-    addMapBasedChange(DropIndexChange, params, ['tableName', 'indexName'])  
+    addMapBasedChange(DropIndexChange, params, ['tableName', 'indexName'])
   }
-  
+
 
   void sql(Map params = [:], Closure closure) {
     def change = makeChangeFromMap(RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter'])
     change.sql = closure.call()
-    changeSet.addChange(change)
+    addChange(change)
   }
 
 
   void sql(String sql) {
     def change = new RawSQLChange()
     change.sql = sql
-    changeSet.addChange(change)
+    addChange(change)
   }
 
-  
+
   void sqlFile(Map params) {
     addMapBasedChange(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter'])
   }
@@ -321,7 +341,7 @@ class ChangeSetDelegate {
       }
     }
 
-    changeSet.addChange(change)
+    addChange(change)
   }
 
 
@@ -333,10 +353,11 @@ class ChangeSetDelegate {
   void customChange(Closure closure) {
     //TODO Figure out how to implement closure-based custom changes
     // It's not easy, since the closure would probably need the Database object to be
-    // interesting, and that's not available at parse time.
+    // interesting, and that's not available at parse time. Perhaps we could keep this closure
+    // around somewhere to run later when the Database is alive.
   }
 
-  
+
   void executeCommand(Map params) {
     addMapBasedChange(ExecuteShellCommandChange, params, ['executable', 'os'])
   }
@@ -351,7 +372,7 @@ class ChangeSetDelegate {
       change.addArg(arg)
     }
 
-    changeSet.addChange(change)
+    addChange(change)
   }
 
 
@@ -390,7 +411,7 @@ class ChangeSetDelegate {
     return change
   }
 
-  
+
   private def makeChangeFromMap(Class klass, Map sourceMap, List paramNames) {
     def change = klass.newInstance()
     paramNames.each { name ->
@@ -404,8 +425,18 @@ class ChangeSetDelegate {
 
 
   private void addMapBasedChange(Class klass, Map sourceMap, List paramNames) {
-    changeSet.addChange(makeChangeFromMap(klass, sourceMap, paramNames))
+    addChange(makeChangeFromMap(klass, sourceMap, paramNames))
   }
 
+
+  private def addChange(change) {
+    if(inRollback) {
+      changeSet.addRollbackChange(change)
+    }
+    else {
+      changeSet.addChange(change)
+    }
+    return changeSet
+  }
 
 }
