@@ -1,0 +1,151 @@
+
+apply plugin: 'groovy'
+
+repositories {
+  mavenCentral()
+  flatDir name: 'liquibaseRepo', dirs: 'build/libs'
+}
+
+dependencies {
+  groovy 'org.codehaus.groovy:groovy:1.7.5'
+  runtime 'org.liquibase:liquibase-core:2.0-rc7'
+  runtime 'mysql:mysql-connector-java:5.1.9'
+  classpath 'com.augusttechgroup:groovy-liquibase:0.8'
+  testCompile group: 'junit', name: 'junit', version: '4.7'
+}
+
+
+
+def databaseUrl = null
+def databaseUsername = null
+def databasePassword = null
+def changeLogFile = null
+
+task('setupLiquibaseProperties') << {
+  println configurations.getClass()
+  configurations.each { println "${it.name}=${it.dependencies}" }
+  //liquibase.parser.ChangeLogParserFactory.getInstance().register(new com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser())
+  def propertiesFile = new File('database.properties')
+  if(propertiesFile.exists()) {
+    def properties = new Properties()
+    properties.load(new FileInputStream(propertiesFile))
+    databaseUrl = properties.url
+    databaseUsername = properties.username
+    databasePassword = properties.password
+    changeLogFile = properties['change.log.file'] ?: System.getProperty('change.log.file')
+  }
+}
+
+
+task('generateChangeLog', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'generateChangeLog'
+
+  runLiquibase(argList)
+}
+
+
+task('changeLogSync', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'changeLogSync'
+
+  runLiquibase(argList)
+}
+
+
+task('update', dependsOn: 'setupLiquibaseProperties') << {
+  liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, false)
+}
+
+
+task('updateSQL', dependsOn: 'setupLiquibaseProperties') << {
+  liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, true)
+}
+
+
+task('tag', dependsOn: 'setupLiquibaseProperties') << {
+  def tag = System.getProperty('tag')
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'tag'
+  argList << tag
+
+  runLiquibase(argList)
+}
+
+
+task('rollback', dependsOn: 'setupLiquibaseProperties') << {
+  def tag = System.getProperty('tag')
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'rollback'
+  argList << tag
+
+  runLiquibase(argList)
+}
+
+
+task('dbDoc', dependsOn: 'setupLiquibaseProperties') << {
+  def docDir = 'build/database/docs'
+  ant.mkdir(dir: docDir)
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'dbdoc'
+  argList << docDir
+
+  runLiquibase(argList)
+}
+
+
+def liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, dryRun) {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  if(dryRun) {
+    argList << 'updateSQL'
+  }
+  else {
+    argList << 'update'
+  }
+
+  runLiquibase(argList)
+}
+
+
+def runLiquibase(List argList) {
+  javaexec {
+    main = 'liquibase.integration.commandline.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = argList
+  }
+}
+
+
+def runLiquibase(Map argMap, Object... argList) {
+  javaexec {
+    main = 'com.augusttechgroup.liquibase.liquibase'
+    classpath sourceSets.main.runtimeClasspath, sourceSets.main.classesDir
+  }
+  javaexec {
+    main = 'liquibase.integration.commandline.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = argMap.collect { name, value -> "--${name}=${value}" } + argList.toList()
+  }
+}
+
+
+
+
