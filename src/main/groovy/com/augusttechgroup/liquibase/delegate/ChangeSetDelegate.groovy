@@ -74,6 +74,11 @@ class ChangeSetDelegate {
   }
 
 
+  void rollback() {
+    // To support empty rollbacks (allowed by the spec)
+  }
+
+  
   void rollback(String sql) {
     changeSet.addRollBackSQL(sql)
   }
@@ -90,7 +95,6 @@ class ChangeSetDelegate {
     // The delegate should populate the ChangeSet's rollback change list, so there is nothing
     // further to do.
   }
-
 
 
   void rollback(Map params) {

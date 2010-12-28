@@ -1,5 +1,7 @@
 apply plugin: 'groovy'
 
+version = '0.8'
+
 repositories {
   mavenCentral()
 }
