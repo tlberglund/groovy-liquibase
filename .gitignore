@@ -4,3 +4,4 @@ build
 out/
 *.iml
 database.properties
+*.log
