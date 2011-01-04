@@ -1,19 +1,19 @@
 
+apply plugin: 'java'
 apply plugin: 'groovy'
 
 repositories {
   mavenCentral()
-  flatDir name: 'liquibaseRepo', dirs: 'build/libs'
+  def ml = mavenLocal()
+  println ml.class
 }
 
 dependencies {
   groovy 'org.codehaus.groovy:groovy:1.7.5'
-  runtime 'org.liquibase:liquibase-core:2.0-rc7'
+  runtime 'org.liquibase:liquibase-core:2.0.0-SNAPSHOT'
   runtime 'mysql:mysql-connector-java:5.1.9'
-  classpath 'com.augusttechgroup:groovy-liquibase:0.8'
-  testCompile group: 'junit', name: 'junit', version: '4.7'
+//  classpath 'com.augusttechgroup:groovy-liquibase:0.8'
 }
-
 
 
 def databaseUrl = null
@@ -22,9 +22,7 @@ def databasePassword = null
 def changeLogFile = null
 
 task('setupLiquibaseProperties') << {
-  println configurations.getClass()
-  configurations.each { println "${it.name}=${it.dependencies}" }
-  //liquibase.parser.ChangeLogParserFactory.getInstance().register(new com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser())
+//  liquibase.parser.ChangeLogParserFactory.getInstance().register(new com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser())
   def propertiesFile = new File('database.properties')
   if(propertiesFile.exists()) {
     def properties = new Properties()
@@ -141,11 +139,10 @@ def runLiquibase(Map argMap, Object... argList) {
   }
   javaexec {
     main = 'liquibase.integration.commandline.Main'
+    println sourceSets.main.runtimeClasspath
     classpath = sourceSets.main.runtimeClasspath
     args = argMap.collect { name, value -> "--${name}=${value}" } + argList.toList()
   }
 }
-
-
 
 

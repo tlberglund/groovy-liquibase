@@ -173,6 +173,13 @@ ${column} {
   }
 
 
+  void write(List changeSets, OutputStream out) {
+    out << 'databaseChangeLog {\n'
+    out << changeSets.collect { changeSet -> "${serialize(changeSet)}\n\n"}
+    out << '}\n'
+  }
+
+
   private buildPropertyListFrom(propertyNames, object) {
     def properties = []
 
