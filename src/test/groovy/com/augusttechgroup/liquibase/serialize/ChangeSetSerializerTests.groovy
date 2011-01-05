@@ -30,7 +30,6 @@ class ChangeSetSerializerTests
       false,
       false,
       '.',
-      '.',
       null,
       null,
       true)
@@ -52,7 +51,6 @@ changeSet(id: 'drop-table', author: 'tlberglund') {
       'tlberglund',
       true,
       true,
-      '.',
       '.',
       'dev, staging',
       'mysql, oracle',

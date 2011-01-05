@@ -13,7 +13,6 @@ package com.augusttechgroup.liquibase.serialize
 import org.junit.Test
 import static org.junit.Assert.*
 
-import liquibase.change.core.DropDefaultValueChange
 import liquibase.change.core.AddDefaultValueChange
 
 

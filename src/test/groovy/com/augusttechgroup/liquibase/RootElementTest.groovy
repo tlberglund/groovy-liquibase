@@ -21,6 +21,8 @@ import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
 import liquibase.precondition.core.RunningAsPrecondition
 import liquibase.precondition.core.DBMSPrecondition
 
+import liquibase.parser.ext.GroovyLiquibaseChangeLogParser
+
 import org.junit.Test
 import org.junit.Before
 import static org.junit.Assert.*

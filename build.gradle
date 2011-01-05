@@ -3,14 +3,14 @@ apply plugin: 'groovy'
 version = '0.8'
 
 repositories {
-  mavenLocal urls: 'file:///Users/tlberglund/.m2/repository'
   mavenCentral()
+  mavenLocal()
 }
 
 dependencies {
   groovy 'org.codehaus.groovy:groovy:1.7.5'
   testCompile 'junit:junit:4.7' //, 'org.dbunit:dbunit:2.4.8'
-  compile 'org.liquibase:liquibase-core:2.0-rc7-SNAPSHOT'
+  compile 'org.liquibase:liquibase-core:2.0.0-SNAPSHOT'
 }
 
 task('parseGroovy', dependsOn: 'compileGroovy') << {

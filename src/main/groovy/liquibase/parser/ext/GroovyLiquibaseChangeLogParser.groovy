@@ -8,7 +8,7 @@
 // Licensed under the Apache License 2.0
 //
 
-package com.augusttechgroup.liquibase
+package liquibase.parser.ext
 
 import liquibase.parser.ChangeLogParser
 import liquibase.changelog.DatabaseChangeLog

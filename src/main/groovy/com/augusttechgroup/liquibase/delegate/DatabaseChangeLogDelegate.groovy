@@ -46,7 +46,6 @@ class DatabaseChangeLogDelegate {
 		  params.alwaysRun?.toBoolean() ?: false,
 		  params.runOnChange?.toBoolean() ?: false,
 		  params.filePath,
-		  databaseChangeLog.getPhysicalFilePath(),
 		  params.context,
 		  params.dbms,
 		  params.runInTransaction?.toBoolean() ?: true)

@@ -10,14 +10,9 @@
 
 package com.augusttechgroup.liquibase
 
-import liquibase.serializer.ChangeLogSerializer
-import liquibase.changelog.DatabaseChangeLog
-import liquibase.changelog.ChangeSet
-import liquibase.change.Change
-import liquibase.sql.visitor.SqlVisitor
-import liquibase.change.ColumnConfig
 import liquibase.resource.FileSystemResourceAccessor
 import liquibase.serializer.ChangeLogSerializerFactory
+import liquibase.serializer.ext.GroovyChangeLogSerializer
 
 
 import org.junit.Test

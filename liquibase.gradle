@@ -1,11 +1,9 @@
-
 apply plugin: 'java'
 apply plugin: 'groovy'
 
 repositories {
   mavenCentral()
-  def ml = mavenLocal()
-  println ml.class
+  mavenLocal()
 }
 
 dependencies {
@@ -144,5 +142,4 @@ def runLiquibase(Map argMap, Object... argList) {
     args = argMap.collect { name, value -> "--${name}=${value}" } + argList.toList()
   }
 }
-
 

@@ -10,16 +10,10 @@
 
 package com.augusttechgroup.liquibase.delegate
 
-import com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser
-
-import liquibase.parser.ChangeLogParserFactory
-import liquibase.resource.FileSystemResourceAccessor
-import liquibase.changelog.ChangeSet
 import liquibase.change.CheckSum
 import liquibase.change.core.RawSQLChange
 
 import org.junit.Test
-import org.junit.Before
 import org.junit.Ignore
 import static org.junit.Assert.*
 

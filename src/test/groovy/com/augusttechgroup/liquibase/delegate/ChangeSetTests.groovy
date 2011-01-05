@@ -29,7 +29,6 @@ class ChangeSetTests
 		  false,
 		  false,
 		  '/filePath',
-		  '/physicalFilePath',
 		  'context',
 		  'mysql',
 		  true)

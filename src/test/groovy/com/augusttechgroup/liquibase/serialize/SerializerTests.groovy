@@ -14,9 +14,10 @@ import liquibase.resource.FileSystemResourceAccessor
 import liquibase.serializer.ChangeLogSerializerFactory
 
 import org.junit.Before
-import com.augusttechgroup.liquibase.GroovyChangeLogSerializer
+import liquibase.serializer.ext.GroovyChangeLogSerializer
 import java.text.SimpleDateFormat
 import java.sql.Timestamp
+
 
 /**
  * A base class providing support for test classes targeting serializations.

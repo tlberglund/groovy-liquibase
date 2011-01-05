@@ -1,6 +1,6 @@
 package com.augusttechgroup.liquibase
 
-import com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser
+import liquibase.parser.ext.GroovyLiquibaseChangeLogParser
 import liquibase.parser.*
 import liquibase.resource.FileSystemResourceAccessor
 

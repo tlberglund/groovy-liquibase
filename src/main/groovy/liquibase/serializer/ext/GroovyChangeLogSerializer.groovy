@@ -8,7 +8,7 @@
 // Licensed under the Apache License 2.0
 //
 
-package com.augusttechgroup.liquibase
+package liquibase.serializer.ext
 
 import liquibase.serializer.ChangeLogSerializer
 import liquibase.changelog.DatabaseChangeLog
@@ -83,14 +83,15 @@ class GroovyChangeLogSerializer
     }
 
     if(changeSet.comments?.trim()) {
-      children << "  comment \"${changeSet.comments.replaceAll('"', '\\\"')}\""
+      children << "comment \"${changeSet.comments.replaceAll('"', '\\\"')}\""
     }
 
-    changeSet.changes.each { change -> children << "  ${serialize(change)}" }
+    changeSet.changes.each { change -> children << serialize(change) }
 
+    def renderedChildren = children.collect { child -> indent(child) }.join('\n')
     return """\
 changeSet(${buildPropertyListFrom(attrNames, attributes).join(', ')}) {
-${children.join('\n')}
+${renderedChildren}
 }""".toString()
   }
 
@@ -135,9 +136,10 @@ ${children.join('\n')}
     }
 
     if(children) {
+      def renderedChildren = children.collect { child -> indent(child) }.join('\n')
       serializedChange = """\
 ${serializedChange} {
-  ${children.join("\n  ")}
+${renderedChildren}
 }"""
     }
     else if(textBody) {
@@ -175,10 +177,15 @@ ${column} {
 
   void write(List changeSets, OutputStream out) {
     out << 'databaseChangeLog {\n'
-    out << changeSets.collect { changeSet -> "${serialize(changeSet)}\n\n"}
-    out << '}\n'
+    out << changeSets.collect { changeSet -> indent(serialize(changeSet)) }.join('\n\n')
+    out << '\n\n}\n'
   }
 
+
+  private indent(text) {
+    text?.readLines().collect { line -> "  ${line}" }.join('\n')
+  }
+  
 
   private buildPropertyListFrom(propertyNames, object) {
     def properties = []
@@ -203,10 +210,14 @@ ${column} {
             break
 
           default:
-            propertyString = "'${propertyValue.toString()}'"
+            if(propertyValue) {
+              propertyString = "'${propertyValue.toString()}'"
+            }
             break
         }
-        properties << "${propertyName}: ${propertyString}"
+        if(propertyString) {
+          properties << "${propertyName}: ${propertyString}"
+        }
       }
     }
 
