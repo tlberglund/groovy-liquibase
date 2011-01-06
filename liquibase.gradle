@@ -10,7 +10,6 @@ dependencies {
   groovy 'org.codehaus.groovy:groovy:1.7.5'
   runtime 'org.liquibase:liquibase-core:2.0.0-SNAPSHOT'
   runtime 'mysql:mysql-connector-java:5.1.9'
-//  classpath 'com.augusttechgroup:groovy-liquibase:0.8'
 }
 
 
@@ -20,7 +19,6 @@ def databasePassword = null
 def changeLogFile = null
 
 task('setupLiquibaseProperties') << {
-//  liquibase.parser.ChangeLogParserFactory.getInstance().register(new com.augusttechgroup.liquibase.GroovyLiquibaseChangeLogParser())
   def propertiesFile = new File('database.properties')
   if(propertiesFile.exists()) {
     def properties = new Properties()

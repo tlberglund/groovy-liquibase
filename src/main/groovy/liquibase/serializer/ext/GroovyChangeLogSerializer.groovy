@@ -182,6 +182,13 @@ ${column} {
   }
 
 
+  void append(File changeLogFile, String newChangeLogText) {
+    throw new UnsupportedOperationException("""GroovyChangeLogSerializer does not append changelog content.
+  To append a newly generated changelog to an existing changelog, specify a new filename
+  for the new changelog, then copy and paste that content into the existing file.""")
+  }
+
+
   private indent(text) {
     text?.readLines().collect { line -> "  ${line}" }.join('\n')
   }

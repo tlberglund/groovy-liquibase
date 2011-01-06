@@ -40,30 +40,30 @@ class DatabaseChangeLogDelegate {
   
   
   void changeSet(Map params, closure) {
-		def changeSet = new ChangeSet(
-		  params.id,
-		  params.author,
-		  params.alwaysRun?.toBoolean() ?: false,
-		  params.runOnChange?.toBoolean() ?: false,
-		  params.filePath,
-		  params.context,
-		  params.dbms,
-		  params.runInTransaction?.toBoolean() ?: true)
-		  
-		if(params.failOnError) {
-  		changeSet.failOnError = params.failOnError?.toBoolean()
-		}
+    def changeSet = new ChangeSet(
+      params.id,
+      params.author,
+      params.alwaysRun?.toBoolean() ?: false,
+      params.runOnChange?.toBoolean() ?: false,
+      databaseChangeLog.physicalFilePath,
+      params.context,
+      params.dbms,
+      params.runInTransaction?.toBoolean() ?: true)
 
-		if(params.onValidationFail) {
-  		changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(params.onValidationFail)
-		}
-		
-		def delegate = new ChangeSetDelegate(changeSet: changeSet, databaseChangeLog: databaseChangeLog)
-		closure.delegate = delegate
+    if(params.failOnError) {
+      changeSet.failOnError = params.failOnError?.toBoolean()
+    }
+
+    if(params.onValidationFail) {
+      changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(params.onValidationFail)
+    }
+
+    def delegate = new ChangeSetDelegate(changeSet: changeSet, databaseChangeLog: databaseChangeLog)
+    closure.delegate = delegate
     closure.resolveStrategy = Closure.DELEGATE_FIRST
-		closure.call()
-		
-		databaseChangeLog.addChangeSet(changeSet)
+    closure.call()
+    
+    databaseChangeLog.addChangeSet(changeSet)
   }
 
 
