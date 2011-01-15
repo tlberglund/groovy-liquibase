@@ -12,6 +12,28 @@ dependencies {
   runtime 'mysql:mysql-connector-java:5.1.9'
 }
 
+/*
+databases {
+  development {
+    driver = 'com.mysql.jdbc.Driver'
+    url = ''
+    username = ''
+    password = ''
+  }
+  test {
+
+  }
+  production {
+
+  }
+}
+
+schemas {
+  main {
+    changelog: [ main-changelog.groovy, migration-changelog.groovy, reference-changelog.groovy ]
+  }
+}
+*/
 
 def databaseUrl = null
 def databaseUsername = null

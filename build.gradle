@@ -1,6 +1,8 @@
 apply plugin: 'groovy'
+apply plugin: 'maven'
 
-version = '0.8'
+version = '0.1'
+group = 'com.augusttechgroup'
 
 repositories {
   mavenCentral()
