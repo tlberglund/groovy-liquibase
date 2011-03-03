@@ -1,18 +1,16 @@
 apply plugin: 'groovy'
-apply plugin: 'maven'
 
 version = '0.1'
 group = 'com.augusttechgroup'
 
 repositories {
   mavenCentral()
-  mavenLocal()
 }
 
 dependencies {
   groovy 'org.codehaus.groovy:groovy:1.7.5'
-  testCompile 'junit:junit:4.7' //, 'org.dbunit:dbunit:2.4.8'
-  compile 'org.liquibase:liquibase-core:2.0.0-SNAPSHOT'
+  testCompile 'junit:junit:4.7'
+  compile 'org.liquibase:liquibase-core:2.0.1'
 }
 
 task('parseGroovy', dependsOn: 'compileGroovy') << {
