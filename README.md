@@ -11,11 +11,10 @@ This code is released under the Apache Public License 2.0, just like Liquibase 2
 
 ## TODOs
 
+ * Support for the customChange. Using groovy code, liquibase changes and database SQL in a changeSet.
  * Support for the [property tag](http://www.liquibase.org/manual/changelog_parameters)
  * Support for the [rollback tag](http://www.liquibase.org/manual/rollback)
- * Support for the [includeall tag](http://www.liquibase.org/manual/includeall). This might be better implemented as an extension of include(), as in:
- 
-	include(path: '')
+
     
  * Support for extensions. modifyColumn is probably a good place to start.
  * Proper testing of validCheckSum under changeSet. It's implemented, but I have not tested it properly.
