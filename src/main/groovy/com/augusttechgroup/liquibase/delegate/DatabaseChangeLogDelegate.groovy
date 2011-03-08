@@ -11,6 +11,8 @@
 package com.augusttechgroup.liquibase.delegate
 
 
+import java.util.Map;
+
 import liquibase.changelog.ChangeSet
 import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
 import liquibase.precondition.core.PreconditionContainer.ErrorOption
@@ -73,15 +75,34 @@ class DatabaseChangeLogDelegate {
 
 
   void include(Map params = [:]) {
-    def includedChangeLogFile = params.file
-    def parser = ChangeLogParserFactory.getInstance().getParser(includedChangeLogFile, resourceAccessor)
-    def includedChangeLog = parser.parse(includedChangeLogFile, null, resourceAccessor)
-    includedChangeLog?.changeSets.each { changeSet ->
-      databaseChangeLog.addChangeSet(changeSet)
-    }
-    includedChangeLog?.preconditionContainer?.nestedPreconditions.each { precondition ->
-      databaseChangeLog.preconditionContainer.addNestedPrecondition(precondition)
-    }
+	  def files = []
+
+	  if(params.path){
+		  // pass a directory
+		  def includedChangeLogPath = params.path
+		  
+		  // get all files ending with .groovy
+		  new File(includedChangeLogPath).eachFileMatch(~/.*.groovy/) { file->
+			  files << file.getPath()
+		  }
+		  
+		  // order the files, alphabetic
+		  files.sort()
+		  
+	  }else if (params.file){
+		  // pass a file
+		  files << params.file
+	  }
+	  files.each {
+		  def parser = ChangeLogParserFactory.getInstance().getParser(it, resourceAccessor)
+		  def includedChangeLog = parser.parse(it, null, resourceAccessor)
+		  includedChangeLog?.changeSets.each { changeSet ->
+			  databaseChangeLog.addChangeSet(changeSet)
+		  }
+		  includedChangeLog?.preconditionContainer?.nestedPreconditions.each { precondition ->
+			  databaseChangeLog.preconditionContainer.addNestedPrecondition(precondition)
+		  }
+	  }
   }
 
 
