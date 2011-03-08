@@ -8,14 +8,14 @@ repositories {
 
 dependencies {
   groovy 'org.codehaus.groovy:groovy:1.7.5'
-  runtime 'org.liquibase:liquibase-core:2.0.0-SNAPSHOT'
+  runtime 'org.liquibase:liquibase-core:2.0.0'
   runtime 'mysql:mysql-connector-java:5.1.9'
 }
 
 /*
 databases {
   development {
-    driver = 'com.mysql.jdbc.Driver'
+    driver = ''
     url = ''
     username = ''
     password = ''
@@ -79,9 +79,26 @@ task('update', dependsOn: 'setupLiquibaseProperties') << {
   liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, false)
 }
 
-
 task('updateSQL', dependsOn: 'setupLiquibaseProperties') << {
   liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, true)
+}
+
+task('rollback', dependsOn: 'setupLiquibaseProperties') << {
+  liquibaseRollback(databaseUrl, databaseUsername, databasePassword, changeLogFile, false)
+}
+
+task('rollbackSQL', dependsOn: 'setupLiquibaseProperties') << {
+  liquibaseRollback(databaseUrl, databaseUsername, databasePassword, changeLogFile, true)
+}
+
+task('futureRollbackSQL', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'futureRollbackSQL'
+  
+    runLiquibase(argList)
 }
 
 
@@ -98,21 +115,8 @@ task('tag', dependsOn: 'setupLiquibaseProperties') << {
 }
 
 
-task('rollback', dependsOn: 'setupLiquibaseProperties') << {
-  def tag = System.getProperty('tag')
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'rollback'
-  argList << tag
-
-  runLiquibase(argList)
-}
-
-
 task('dbDoc', dependsOn: 'setupLiquibaseProperties') << {
-  def docDir = 'build/database/docs'
+  def docDir = 'docs'
   ant.mkdir(dir: docDir)
   def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
   if(changeLogFile) {
@@ -124,17 +128,56 @@ task('dbDoc', dependsOn: 'setupLiquibaseProperties') << {
   runLiquibase(argList)
 }
 
-
-def liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, dryRun) {
+def liquibaseRollback(databaseUrl, databaseUsername, databasePassword, changeLogFile, dryRun) {
   def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  def arg = 'rollback'
+  def tag = System.getProperty('tag')
+  def count = System.getProperty('count')
+  def date = System.getProperty('date')
   if(changeLogFile) {
     argList << "--changeLogFile=${changeLogFile}"
   }
-  if(dryRun) {
-    argList << 'updateSQL'
+
+  if(count) {
+    arg = arg + 'Count'
+  } else if(date) {
+    arg = arg + 'ToDate'
   }
-  else {
-    argList << 'update'
+  if(dryRun) {
+    arg = arg + 'SQL'
+  }
+  
+  argList << arg
+ 
+  if(count) {
+    argList << count
+  } else if(date) {
+    argList << date
+  } else {
+    argList << tag
+  }
+
+  runLiquibase(argList)
+}
+
+def liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, dryRun) {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  def arg = 'update'
+  def count = System.getProperty('count')
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  if(count) {
+    arg = arg + 'Count'
+  }
+  if(dryRun) {
+    arg = arg + 'SQL'
+  }
+ 
+  argList << arg 
+ 
+  if(count) {
+    argList << count
   }
 
   runLiquibase(argList)
@@ -142,15 +185,24 @@ def liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFi
 
 
 def runLiquibase(List argList) {
+  def contexts = System.getProperty('contexts')
+  if(contexts){
+    argList[4..<4] = "--contexts=${contexts}"
+  }
   javaexec {
     main = 'liquibase.integration.commandline.Main'
     classpath = sourceSets.main.runtimeClasspath
     args = argList
+	argList.each(){ println "INFO PARAMS :: " + it}
   }
 }
 
 
 def runLiquibase(Map argMap, Object... argList) {
+  def contexts = System.getProperty('contexts')
+  if(contexts){
+    argList[4..<4] = "--contexts=${contexts}"
+  }
   javaexec {
     main = 'com.augusttechgroup.liquibase.liquibase'
     classpath sourceSets.main.runtimeClasspath, sourceSets.main.classesDir
@@ -162,4 +214,3 @@ def runLiquibase(Map argMap, Object... argList) {
     args = argMap.collect { name, value -> "--${name}=${value}" } + argList.toList()
   }
 }
-
