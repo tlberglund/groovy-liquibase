@@ -116,7 +116,11 @@ task('tag', dependsOn: 'setupLiquibaseProperties') << {
 
 
 task('dbDoc', dependsOn: 'setupLiquibaseProperties') << {
-  def docDir = 'docs'
+  def dir = System.getProperty('dir')
+  def docDir = 'build/database/docs'
+  if(dir) {
+     docDir = dir
+  } 
   ant.mkdir(dir: docDir)
   def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
   if(changeLogFile) {
