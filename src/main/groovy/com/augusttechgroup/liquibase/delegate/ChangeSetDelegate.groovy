@@ -48,6 +48,7 @@ import liquibase.change.core.DropIndexChange
 import liquibase.change.core.RawSQLChange
 import liquibase.change.core.SQLFileChange
 import liquibase.change.core.ExecuteShellCommandChange
+import liquibase.change.core.ModifyDataTypeChange
 import liquibase.change.custom.CustomChangeWrapper
 import liquibase.exception.RollbackImpossibleException
 
@@ -121,8 +122,8 @@ class ChangeSetDelegate {
   }
 
 
-  void modifyColumn(Map params, Closure closure) {
-    //TODO Figure out how the heck modifyColumn works.
+  void modifyDataType(Map params) {
+    addMapBasedChange(ModifyDataTypeChange, params, ['schemaName', 'tableName', 'columnName', 'newDataType'])
   }
 
 
@@ -327,7 +328,8 @@ class ChangeSetDelegate {
 
 
   void sqlFile(Map params) {
-    addMapBasedChange(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter'])
+    addMapBasedChange(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter','relativeToChangelogFile'])
+	println params.path
   }
 
 
