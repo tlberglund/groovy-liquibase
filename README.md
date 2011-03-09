@@ -36,6 +36,8 @@ After installing gradle you can use groovy-liquibase.
 ## Author
 Work is currently being done by Tim Berglund of the [August Technology Group](http://augusttechgroup.com).
 
+Fork is being worked on by Erwin van Brandwijk intern of [42bv Netherlands](http://www.42.nl).
+
 ## License
 This code is released under the Apache Public License 2.0, just like Liquibase 2.0.
 
