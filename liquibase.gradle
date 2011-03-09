@@ -197,7 +197,6 @@ def runLiquibase(List argList) {
     main = 'liquibase.integration.commandline.Main'
     classpath = sourceSets.main.runtimeClasspath
     args = argList
-	argList.each(){ println "INFO PARAMS :: " + it}
   }
 }
 

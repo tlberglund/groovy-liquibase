@@ -329,7 +329,6 @@ class ChangeSetDelegate {
 
   void sqlFile(Map params) {
     addMapBasedChange(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter','relativeToChangelogFile'])
-	println params.path
   }
 
 
