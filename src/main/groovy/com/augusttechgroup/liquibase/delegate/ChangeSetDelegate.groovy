@@ -149,7 +149,7 @@ class ChangeSetDelegate {
 
 
   void dropTable(Map params) {
-    addMapBasedChange(DropTableChange, params, ['schemaName', 'tableName'])
+    addMapBasedChange(DropTableChange, params, ['schemaName', 'tableName', 'cascadeConstraints'])
   }
 
 
@@ -171,7 +171,7 @@ class ChangeSetDelegate {
 
 
   void mergeColumns(Map params) {
-    addMapBasedChange(MergeColumnChange, params, ['schemaName', 'tableName', 'column1Name', 'column2Name', 'finalColumnName', 'finalColumnType', 'joinString'])
+    addMapBasedChange(MergeColumnChange, params, ['schemaName', 'tableName', 'column1Name', 'joinString', 'column2Name', 'finalColumnName', 'finalColumnType'])
   }
 
 

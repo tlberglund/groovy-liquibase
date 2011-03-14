@@ -101,6 +101,110 @@ task('futureRollbackSQL', dependsOn: 'setupLiquibaseProperties') << {
     runLiquibase(argList)
 }
 
+task('status', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'status'
+  
+    runLiquibase(argList)
+}
+
+task('validate', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'validate'
+  
+    runLiquibase(argList)
+}
+
+task('changelogSync', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'changelogSync'
+  
+    runLiquibase(argList)
+}
+
+task('changelogSyncSQL', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'changelogSyncSQL'
+  
+    runLiquibase(argList)
+}
+
+task('listLocks', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'listLocks'
+  
+    runLiquibase(argList)
+}
+
+task('releaseLocks', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'releaseLocks'
+  
+    runLiquibase(argList)
+}
+
+task('markNextChangesetRan', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'markNextChangesetRan'
+  
+    runLiquibase(argList)
+}
+
+task('dropAll', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'dropAll'
+  
+    runLiquibase(argList)
+}
+
+task('clearChecksums', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'clearChecksums'
+  
+    runLiquibase(argList)
+}
+
+task('diff', dependsOn: 'setupLiquibaseProperties') << {
+  def referenceUrl = System.getProperty('referenceUrl')
+  def referenceUsername = System.getProperty('referenceUsername')
+  def referencePassword = System.getProperty('referencePassword')
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}", 
+  				 "--referenceUrl=${referenceUrl}", "--referenceUsername=${referenceUsername}", "--referencePassword=${referencePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'diff'
+  
+    runLiquibase(argList)
+}
+
 
 task('tag', dependsOn: 'setupLiquibaseProperties') << {
   def tag = System.getProperty('tag')

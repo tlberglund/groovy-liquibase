@@ -25,15 +25,31 @@ After installing gradle you can use groovy-liquibase.
 
 5)  Execute liquibase functions: command line $:  
 
-       gradle -q -b liquibase.gradle update
-       gradle -q -b liquibase.gradle update -Dcount=1
-       gradle -q -b liquibase.gradle rollback -Dtag="tag"
-       gradle -q -b liquibase.gradle dbDoc -Ddir="directory"
-       "" etc. ""
+       gradle -q -b liquibase.gradle "function"
 
 
+## Functions
+First list can also be executed with SQL, that will generate SQL in STDOUT. Example updateSQL
+* update		- executes all changesets 
+* update -Dcount=?	- executes ? number of changesets
+* rollback -Dtag=?	- does a rollback to tag
+* rollback -Dcount=?	- does a rollback ? number of changesets
+* rollback -Ddate=?	- does a rollback to date (yyyy-MM-dd"T"hh:mm:ss)
+* futureRollbackSQL	- generates SQL to rollback the changesets that aren't executed
+* changelogSync		- set all changesets as executed in the database
 
-## Author
+* status		- shows wich changesets have not been executed
+* validate		- checks if all changesets are correct
+* listLocks		- shows all locks on the database
+* releaseLocks		- delete all locks from the database
+* clearChecksums	- delete all md5 checksums, will be generated on next run
+* markNextChangesetRan	- mark next changeset ran
+* dropAll		- delete all data objects from the current database
+
+* diff -Durl=? -Dusername=? -Dpassword=?	- shows differences between current database and params database
+
+
+## Author(s)
 Work is currently being done by Tim Berglund of the [August Technology Group](http://augusttechgroup.com).
 
 Fork is being worked on by Erwin van Brandwijk intern of [42bv Netherlands](http://www.42.nl).
