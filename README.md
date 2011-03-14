@@ -29,22 +29,24 @@ After installing gradle you can use groovy-liquibase.
 
 
 ## Functions
-First list can also be executed with SQL, that will generate SQL in STDOUT. Example updateSQL
-* update		- executes all changesets 
-* update -Dcount=?	- executes ? number of changesets
-* rollback -Dtag=?	- does a rollback to tag
-* rollback -Dcount=?	- does a rollback ? number of changesets
-* rollback -Ddate=?	- does a rollback to date (yyyy-MM-dd"T"hh:mm:ss)
-* futureRollbackSQL	- generates SQL to rollback the changesets that aren't executed
-* changelogSync		- set all changesets as executed in the database
+First list can also be executed with SQL, that will generate SQL in STDOUT. Example updateSQL.
 
-* status		- shows wich changesets have not been executed
-* validate		- checks if all changesets are correct
-* listLocks		- shows all locks on the database
-* releaseLocks		- delete all locks from the database
-* clearChecksums	- delete all md5 checksums, will be generated on next run
+
+* update		                - executes all changesets 
+* update -Dcount=?	        - executes ? number of changesets
+* rollback -Dtag=?	        - does a rollback to tag
+* rollback -Dcount=?	        - does a rollback ? number of changesets
+* rollback -Ddate=?	        - does a rollback to date (yyyy-MM-dd"T"hh:mm:ss)
+* futureRollbackSQL	        - generates SQL to rollback the changesets that aren't executed
+* changelogSync	        - set all changesets as executed in the database
+
+* status		                - shows wich changesets have not been executed
+* validate		                - checks if all changesets are correct
+* listLocks		                - shows all locks on the database
+* releaseLocks		        - delete all locks from the database
+* clearChecksums	        - delete all md5 checksums, will be generated on next run
 * markNextChangesetRan	- mark next changeset ran
-* dropAll		- delete all data objects from the current database
+* dropAll		                - delete all data objects from the current database
 
 * diff -Durl=? -Dusername=? -Dpassword=?	- shows differences between current database and params database
 
