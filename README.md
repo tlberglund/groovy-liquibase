@@ -40,6 +40,8 @@ First list can also be executed with SQL, that will generate SQL in STDOUT. Exam
 * futureRollbackSQL	        - generates SQL to rollback the changesets that aren't executed
 * changelogSync	        - set all changesets as executed in the database
 
+--
+
 * status		                - shows wich changesets have not been executed
 * validate		                - checks if all changesets are correct
 * listLocks		                - shows all locks on the database
