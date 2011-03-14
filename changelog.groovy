@@ -1,0 +1,4 @@
+databaseChangeLog() {
+
+	include(path: "changelogs")
+}
