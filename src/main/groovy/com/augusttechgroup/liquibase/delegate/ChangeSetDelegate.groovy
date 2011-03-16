@@ -56,6 +56,7 @@ import liquibase.exception.RollbackImpossibleException
 class ChangeSetDelegate {
   def changeSet
   def databaseChangeLog
+  def resourceAccessor
   def inRollback
 
 
@@ -108,6 +109,18 @@ class ChangeSetDelegate {
     else {
       throw new RollbackImpossibleException("Could not find changeSet to use for rollback: ${path}:${author}:${id}")
     }
+  }
+
+
+  void groovyChange(Closure closure) {
+    def delegate = new GroovyChangeDelegate(closure)
+    delegate.changeSet = changeSet
+    delegate.resourceAccessor = resourceAccessor
+    closure.delegate = delegate
+    closure.resolveStrategy = Closure.DELEGATE_ONLY
+    closure.call()
+
+    
   }
 
 
@@ -264,6 +277,7 @@ class ChangeSetDelegate {
     }
 
     def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding'])
+    change.resourceAccessor = resourceAccessor
     addChange(change)
   }
 
@@ -328,7 +342,9 @@ class ChangeSetDelegate {
 
 
   void sqlFile(Map params) {
-    addMapBasedChange(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter','relativeToChangelogFile'])
+    def change = makeChangeFromMap(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter'])
+    change.resourceAccessor = resourceAccessor
+    addChange(change)
   }
 
 
@@ -429,7 +445,7 @@ class ChangeSetDelegate {
   }
 
 
-  private void addMapBasedChange(Class klass, Map sourceMap, List paramNames) {
+  private def addMapBasedChange(Class klass, Map sourceMap, List paramNames) {
     addChange(makeChangeFromMap(klass, sourceMap, paramNames))
   }
 

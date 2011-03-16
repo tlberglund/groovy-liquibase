@@ -1,7 +1,7 @@
 # Groovy Liquibase
 A pluggable parser for [Liquibase](http://liquibase.org) that allows the creation of changelogs in a Groovy DSL, rather than hurtful XML. If this DSL isn't reason enough to adopt Liquibase, then there is no hope for you. 
 
-Presently a work in progress. The project aim is to create as close a match for the standard XML format as possible, such that migration back and forth is easy and very little new documentation should be necessary.
+Presently a work in progress. The project aim is to create as close a match for the standard XML format and the [Grails Database MigrationsPlugin](http://www.grails.org/plugin/database-migration) as possible, such that migration back and forth is easy and very little new documentation should be necessary.
 
 ## How does it work?
 To use groovy-liquibase you'll need gradle. [http://www.gradle.org/]

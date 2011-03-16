@@ -20,23 +20,26 @@ class ChangeSetTests
 {
   def sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
   def changeSet
+  def resourceAccessor
+
 
   @Before
   void createChangeSet() {
-		changeSet = new ChangeSet(
-		  'generic-changeset-id',
-		  'tlberglund',
-		  false,
-		  false,
-		  '/filePath',
-		  'context',
-		  'mysql',
-		  true)
+    changeSet = new ChangeSet(
+      'generic-changeset-id',
+      'tlberglund',
+      false,
+      false,
+      '/filePath',
+      'context',
+      'mysql',
+      true)
   }
 
   
   def buildChangeSet(Closure closure) {
-    closure.delegate = new ChangeSetDelegate(changeSet: changeSet)
+    closure.delegate = new ChangeSetDelegate(changeSet: changeSet,
+                                             resourceAccessor: resourceAccessor)
     closure.call()
     changeSet
   }
