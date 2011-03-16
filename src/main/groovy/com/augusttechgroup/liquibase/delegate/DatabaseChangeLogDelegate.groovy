@@ -58,7 +58,9 @@ class DatabaseChangeLogDelegate {
       changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(params.onValidationFail)
     }
 
-    def delegate = new ChangeSetDelegate(changeSet: changeSet, databaseChangeLog: databaseChangeLog)
+    def delegate = new ChangeSetDelegate(changeSet: changeSet,
+                                         databaseChangeLog: databaseChangeLog,
+                                         resourceAccessor: resourceAccessor)
     closure.delegate = delegate
     closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()

@@ -16,6 +16,7 @@ import liquibase.change.core.RawSQLChange
 import liquibase.change.core.SQLFileChange
 import liquibase.change.core.ExecuteShellCommandChange
 import liquibase.change.custom.CustomChangeWrapper
+import liquibase.resource.FileSystemResourceAccessor
 
 class CustomRefactoringTests
   extends ChangeSetTests
@@ -72,6 +73,7 @@ class CustomRefactoringTests
 
   @Test
   void sqlFile() {
+    resourceAccessor = new FileSystemResourceAccessor()
     buildChangeSet {
       sqlFile(path: 'db/file.sql', stripComments: true, splitStatements: true, encoding: 'UTF-8', endDelimiter: '@')
     }
@@ -85,6 +87,7 @@ class CustomRefactoringTests
     assertTrue changes[0].isStrippingComments()
     assertTrue changes[0].isSplittingStatements()
     assertEquals '@', changes[0].endDelimiter
+    assertNotNull 'SQLFileChange.resourceAccessor cannot be null', changes[0].resourceAccessor
   }
 
 
