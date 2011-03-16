@@ -21,6 +21,7 @@ import liquibase.change.core.LoadUpdateDataChange
 import liquibase.change.core.UpdateDataChange
 import liquibase.change.core.TagDatabaseChange
 import liquibase.change.core.StopChange
+import liquibase.resource.FileSystemResourceAccessor
 
 
 class NonRefactoringTransformationTests
@@ -63,6 +64,8 @@ class NonRefactoringTransformationTests
 
   @Test
   void loadDataFromFilenameUsingColumnNames() {
+    resourceAccessor = new FileSystemResourceAccessor()
+    
     buildChangeSet {
       loadData(schemaName: 'schema', tableName: 'monkey', file: 'data.csv', encoding: 'UTF-8') {
         column(header: 'header_id', name: 'id', type: 'NUMERIC')
@@ -80,6 +83,7 @@ class NonRefactoringTransformationTests
     assertEquals 'schema', changes[0].schemaName
     assertEquals 'data.csv', changes[0].file
     assertEquals 'UTF-8', changes[0].encoding
+    assertNotNull 'LoadDataChange.resourceAccessor should not be null', changes[0].resourceAccessor
     def columns = changes[0].columns
     assertNotNull columns
     assertTrue columns.every { column -> column instanceof LoadDataColumnConfig}

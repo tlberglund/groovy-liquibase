@@ -276,6 +276,7 @@ class ChangeSetDelegate {
     }
 
     def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding'])
+    change.resourceAccessor = resourceAccessor
     addChange(change)
   }
 
