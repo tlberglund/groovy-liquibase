@@ -27,6 +27,7 @@ class GroovyLiquibaseChangeLogParser
                           ChangeLogParameters changeLogParameters,
                           ResourceAccessor resourceAccessor) {
 
+    physicalChangeLogLocation = physicalChangeLogLocation.replaceAll('\\\\', '/')
     def inputStream = resourceAccessor.getResourceAsStream(physicalChangeLogLocation)
     if(!inputStream) {
       throw new ChangeLogParseException(physicalChangeLogLocation + " does not exist")
