@@ -50,6 +50,7 @@ import liquibase.change.core.SQLFileChange
 import liquibase.change.core.ExecuteShellCommandChange
 import liquibase.change.custom.CustomChangeWrapper
 import liquibase.exception.RollbackImpossibleException
+import liquibase.change.core.ModifyDataTypeChange
 
 
 class ChangeSetDelegate {
@@ -134,13 +135,13 @@ class ChangeSetDelegate {
   }
 
 
-  void modifyColumn(Map params, Closure closure) {
-    //TODO Figure out how the heck modifyColumn works.
+  void modifyDataType(Map params) {
+    addMapBasedChange(ModifyDataTypeChange, params, ['schemaName', 'tableName', 'columnName', 'newDataType'])
   }
 
 
   void dropColumn(Map params) {
-    addMapBasedChange(DropColumnChange, params, ['schemaName', 'tableName', 'columnName'])
+    addMapBasedChange(DropColumnChange, params, ['schemaName', 'tableName', 'columnName', 'cascadeConstraints'])
   }
 
 
@@ -341,7 +342,7 @@ class ChangeSetDelegate {
 
 
   void sqlFile(Map params) {
-    def change = makeChangeFromMap(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter'])
+    def change = makeChangeFromMap(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter', 'relativeToChangelogFile'])
     change.resourceAccessor = resourceAccessor
     addChange(change)
   }

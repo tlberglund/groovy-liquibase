@@ -75,9 +75,26 @@ class DatabaseChangeLogDelegate {
 
 
   void include(Map params = [:]) {
-    def includedChangeLogFile = params.file
-    def parser = ChangeLogParserFactory.getInstance().getParser(includedChangeLogFile, resourceAccessor)
-    def includedChangeLog = parser.parse(includedChangeLogFile, null, resourceAccessor)
+    if(params.file) {
+      println "ATTEMPTING TO INCLUDE ${params.file}"
+      includeChangeLog(params.file)
+    }
+    else if(params.path) {
+      def files = []
+      new File(params.path).eachFileMatch(~/.*.groovy/) { file->
+        files << file.path
+      }
+
+      files.sort().each { filename ->
+        includeChangeLog(filename)
+      }
+    }
+  }
+
+
+  private def includeChangeLog(filename) {
+    def parser = ChangeLogParserFactory.getInstance().getParser(filename, resourceAccessor)
+    def includedChangeLog = parser.parse(filename, null, resourceAccessor)
     includedChangeLog?.changeSets.each { changeSet ->
       databaseChangeLog.addChangeSet(changeSet)
     }
