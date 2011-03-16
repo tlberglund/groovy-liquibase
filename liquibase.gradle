@@ -100,12 +100,23 @@ task('futureRollbackSQL', dependsOn: 'setupLiquibaseProperties') << {
     runLiquibase(argList)
 }
 
+task('updateTestingRollback', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'updateTestingRollback'
+  
+    runLiquibase(argList)
+}
+
+
 task('status', dependsOn: 'setupLiquibaseProperties') << {
   def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
   if(changeLogFile) {
     argList << "--changeLogFile=${changeLogFile}"
   }
-  argList << 'status'
+    argList << "status"
   
     runLiquibase(argList)
 }
@@ -166,6 +177,16 @@ task('markNextChangesetRan', dependsOn: 'setupLiquibaseProperties') << {
     argList << "--changeLogFile=${changeLogFile}"
   }
   argList << 'markNextChangesetRan'
+  
+    runLiquibase(argList)
+}
+
+task('markNextChangesetRanSQL', dependsOn: 'setupLiquibaseProperties') << {
+  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
+  if(changeLogFile) {
+    argList << "--changeLogFile=${changeLogFile}"
+  }
+  argList << 'markNextChangesetRanSQL'
   
     runLiquibase(argList)
 }

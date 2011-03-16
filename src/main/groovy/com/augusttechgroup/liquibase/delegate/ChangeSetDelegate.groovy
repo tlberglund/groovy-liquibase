@@ -112,16 +112,7 @@ class ChangeSetDelegate {
   }
 
 
-  void groovyChange(Closure closure) {
-    def delegate = new GroovyChangeDelegate(closure)
-    delegate.changeSet = changeSet
-    delegate.resourceAccessor = resourceAccessor
-    closure.delegate = delegate
-    closure.resolveStrategy = Closure.DELEGATE_ONLY
-    closure.call()
 
-    
-  }
 
 
   void addColumn(Map params, Closure closure) {
@@ -342,7 +333,7 @@ class ChangeSetDelegate {
 
 
   void sqlFile(Map params) {
-    def change = makeChangeFromMap(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter'])
+    def change = makeChangeFromMap(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter','relativeToChangelogFile'])
     change.resourceAccessor = resourceAccessor
     addChange(change)
   }
