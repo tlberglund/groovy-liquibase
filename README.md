@@ -32,6 +32,7 @@ After installing gradle you can use groovy-liquibase.
 
 
 Standard Commands:
+
 * update                         ---Updates database to current version
 * updateSQL                      ---Writes SQL to update database to current version to STDOUT
 * updateCount <num>              ---Applies next NUM changes to the database
@@ -47,13 +48,16 @@ Standard Commands:
 * generateChangeLog              ---Writes Change Log XML to copy the current state of the database to standard out
 
 Diff Commands
+
 * diff [diff parameters]          ---Writes description of differences to standard out
 * diffChangeLog [diff parameters] ---Writes Change Log XML to update the database to the reference database to standard out
 
 Documentation Commands
+
 * dbDoc <outputDirectory>         ---Generates Javadoc-like documentation based on current database and change log
 
 Maintenance Commands
+
 * tag <tag string>          ---'Tags' the current database state for future rollback
 * status 		    ---Outputs count of unrun changesets
 * validate                  ---Checks changelog for errors
