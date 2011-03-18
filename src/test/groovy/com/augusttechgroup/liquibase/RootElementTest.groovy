@@ -136,12 +136,15 @@ databaseChangeLog {
 }
 """)
 
+	includedChangeLogFile = includedChangeLogFile.canonicalPath
+	includedChangeLogFile = includedChangeLogFile.replaceAll("\\\\", "/")
+	
     def rootChangeLogFile = createFileFrom("""
 databaseChangeLog {
   preConditions {
     dbms(type: 'mysql')
   }
-  include(file: '${includedChangeLogFile.canonicalPath}')
+  include(file: '${includedChangeLogFile}')
   changeSet(author: 'tlberglund', id: 'root-change-set') {
     addColumn(tableName: 'monkey') {
       column(name: 'emotion', type: 'varchar(50)')

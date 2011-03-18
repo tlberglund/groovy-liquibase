@@ -23,4 +23,4 @@ This code is released under the Apache Public License 2.0, just like Liquibase 2
 
  * Proper testing of validCheckSum under changeSet. It's implemented, but I have not tested it properly.
  * Integration testing. Everything of note is unit-tested so far, but there must be tests which mutate an actual database (in-memory HSQL would work fine) and make assertions on its final state.
- * Deployment to Maven Central a
+ * Deployment to Maven Central as soon as it's baked enough to ask people to use it.
