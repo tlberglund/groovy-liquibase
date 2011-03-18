@@ -19,7 +19,13 @@ class ConstraintDelegate {
 
   ConstraintDelegate() {
     constraint = new ConstraintsConfig(primaryKey: false,
+ 									   primaryKeyName: null,
+									   primaryKeyTablespace: null,
+									   foreignKeyName: null,
+									   references: null,
+									   check: null,
                                        unique: false,
+									   uniqueConstraintName: null,
                                        deleteCascade: false,
                                        initiallyDeferred: false,
                                        deferrable: false,
