@@ -11,296 +11,147 @@ dependencies {
   runtime 'mysql:mysql-connector-java:5.1.9'
 }
 
-/*
-databases {
-  development {
-    driver = ''
-    url = ''
-    username = ''
-    password = ''
-  }
-  test {
 
-  }
-  production {
+database = [:]
 
-  }
+def propertiesFilename = System.properties['liquibase.properties'] ?: 'database.properties'
+def parentDirectory = (propertiesFilename[0] == '/') ? '/' : projectDir
+def propertiesFile = new File(parentDirectory, propertiesFilename)
+def properties = new Properties()
+if(propertiesFile.exists()) {
+  properties.load(new FileInputStream(propertiesFile))
 }
 
-schemas {
-  main {
-    changelog: [ main-changelog.groovy, migration-changelog.groovy, reference-changelog.groovy ]
-  }
-}
-*/
+database.url = System.properties['database.url'] ?: properties.url
+database.username = System.properties['database.username'] ?: properties.username
+database.password = System.properties['database.password'] ?: properties.password
+database.changeLogFile = System.properties['change.log.file'] ?: properties['change.log.file']
 
-def databaseUrl = null
-def databaseUsername = null
-def databasePassword = null
-def changeLogFile = null
 
-task('setupLiquibaseProperties') << {
-  def propertiesFile = new File('database.properties')
-  if(propertiesFile.exists()) {
-    def properties = new Properties()
-    properties.load(new FileInputStream(propertiesFile))
-    databaseUrl = properties.url
-    databaseUsername = properties.username
-    databasePassword = properties.password
-    changeLogFile = properties['change.log.file'] ?: System.getProperty('change.log.file')
-  }
+task generateChangeLog << {
+  runLiquibase('generateChangeLog')
 }
 
-
-task('generateChangeLog', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'generateChangeLog'
-
-  runLiquibase(argList)
+task changeLogSync << {
+  runLiquibase('changeLogSync')
 }
 
-task('changeLogSync', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'changeLogSync'
-
-  runLiquibase(argList)
+task update << {
+  liquibaseUpdate(false)
 }
 
-task('update', dependsOn: 'setupLiquibaseProperties') << {
-  liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, false)
+task updateSQL << {
+  liquibaseUpdate(true)
 }
 
-task('updateSQL', dependsOn: 'setupLiquibaseProperties') << {
-  liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, true)
+task rollback << {
+  liquibaseRollback(false)
 }
 
-task('rollback', dependsOn: 'setupLiquibaseProperties') << {
-  liquibaseRollback(databaseUrl, databaseUsername, databasePassword, changeLogFile, false)
+task rollbackSQL << {
+  liquibaseRollback(true)
 }
 
-task('rollbackSQL', dependsOn: 'setupLiquibaseProperties') << {
-  liquibaseRollback(databaseUrl, databaseUsername, databasePassword, changeLogFile, true)
+task futureRollbackSQL << {
+  runLiquibase('futureRollbackSQL')
 }
 
-task('futureRollbackSQL', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'futureRollbackSQL'
-
-  runLiquibase(argList)
+task updateTestingRollback << {
+  runLiquibase('updateTestingRollback')
 }
 
-task('updateTestingRollback', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'updateTestingRollback'
-
-  runLiquibase(argList)
+task status << {
+  runLiquibase('status')
 }
 
-
-task('status', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << "status"
-  
-  runLiquibase(argList)
+task validate << {
+  runLiquibase('validate')
 }
 
-task('validate', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'validate'
-  
-  runLiquibase(argList)
+task changelogSync << {
+  runLiquibase('changelogSync')
 }
 
-task('changelogSync', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'changelogSync'
-  
-  runLiquibase(argList)
+task changelogSyncSQL << {
+  runLiquibase('changelogSyncSQL')
 }
 
-task('changelogSyncSQL', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'changelogSyncSQL'
-  
-  runLiquibase(argList)
+task listLocks << {
+  runLiquibase('listLocks')
 }
 
-task('listLocks', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'listLocks'
-  
-  runLiquibase(argList)
+task releaseLocks << {
+  runLiquibase('releaseLocks')
 }
 
-task('releaseLocks', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'releaseLocks'
-  
-  runLiquibase(argList)
+task markNextChangesetRan << {
+  runLiquibase('markNextChangesetRan')
 }
 
-task('markNextChangesetRan', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'markNextChangesetRan'
-  
-  runLiquibase(argList)
+task markNextChangesetRanSQL << {
+  runLiquibase('markNextChangesetRanSQL')
 }
 
-task('markNextChangesetRanSQL', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'markNextChangesetRanSQL'
-  
-  runLiquibase(argList)
+task dropAll << {
+  runLiquibase('dropAll')
 }
 
-task('dropAll', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'dropAll'
-  
-  runLiquibase(argList)
+task clearChecksums << {
+  runLiquibase('clearChecksums')
 }
 
-task('clearChecksums', dependsOn: 'setupLiquibaseProperties') << {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'clearChecksums'
-  
-  runLiquibase(argList)
+task diff << {
+  runLiquibase(["--referenceUrl=${System.properties['liquibase.referenceUrl']}", "--referenceUsername=${System.properties['liquibase.referenceUsername']}", "--referencePassword=${System.properties['liquibase.referencePassword']}", 'diff'])
 }
 
-task('diff', dependsOn: 'setupLiquibaseProperties') << {
-  def referenceUrl = System.getProperty('referenceUrl')
-  def referenceUsername = System.getProperty('referenceUsername')
-  def referencePassword = System.getProperty('referencePassword')
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}", 
-  				 "--referenceUrl=${referenceUrl}", "--referenceUsername=${referenceUsername}", "--referencePassword=${referencePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'diff'
-  
-  runLiquibase(argList)
+task tag << {
+  runLiquibase(['tag', "${System.properties('liquibase.tag')}"])
 }
 
-task('tag', dependsOn: 'setupLiquibaseProperties') << {
-  def tag = System.getProperty('tag')
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'tag'
-  argList << tag
-
-  runLiquibase(argList)
+task dbDoc << {
+  runLiquibase([ 'dbDoc', System.properties['liquibase.doc.dir'] ?: "${buildDir.absolutePath}/database/docs"])
 }
 
-task('dbDoc', dependsOn: 'setupLiquibaseProperties') << {
-  def dir = System.getProperty('dir')
-  def docDir = 'build/database/docs'
-  if(dir) {
-     docDir = dir
-  } 
-  ant.mkdir(dir: docDir)
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-  argList << 'dbdoc'
-  argList << docDir
+def liquibaseRollback(dryRun) {
+  def argList = []
+  def tag = System.properties['liquibase.tag']
+  def count = System.properties['liquibase.count']
+  def date = System.properties['liquibase.date']
 
-  runLiquibase(argList)
-}
-
-def liquibaseRollback(databaseUrl, databaseUsername, databasePassword, changeLogFile, dryRun) {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  def arg = 'rollback'
-  def tag = System.getProperty('tag')
-  def count = System.getProperty('count')
-  def date = System.getProperty('date')
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
-  }
-
+  def suffix = ''
   if(count) {
-    arg = arg + 'Count'
-  } else if(date) {
-    arg = arg + 'ToDate'
-  }
-  if(dryRun) {
-    arg = arg + 'SQL'
-  }
-  
-  argList << arg
- 
-  if(count) {
+    argList << 'rollbackCount'
     argList << count
-  } else if(date) {
+  }
+  else if(date) {
+    argList << 'rollbackToDate'
     argList << date
-  } else {
+  }
+  else if(dryRun) {
+    argList << 'rollbackSQL'
     argList << tag
   }
-
+  else {
+    argList << 'rollback'
+    argList << tag
+  }
+  
   runLiquibase(argList)
 }
 
-def liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFile, dryRun) {
-  def argList = ["--url=${databaseUrl}", "--username=${databaseUsername}", "--password=${databasePassword}"]
-  def arg = 'update'
-  def count = System.getProperty('count')
-  if(changeLogFile) {
-    argList << "--changeLogFile=${changeLogFile}"
+
+def liquibaseUpdate(dryRun) {
+  def suffix = ''
+  if(System.properties['count']) {
+    suffix = 'Count'
   }
-  if(count) {
-    arg = arg + 'Count'
+  else if(dryRun) {
+    suffix = 'SQL'
   }
-  if(dryRun) {
-    arg = arg + 'SQL'
-  }
+
+  def argList = [ "update${suffix}" ]
  
-  argList << arg 
- 
-  if(count) {
+  if(System.properties['count']) {
     argList << count
   }
 
@@ -308,33 +159,24 @@ def liquibaseUpdate(databaseUrl, databaseUsername, databasePassword, changeLogFi
 }
 
 
+def runLiquibase(String command) {
+  runLiquibase([command])
+}
+
 def runLiquibase(List argList) {
-  def contexts = System.getProperty('contexts')
-  if(contexts){
-    argList[4..<4] = "--contexts=${contexts}"
+  def stdArgs = ["--url=${project.database.url}", "--username=${project.database.username}", "--password=${project.database.password}"]
+  if(project.database.changeLogFile) {
+    stdArgs << "--changeLogFile=${project.database.changeLogFile}"
   }
+  def contexts = System.properties['contexts']
+  if(contexts) {
+    stdArgs << "--contexts=${contexts}"
+  }
+  
   javaexec {
+    workingDir = projectDir
     main = 'liquibase.integration.commandline.Main'
     classpath = sourceSets.main.runtimeClasspath
-    args = argList
+    args = stdArgs + argList
   }
 }
-
-
-def runLiquibase(Map argMap, Object... argList) {
-  def contexts = System.getProperty('contexts')
-  if(contexts){
-    argList[4..<4] = "--contexts=${contexts}"
-  }
-  javaexec {
-    main = 'com.augusttechgroup.liquibase.liquibase'
-    classpath sourceSets.main.runtimeClasspath, sourceSets.main.classesDir
-  }
-  javaexec {
-    main = 'liquibase.integration.commandline.Main'
-    println sourceSets.main.runtimeClasspath
-    classpath = sourceSets.main.runtimeClasspath
-    args = argMap.collect { name, value -> "--${name}=${value}" } + argList.toList()
-  }
-}
-
