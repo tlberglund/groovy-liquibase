@@ -22,6 +22,7 @@ import liquibase.change.core.UpdateDataChange
 import liquibase.change.core.TagDatabaseChange
 import liquibase.change.core.StopChange
 import liquibase.resource.FileSystemResourceAccessor
+import liquibase.change.core.DeleteDataChange
 
 
 class NonRefactoringTransformationTests
@@ -320,7 +321,7 @@ class NonRefactoringTransformationTests
     def changes = changeSet.changes
     assertNotNull changes
     assertEquals 1, changes.size()
-    assertTrue changes[0] instanceof UpdateDataChange
+    assertTrue changes[0] instanceof DeleteDataChange
     assertEquals 'monkey', changes[0].tableName
     assertEquals 'schema', changes[0].schemaName
     assertEquals "emotion='angry' AND active=true", changes[0].whereClause

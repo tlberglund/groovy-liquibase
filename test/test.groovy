@@ -1,6 +1,6 @@
 databaseChangeLog() {
 
-  include(path: 'changelogs')
+//  include(path: 'changelogs', relativeToChangelog: true)
 
 
   changeSet(id:'monkey', author: 'tlberglund') {
@@ -23,7 +23,12 @@ databaseChangeLog() {
       column(name: 'id', type: "NUMERIC")
       column(name: 'mood', type: "STRING")
     }
-
+  }
+  
+  changeSet(author: 'tlberglund', id: 'test-delete-data') {
+    delete(tableName: 'monkey') {
+      where('id=2')
+    }
   }
 
 }

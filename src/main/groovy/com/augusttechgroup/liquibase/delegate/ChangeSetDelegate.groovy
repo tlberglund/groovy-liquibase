@@ -51,6 +51,7 @@ import liquibase.change.core.ExecuteShellCommandChange
 import liquibase.change.custom.CustomChangeWrapper
 import liquibase.exception.RollbackImpossibleException
 import liquibase.change.core.ModifyDataTypeChange
+import liquibase.change.core.DeleteDataChange
 
 
 class ChangeSetDelegate {
@@ -299,7 +300,7 @@ class ChangeSetDelegate {
 
 
   void delete(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['schemaName', 'tableName'])
+    def change = makeColumnarChangeFromMap(DeleteDataChange, closure, params, ['schemaName', 'tableName'])
     addChange(change)
   }
 
