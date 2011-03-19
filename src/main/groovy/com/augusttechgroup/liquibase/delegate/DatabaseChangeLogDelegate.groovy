@@ -1,7 +1,7 @@
 //
 // Groovy Liquibase ChangeLog
 //
-// Copyright (C) 2010 Tim Berglund
+// Copyright (C) 2010-2011 Tim Berglund
 // http://augusttechgroup.com
 // Littleton, CO
 //
@@ -12,10 +12,6 @@ package com.augusttechgroup.liquibase.delegate
 
 
 import liquibase.changelog.ChangeSet
-import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
-import liquibase.precondition.core.PreconditionContainer.ErrorOption
-import liquibase.precondition.core.PreconditionContainer.FailOption
-import liquibase.precondition.core.PreconditionContainer
 import liquibase.parser.ChangeLogParserFactory
 
 
@@ -76,7 +72,6 @@ class DatabaseChangeLogDelegate {
 
   void include(Map params = [:]) {
     if(params.file) {
-      println "ATTEMPTING TO INCLUDE ${params.file}"
       includeChangeLog(params.file)
     }
     else if(params.path) {
