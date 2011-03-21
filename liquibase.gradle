@@ -119,22 +119,26 @@ def liquibaseRollback(dryRun) {
   def date = System.properties['liquibase.date']
 
   def suffix = ''
+  def param = ''
   if(count) {
-    argList << 'rollbackCount'
-    argList << count
+    suffix = 'rollbackCount'
+    param = count
   }
   else if(date) {
-    argList << 'rollbackToDate'
-    argList << date
-  }
-  else if(dryRun) {
-    argList << 'rollbackSQL'
-    argList << tag
+    suffix = 'rollbackToDate'
+    param = date
   }
   else {
-    argList << 'rollback'
-    argList << tag
+    suffix = 'rollback'
+    param = tag
   }
+  
+  if(dryRun) {
+    suffix = suffix + 'SQL'
+  }
+  
+  argList << suffix
+  argList << param
   
   runLiquibase(argList)
 }
@@ -142,16 +146,17 @@ def liquibaseRollback(dryRun) {
 
 def liquibaseUpdate(dryRun) {
   def suffix = ''
-  if(System.properties['count']) {
+  def count = System.properties['liquibase.count']
+  if(count) {
     suffix = 'Count'
   }
-  else if(dryRun) {
-    suffix = 'SQL'
+  if(dryRun) {
+    suffix = suffix + 'SQL'
   }
 
   def argList = [ "update${suffix}" ]
  
-  if(System.properties['count']) {
+  if(count) {
     argList << count
   }
 
@@ -168,7 +173,7 @@ def runLiquibase(List argList) {
   if(project.database.changeLogFile) {
     stdArgs << "--changeLogFile=${project.database.changeLogFile}"
   }
-  def contexts = System.properties['contexts']
+  def contexts = System.properties['liquibase.contexts']
   if(contexts) {
     stdArgs << "--contexts=${contexts}"
   }
