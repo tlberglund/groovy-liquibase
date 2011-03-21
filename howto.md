@@ -27,29 +27,29 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 
 * update                          ---Updates database to current version
 * updateSQL                       ---Writes SQL to update database to current version to STDOUT
-* update -Dcount=<num>            ---Applies next NUM changes to the database
-* updateSQL -Dcount=<num>         ---Writes SQL to apply next NUM changes to the database
-* rollback <tag>                  ---Rolls back the database to the the state is was when the tag was applied
-* rollbackSQL <tag>               ---Writes SQL to roll back the database to that state it was in when the tag was applied to STDOUT
-* rollback -Ddate=<date/time>     ---Rolls back the database to the the state is was at the given date/time. Date Format: yyyy-MM-dd HH:mm:ss
-* rollbackSQL -Ddate=<date/time>  ---Writes SQL to roll back the database to that state it was in at the given date/time to STDOUT
-* rollback -Dcount=<value>        ---Rolls back the last <value> change sets applied to the database
-* rollbackSQL -Dcount<value>      ---Writes SQL to roll back the last <value> change sets to STDOUT applied to the database
+* update -Dliquibase.count=<num>            ---Applies next NUM changes to the database
+* updateSQL -Dliquibase.count=<num>         ---Writes SQL to apply next NUM changes to the database
+* rollback -Dliquibase.tag=<tag string>                  ---Rolls back the database to the the state is was when the tag was applied
+* rollbackSQL -Dliquibase.tag=<tag string>               ---Writes SQL to roll back the database to that state it was in when the tag was applied to STDOUT
+* rollback -Dliquibase.date=<date/time>     ---Rolls back the database to the the state is was at the given date/time. Date Format: yyyy-MM-dd HH:mm:ss
+* rollbackSQL -Dliquibase.date=<date/time>  ---Writes SQL to roll back the database to that state it was in at the given date/time to STDOUT
+* rollback -Dliquibase.count=<value>        ---Rolls back the last <value> change sets applied to the database
+* rollbackSQL -Dliquibase.count<value>      ---Writes SQL to roll back the last <value> change sets to STDOUT applied to the database
 * futureRollbackSQL               ---Writes SQL to roll back the database to the current state after the changes in the changeslog have been applied
 * updateTestingRollback           ---Updates database, then rolls back changes before updating again. Useful for testing rollback support
 * generateChangeLog               ---Writes Change Log XML to copy the current state of the database to standard out
 
 ###Diff Commands
 
-* diff [diff parameters]          ---Writes description of differences to standard out [diff paramaters -DreferenceUrl=, -DreferenceUsername=, -DreferencePassword=]
+* diff [diff parameters]          ---Writes description of differences to standard out [diff paramaters -Dliquibase.referenceUrl=, -Dliquibase.referenceUsername=, -Dliquibase.referencePassword=]
 
 ###Documentation Commands
 
-* dbDoc -Ddir=<outputDirectory>         ---Generates Javadoc-like documentation based on current database and change log
+* dbDoc -Dliquibase.dir=<outputDirectory>         ---Generates Javadoc-like documentation based on current database and change log
 
 ###Maintenance Commands
 
-* tag -Dtag=<tag string>          ---'Tags' the current database state for future rollback
+* tag -Dliquibase.tag=<tag string>          ---'Tags' the current database state for future rollback
 * status 		    ---Outputs count of unrun changesets
 * validate                  ---Checks changelog for errors
 * clearCheckSums            ---Removes all saved checksums from database log. Useful for 'MD5Sum Check Failed' errors
@@ -63,5 +63,5 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 
 ###Contexts
 
-You can use contexts just as in liquibase core. Use -Dcontexts after any command. See [liquibase] (http://www.liquibase.org/manual/contexts) for full description .
+You can use contexts just as in liquibase core. Use -Dliquibase.contexts after any command. See [liquibase] (http://www.liquibase.org/manual/contexts) for full description .
 
