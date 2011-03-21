@@ -71,8 +71,12 @@ class DatabaseChangeLogDelegate {
 
 
   void include(Map params = [:]) {
+	def relativeToChangelogFile = false
+	if(params.relativeToChangelogFile){
+	  relativeToChangelogFile = params.relativeToChangelogFile
+	}
     if(params.file) {
-      includeChangeLog(params.file)
+      includeChangeLog(params.file, relativeToChangelogFile)
     }
     else if(params.path) {
       def files = []
@@ -81,13 +85,16 @@ class DatabaseChangeLogDelegate {
       }
 
       files.sort().each { filename ->
-        includeChangeLog(filename)
+        includeChangeLog(filename, relativeToChangelogFile)
       }
     }
   }
 
 
-  private def includeChangeLog(filename) {
+  private def includeChangeLog(filename, relativeToChangelogFile) {
+	if (relativeToChangelogFile) {
+	  filename = databaseChangeLog.getFilePath().replaceFirst("/[^/]*\$","") + "/" + filename;
+	}
     def parser = ChangeLogParserFactory.getInstance().getParser(filename, resourceAccessor)
     def includedChangeLog = parser.parse(filename, null, resourceAccessor)
     includedChangeLog?.changeSets.each { changeSet ->
