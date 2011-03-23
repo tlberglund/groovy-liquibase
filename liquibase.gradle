@@ -179,7 +179,7 @@ def runLiquibase(List argList) {
   }
   
   javaexec {
-    workingDir = projectDir
+    workingDir = System.properties['workingDir'] ?: projectDir
     main = 'liquibase.integration.commandline.Main'
     classpath = sourceSets.main.runtimeClasspath
     args = stdArgs + argList

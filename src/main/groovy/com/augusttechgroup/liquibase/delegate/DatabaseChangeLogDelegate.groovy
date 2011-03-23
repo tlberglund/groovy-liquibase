@@ -71,19 +71,20 @@ class DatabaseChangeLogDelegate {
 
 
   void include(Map params = [:]) {
+	def physicalChangeLogLocation = databaseChangeLog.getFilePath().replace(System.getProperty("user.dir").toString() + "/", "")
     def relativeToChangelogFile = false
 	if(params.relativeToChangelogFile){
 	  relativeToChangelogFile = params.relativeToChangelogFile
 	}
     if(params.file) {
-	  if (relativeToChangelogFile){
-	    params.file = databaseChangeLog.getFilePath().replaceFirst("/[^/]*\$","") + "/" + params.file
+	  if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
+	    params.file = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.file
 	  }
       includeChangeLog(params.file)
     }
     else if(params.path) {
-	  if (relativeToChangelogFile){
-	  	params.path = databaseChangeLog.getFilePath().replaceFirst("/[^/]*\$","") + "/" + params.path	
+	  if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
+	  	params.path = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.path	
 	  }
       def files = []
       new File(params.path).eachFileMatch(~/.*.groovy/) { file->

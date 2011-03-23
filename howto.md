@@ -5,7 +5,8 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 
 2)  Command line $:  gradle build
 
-3)  Create file database.properties
+3)  You have two options to set configuration:
+	1   Create file database.properties
 
             #database.properties 
 
@@ -13,6 +14,14 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
             username: "yourDatabaseUser"
             password: "yourPassword"
             change.log.file: changelog.groovy
+
+	2   Use system configurations at each command
+
+	    gradle -q -b liquibase.gradle update \
+		-Ddatabase.url=jdbc:mysql://localhost/test \
+		-Ddatabase.username=root \
+		-Ddatabase.password=admin \
+		-Dchange.log.file=changelog.groovy   
 
 4)  change.log.file is the master file where all the database changes are located.
 
@@ -64,4 +73,18 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 ###Contexts
 
 You can use contexts just as in liquibase core. Use -Dliquibase.contexts after any command. See [liquibase](http://www.liquibase.org/manual/contexts) for full description .
+
+###Running groovy-liquibase outside a specific directory
+
+If you are using svn for your project and you don't want groovy-liquibase on it. 
+You can use it from anywhere local on your machine and tell groovy-liquibase what the workingDirectory is.
+
+
+This is usefull if you are working with svn and want different people to update the migrations. 
+groovy-liquibase saves filename. That is his name and path from workingDir. 
+
+
+How to use:  gradle -q -b liquibase.gradle update -DworkingDir=/home/erwin/Desktop
+
+Now it's executing all changelogs from path /home/erwin/Desktop.
 
