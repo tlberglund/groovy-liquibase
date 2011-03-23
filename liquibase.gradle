@@ -26,6 +26,7 @@ database.url = System.properties['database.url'] ?: properties.url
 database.username = System.properties['database.username'] ?: properties.username
 database.password = System.properties['database.password'] ?: properties.password
 database.changeLogFile = System.properties['change.log.file'] ?: properties['change.log.file']
+database.workingDir = System.properties['working.dir'] ?: properties['working.dir']
 
 
 task generateChangeLog << {
@@ -179,7 +180,7 @@ def runLiquibase(List argList) {
   }
   
   javaexec {
-    workingDir = System.properties['working.dir'] ?: properties['working.dir'] ?: projectDir
+    workingDir =  database.workingDir ?: projectDir
     main = 'liquibase.integration.commandline.Main'
     classpath = sourceSets.main.runtimeClasspath
     args = stdArgs + argList
