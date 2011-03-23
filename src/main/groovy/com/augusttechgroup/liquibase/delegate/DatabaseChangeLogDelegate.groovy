@@ -71,30 +71,33 @@ class DatabaseChangeLogDelegate {
 
 
   void include(Map params = [:]) {
-	def relativeToChangelogFile = false
+    def relativeToChangelogFile = false
 	if(params.relativeToChangelogFile){
 	  relativeToChangelogFile = params.relativeToChangelogFile
 	}
     if(params.file) {
-      includeChangeLog(params.file, relativeToChangelogFile)
+	  if (relativeToChangelogFile){
+	    params.file = databaseChangeLog.getFilePath().replaceFirst("/[^/]*\$","") + "/" + params.file
+	  }
+      includeChangeLog(params.file)
     }
     else if(params.path) {
+	  if (relativeToChangelogFile){
+	  	params.path = databaseChangeLog.getFilePath().replaceFirst("/[^/]*\$","") + "/" + params.path	
+	  }
       def files = []
       new File(params.path).eachFileMatch(~/.*.groovy/) { file->
         files << file.path
       }
 
       files.sort().each { filename ->
-        includeChangeLog(filename, relativeToChangelogFile)
+        includeChangeLog(filename)
       }
     }
   }
 
 
-  private def includeChangeLog(filename, relativeToChangelogFile) {
-	if (relativeToChangelogFile) {
-	  filename = databaseChangeLog.getFilePath().replaceFirst("/[^/]*\$","") + "/" + filename;
-	}
+  private def includeChangeLog(filename) {
     def parser = ChangeLogParserFactory.getInstance().getParser(filename, resourceAccessor)
     def includedChangeLog = parser.parse(filename, null, resourceAccessor)
     includedChangeLog?.changeSets.each { changeSet ->

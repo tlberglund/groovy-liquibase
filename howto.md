@@ -3,9 +3,9 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 
 1)  Download the source and go into the directory
 
-2)  command line $:  gradle build
+2)  Command line $:  gradle build
 
-3)  Edit file database.properties
+3)  Create file database.properties
 
             #database.properties 
 
@@ -14,7 +14,7 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
             password: "yourPassword"
             change.log.file: changelog.groovy
 
-4)  changelog.groovy calls al changelogs in /changelogs. Create file(s) changelog(s) in directory /changelogs (See LiquibaseGroovyMigrations.pdf for content of this file)
+4)  change.log.file is the master file where all the database changes are located.
 
 5)  Execute liquibase functions: command line $:  
 
@@ -63,5 +63,5 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 
 ###Contexts
 
-You can use contexts just as in liquibase core. Use -Dliquibase.contexts after any command. See [liquibase] (http://www.liquibase.org/manual/contexts) for full description .
+You can use contexts just as in liquibase core. Use -Dliquibase.contexts after any command. See [liquibase](http://www.liquibase.org/manual/contexts) for full description .
 
