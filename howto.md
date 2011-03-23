@@ -84,7 +84,7 @@ This is usefull if you are working with svn and want different people to update 
 groovy-liquibase saves filename. That is his name and path from workingDir. 
 
 
-How to use:  gradle -q -b liquibase.gradle update -DworkingDir=/home/erwin/Desktop
+How to use:  gradle -q -b liquibase.gradle update -Dworking.dir=/home/erwin/Desktop
 
 Now it's executing all changelogs from path /home/erwin/Desktop.
 

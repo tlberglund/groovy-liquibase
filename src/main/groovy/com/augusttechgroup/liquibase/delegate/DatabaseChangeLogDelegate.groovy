@@ -71,11 +71,11 @@ class DatabaseChangeLogDelegate {
 
 
   void include(Map params = [:]) {
-	def physicalChangeLogLocation = databaseChangeLog.getFilePath().replace(System.getProperty("user.dir").toString() + "/", "")
+    def physicalChangeLogLocation = databaseChangeLog.getFilePath().replace(System.getProperty("user.dir").toString() + "/", "")
     def relativeToChangelogFile = false
-	if(params.relativeToChangelogFile){
+    if(params.relativeToChangelogFile){
 	  relativeToChangelogFile = params.relativeToChangelogFile
-	}
+    }
     if(params.file) {
 	  if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
 	    params.file = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.file
