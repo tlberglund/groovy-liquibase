@@ -28,7 +28,7 @@ class GroovyLiquibaseChangeLogParser
                           ResourceAccessor resourceAccessor) {
 
     physicalChangeLogLocation = physicalChangeLogLocation.replaceAll('\\\\', '/')
-	physicalChangeLogLocation = physicalChangeLogLocation.replace(System.getProperty("user.dir").toString() + "/", "")
+    physicalChangeLogLocation = physicalChangeLogLocation.replace(System.getProperty("user.dir").toString() + "/", "")
     def inputStream = resourceAccessor.getResourceAsStream(physicalChangeLogLocation)
     if(!inputStream) {
       throw new ChangeLogParseException(physicalChangeLogLocation + " does not exist")
