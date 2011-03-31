@@ -54,7 +54,7 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 
 ###Documentation Commands
 
-* dbDoc -Dliquibase.dir=<outputDirectory>         ---Generates Javadoc-like documentation based on current database and change log
+* dbDoc -Dliquibase.doc.dir=<outputDirectory>         ---Generates Javadoc-like documentation based on current database and change log
 
 ###Maintenance Commands
 
