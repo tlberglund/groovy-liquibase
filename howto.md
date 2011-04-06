@@ -6,14 +6,19 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 2)  Command line $:  gradle build
 
 3)  You have two options to set configuration:
+    Database connection is also configured in liquibase.gradle on runtime (default mysql)
+
 	1   Create file database.properties
 
             #database.properties 
 
-            url: "yourDatabaseUrl"
-            username: "yourDatabaseUser"
-            password: "yourPassword"
+            url: yourDatabaseUrl
+            username: yourDatabaseUser
+            password: yourPassword
             change.log.file: changelog.groovy
+	    working.dir: path  (OPTIONEEL)
+	    classpath: driver.jar  (OPTIONEEL)
+	    driver: driverclass oracle.jdbc.OracleDriver  (OPTIONEEL)
 
 	2   Use system configurations at each command
 
@@ -21,7 +26,10 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 		-Ddatabase.url=jdbc:mysql://localhost/test \
 		-Ddatabase.username=root \
 		-Ddatabase.password=admin \
-		-Dchange.log.file=changelog.groovy   
+		-Dchange.log.file=changelog.groovy \
+		-Dworking.dir=changelog.groovy \  (OPTIONEEL)
+		-Ddatabase.driver=changelog.groovy     (OPTIONEEL)
+		-Ddatabase.classpath=changelog.groovy     (OPTIONEEL)
 
 4)  change.log.file is the master file where all the database changes are located.
 
