@@ -16,9 +16,9 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
             username: yourDatabaseUser
             password: yourPassword
             change.log.file: changelog.groovy
-	    working.dir: path  (OPTIONEEL)
-	    classpath: driver.jar  (OPTIONEEL)
-	    driver: driverclass oracle.jdbc.OracleDriver  (OPTIONEEL)
+	    working.dir: path  (Optional)
+	    classpath: driver.jar  (Optional)
+	    driver: driverclass oracle.jdbc.OracleDriver  (Optional)
 
 	2   Use system configurations at each command
 
@@ -27,9 +27,9 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 		-Ddatabase.username=root \
 		-Ddatabase.password=admin \
 		-Dchange.log.file=changelog.groovy \
-		-Dworking.dir=changelog.groovy \  (OPTIONEEL)
-		-Ddatabase.driver=changelog.groovy     (OPTIONEEL)
-		-Ddatabase.classpath=changelog.groovy     (OPTIONEEL)
+		-Dworking.dir=changelog.groovy \  (Optional)
+		-Ddatabase.driver=changelog.groovy     (Optional)
+		-Ddatabase.classpath=changelog.groovy     (Optional)
 
 4)  change.log.file is the master file where all the database changes are located.
 
