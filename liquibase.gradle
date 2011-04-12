@@ -173,7 +173,7 @@ def runLiquibase(String command) {
 
 def runLiquibase(List argList) {
   def contexts = System.properties['liquibase.contexts']
-  def stdArgs = ["--url=${project.database.url}", "--username=${project.database.username}", "--password=${project.database.password}""]
+  def stdArgs = ["--url=${project.database.url}", "--username=${project.database.username}", "--password=${project.database.password}"]
   
   if(project.database.changeLogFile) {
     stdArgs << "--changeLogFile=${project.database.changeLogFile}"
