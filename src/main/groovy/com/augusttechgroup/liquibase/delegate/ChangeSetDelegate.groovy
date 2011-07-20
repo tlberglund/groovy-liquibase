@@ -65,6 +65,19 @@ class ChangeSetDelegate {
     changeSet.comments = text
   }
 
+  
+  void modifySql(Map params = [:], Closure closure){
+	if(closure) {
+	  def delegate = new ModifySqlDelegate(params, changeSet)
+	  closure.delegate = delegate
+	  closure.call()
+	  
+	  delegate.sqlVisitors.each {
+	    changeSet.addSqlVisitor(it)
+      }
+    }
+  }
+  
 
   void preConditions(Map params = [:], Closure closure) {
     changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(params, closure)

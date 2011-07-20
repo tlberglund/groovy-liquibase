@@ -27,6 +27,8 @@ database.username = System.properties['database.username'] ?: properties.usernam
 database.password = System.properties['database.password'] ?: properties.password
 database.changeLogFile = System.properties['change.log.file'] ?: properties['change.log.file']
 database.workingDir = System.properties['working.dir'] ?: properties['working.dir']
+database.classpath = System.properties['database.classpath'] ?: properties['classpath']
+database.driver = System.properties['database.driver'] ?: properties['driver']
 
 
 task generateChangeLog << {
@@ -170,11 +172,18 @@ def runLiquibase(String command) {
 }
 
 def runLiquibase(List argList) {
+  def contexts = System.properties['liquibase.contexts']
   def stdArgs = ["--url=${project.database.url}", "--username=${project.database.username}", "--password=${project.database.password}"]
+  
   if(project.database.changeLogFile) {
     stdArgs << "--changeLogFile=${project.database.changeLogFile}"
   }
-  def contexts = System.properties['liquibase.contexts']
+  if(project.database.driver) {
+    stdArgs << "--driver=${project.database.driver}"
+  }
+  if(project.database.classpath) {
+    stdArgs << "--classpath=${project.database.classpath}"
+  }
   if(contexts) {
     stdArgs << "--contexts=${contexts}"
   }
