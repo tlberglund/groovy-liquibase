@@ -50,6 +50,7 @@ class GroovyChangeLogSerializer
   }
 
 
+  
   String serialize(ChangeSet changeSet) {
     def attrNames = [ 'id', 'author', 'runAlways', 'runOnChange', 'failOnError', 'context', 'dbms' ]
     def attributes = [

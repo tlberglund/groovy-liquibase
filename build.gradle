@@ -1,4 +1,5 @@
 apply plugin: 'groovy'
+apply plugin: 'maven'
 
 version = '0.1'
 group = 'com.augusttechgroup'
@@ -8,7 +9,7 @@ repositories {
 }
 
 dependencies {
-  groovy 'org.codehaus.groovy:groovy:1.7.5'
+  groovy 'org.codehaus.groovy:groovy:1.8.0'
   testCompile 'junit:junit:4.7'
   compile 'org.liquibase:liquibase-core:2.0.1'
 }

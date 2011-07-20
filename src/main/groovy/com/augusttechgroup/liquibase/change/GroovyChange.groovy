@@ -18,7 +18,9 @@ import liquibase.database.Database
 class GroovyChange
   extends AbstractChange
 {
+  def groovyChangeClosure
 
+  
   GroovyChange(groovyChangeClosure) {
     this.groovyChangeClosure = groovyChangeClosure
   }

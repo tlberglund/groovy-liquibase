@@ -5,3 +5,7 @@ out/
 *.iml
 database.properties
 *.log
+.classpath
+.settings/
+.project
+bin/

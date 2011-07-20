@@ -114,14 +114,12 @@ class ChangeSetDelegate {
 
 
   void groovyChange(Closure closure) {
-    def delegate = new GroovyChangeDelegate(closure)
+    def delegate = new GroovyChangeDelegate(closure, changeSet, resourceAccessor)
     delegate.changeSet = changeSet
     delegate.resourceAccessor = resourceAccessor
     closure.delegate = delegate
     closure.resolveStrategy = Closure.DELEGATE_ONLY
     closure.call()
-
-    
   }
 
 
