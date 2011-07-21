@@ -1,8 +1,9 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
-version = '0.1'
+version = '0.7'
 group = 'com.augusttechgroup'
+artifact = 'groovy-liquibase-dsl'
 
 repositories {
   mavenCentral()
@@ -10,6 +11,7 @@ repositories {
 
 dependencies {
   groovy 'org.codehaus.groovy:groovy:1.8.0'
+  runtime 'org.codehaus.groovy:groovy:1.8.0'
   testCompile 'junit:junit:4.7'
   compile 'org.liquibase:liquibase-core:2.0.1'
 }
@@ -19,4 +21,8 @@ task('parseGroovy', dependsOn: 'compileGroovy') << {
     main = 'com.augusttechgroup.liquibase.liquibase'
     classpath sourceSets.main.runtimeClasspath, sourceSets.main.classesDir
   }
+}
+
+jar {
+  baseName = artifact
 }
