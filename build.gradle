@@ -16,13 +16,6 @@ dependencies {
   compile 'org.liquibase:liquibase-core:2.0.1'
 }
 
-task('parseGroovy', dependsOn: 'compileGroovy') << {
-  javaexec {
-    main = 'com.augusttechgroup.liquibase.liquibase'
-    classpath sourceSets.main.runtimeClasspath, sourceSets.main.classesDir
-  }
-}
-
 jar {
   baseName = artifact
 }
