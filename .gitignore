@@ -9,3 +9,5 @@ database.properties
 .settings/
 .project
 bin/
+maven-central.properties
+gradle.properties

@@ -1,9 +1,34 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'signing'
 
+// Set Maven coordinates
 version = '0.7'
 group = 'com.augusttechgroup'
 artifact = 'groovy-liquibase-dsl'
+
+// Get Maven Central credentials from properties file (not in version control)
+mavenCentralProps = new Properties()
+mavenCentralProps.load(new FileInputStream(file('maven-central.properties')))
+mavenCentralUsername = mavenCentralProps['maven.central.username']
+mavenCentralPassword = mavenCentralProps['maven.central.password']
+
+
+buildscript {
+  repositories {
+    mavenRepo name: "Gradle", urls: "http://repo.gradle.org/gradle/plugins-snapshots/"
+  }
+  dependencies {
+    classpath "org.gradle.plugins:gradle-signing-plugin:0.0.1-SNAPSHOT"
+  }
+}
+
+
+configurations {
+  deployment
+  meta
+  published.extendsFrom archives, meta
+}
 
 repositories {
   mavenCentral()
@@ -14,8 +39,74 @@ dependencies {
   runtime 'org.codehaus.groovy:groovy:1.8.0'
   testCompile 'junit:junit:4.7'
   compile 'org.liquibase:liquibase-core:2.0.1'
+  deployment "org.apache.maven.wagon:wagon-webdav-jackrabbit:1.0-beta-7"
 }
 
 jar {
   baseName = artifact
+}
+
+task sourceJar(type: Jar) {
+  description = 'An archive of the source code for Maven Central'
+  baseName = artifact
+  appendix = 'source'
+  from sourceSets.main.groovy
+}
+
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
+  description = 'An archive of the GroovyDocs for Maven Central'
+  baseName = artifact
+  appendix = 'javadoc'
+  from fileTree(groovydoc.destinationDir)
+}
+
+signing { 
+  sign configurations.archives, configurations.meta 
+}
+
+artifacts { 
+  meta groovydocJar, sourceJar
+}
+
+install {
+  repositories.mavenInstaller {
+    pom.project {
+      url('https://github.com/tlberglund/groovy-liquibase')
+      licenses {
+        license {
+          name 'The Apache Software License, Version 2.0'
+          url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          distribution 'repo'
+        }
+      }
+      developers {
+        developer {
+          id('tlberglund')
+          name('Tim Berglund')
+          email('tlberglund@gmail.com')
+        }
+      }
+      scm {
+        connection('scm:https://tlberglund@github.com/tlberglund/groovy-liquibase')
+        developerConnection('scm:git@github.com:tlberglund/groovy-liquibase.git')
+        url('https://github.com/tlberglund/groovy-liquibase')
+      }
+    }
+  }
+}
+
+
+uploadArchives {
+  repositories.mavenDeployer {
+    beforeDeployment { deployment -> 
+      sign(deployment.pomArtifact)
+    }
+    name = 'mavenCentralReleaseDeployer'
+    configuration = configurations.published
+    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") { 
+      authentication(userName: mavenCentralUsername, password: mavenCentralPassword)
+      releases(updatePolicy: 'always')
+      snapshots(updatePolicy: 'never')
+    }
+  }
 }
