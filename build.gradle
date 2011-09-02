@@ -64,12 +64,10 @@ install {
 }
 
 uploadPublished {
-  def pomSignature
   dependsOn << [ signArchives ]
   repositories.mavenDeployer {
     beforeDeployment { deployment ->
       signPom(deployment)
-      //      pomSignature = sign(deployment.pomArtifact.file)
     }
     name = 'mavenCentralReleaseDeployer'
     repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") { 
