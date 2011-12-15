@@ -49,7 +49,7 @@ class GroovyLiquibaseChangeLogParser
 
       // Parse the script, give it the local changeLog instance, give it access
       // to root-level method delegates, and call.
-      def script = shell.parse(inputStream)
+      def script = shell.parse(new InputStreamReader(inputStream, "UTF8"))
       script.metaClass.getDatabaseChangeLog = { -> changeLog }
       script.metaClass.getResourceAccessor = { -> resourceAccessor }
       script.metaClass.methodMissing = changeLogMethodMissing
