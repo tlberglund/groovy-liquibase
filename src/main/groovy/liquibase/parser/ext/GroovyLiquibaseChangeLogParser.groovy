@@ -23,6 +23,7 @@ import liquibase.resource.ResourceAccessor
 import liquibase.exception.ChangeLogParseException
 
 import com.augusttechgroup.liquibase.delegate.DatabaseChangeLogDelegate
+import org.codehaus.groovy.control.CompilerConfiguration
 
 
 class GroovyLiquibaseChangeLogParser
@@ -44,17 +45,19 @@ class GroovyLiquibaseChangeLogParser
       def changeLog = new DatabaseChangeLog(physicalChangeLogLocation)
       changeLog.setChangeLogParameters(changeLogParameters)
 
-      def binding = new Binding()
-      def shell = new GroovyShell(binding)
+      Binding binding = new Binding()
+      binding.changeLogParser = this
+      binding.changeLog = changeLog
+      binding.resourceAccessor = resourceAccessor
+      CompilerConfiguration conf = new CompilerConfiguration()
+      conf.setScriptBaseClass(ParserScript.canonicalName)
+      GroovyShell shell = new GroovyShell(binding, conf)
 
       // Parse the script, give it the local changeLog instance, give it access
       // to root-level method delegates, and call.
       def script = shell.parse(inputStream)
-      script.metaClass.getDatabaseChangeLog = { -> changeLog }
-      script.metaClass.getResourceAccessor = { -> resourceAccessor }
-      script.metaClass.methodMissing = changeLogMethodMissing
       script.run()
-      
+
       // The changeLog will have been populated by the script
       return changeLog
     }
@@ -76,18 +79,6 @@ class GroovyLiquibaseChangeLogParser
 
   int getPriority() {
     PRIORITY_DEFAULT
-  }
-
-
-  def getChangeLogMethodMissing() {
-    { name, args ->
-      if(name == 'databaseChangeLog') {
-        processDatabaseChangeLogRootElement(databaseChangeLog, resourceAccessor, args)
-      }
-      else {
-        throw new ChangeLogParseException("Unrecognized root element ${name}")
-      }
-    }
   }
 
 
@@ -128,3 +119,26 @@ class GroovyLiquibaseChangeLogParser
   }
 }
 
+abstract class ParserScript extends Script {
+
+  @Override
+  void setProperty(String name, value) {
+    if ("databaseChangeLog" == name) {
+      changeLogParser.processDatabaseChangeLogRootElement(changeLog, resourceAccessor, [value])
+    }
+    else {
+      super.setProperty(name, value)
+    }
+  }
+
+  @Override
+  Object invokeMethod(String name, Object args) {
+    if ("databaseChangeLog" == name) {
+      changeLogParser.processDatabaseChangeLogRootElement(changeLog, resourceAccessor, args)
+    }
+    else {
+      return super.invokeMethod(name, args)
+    }
+  }
+
+}

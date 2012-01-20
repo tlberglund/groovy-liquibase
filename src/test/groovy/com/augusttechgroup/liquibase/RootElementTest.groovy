@@ -18,6 +18,7 @@ package com.augusttechgroup.liquibase
 
 import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParserFactory
+import liquibase.parser.ChangeLogParser
 import liquibase.resource.FileSystemResourceAccessor
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.precondition.core.PreconditionContainer
@@ -41,7 +42,7 @@ class RootElementTest {
   final def SIMPLE_CHANGELOG = 'src/test/changelog/simple-changelog.groovy'
   
   def resourceAccessor
-  def parserFactory
+  ChangeLogParserFactory parserFactory
   
   
   @Before
@@ -94,13 +95,16 @@ databaseChangeLog()
   }
 
 
-  @Test(expected=ChangeLogParseException)
-  void parsingClosurelessDatabaseChangeLogFails() {
-    def changeLogFile = createFileFrom("""
-databaseChangeLog(key: 'value')
-""")
-    def parser = parserFactory.getParser(changeLogFile.absolutePath, resourceAccessor)
-    def changeLog = parser.parse(changeLogFile.absolutePath, null, resourceAccessor)
+  @Test
+  void parsingDatabaseChangeLogAsProperty() {
+    File changeLogFile = createFileFrom("""
+    databaseChangeLog = {
+    }
+    """)
+    ChangeLogParser parser = parserFactory.getParser(changeLogFile.absolutePath, resourceAccessor)
+    DatabaseChangeLog changeLog = parser.parse(changeLogFile.absolutePath, null, resourceAccessor)
+
+    assertNotNull "Parsed DatabaseChangeLog was null", changeLog
   }
 
 
@@ -177,7 +181,7 @@ databaseChangeLog {
   }
   
   
-  private def createFileFrom(text) {
+  private File createFileFrom(text) {
     def file = File.createTempFile('liquibase-', '.groovy')
     file.deleteOnExit()
     file << text
