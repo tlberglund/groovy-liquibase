@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 
-version = '0.7.0'
+version = '0.7.1'
 group = 'com.augusttechgroup'
 artifact = 'groovy-liquibase-dsl'
 
@@ -20,13 +20,18 @@ repositories {
 
 
 dependencies {
-  groovy 'org.codehaus.groovy:groovy:1.8.0'
-  runtime 'org.codehaus.groovy:groovy:1.8.0'
-  testCompile 'junit:junit:4.7'
+  groovy 'org.codehaus.groovy:groovy:1.8.4'
+  runtime 'org.codehaus.groovy:groovy:1.8.4'
+  testCompile 'junit:junit:4.8.2'
   compile 'org.liquibase:liquibase-core:2.0.1'
   deployment "org.apache.maven.wagon:wagon-webdav-jackrabbit:1.0-beta-7"
+  testRuntime 'com.h2database:h2:1.3.159'
 }
 
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '1.0-milestone-7'
+}
 
 jar {
   baseName = artifact
@@ -62,6 +67,7 @@ install {
     pom.project(pomConfiguration)
   }
 }
+
 
 uploadPublished {
   dependsOn << [ signArchives ]
