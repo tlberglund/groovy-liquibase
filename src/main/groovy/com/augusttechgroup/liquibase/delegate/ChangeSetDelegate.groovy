@@ -58,6 +58,8 @@ import liquibase.change.custom.CustomChangeWrapper
 import liquibase.exception.RollbackImpossibleException
 import liquibase.change.core.ModifyDataTypeChange
 import liquibase.change.core.DeleteDataChange
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
+import java.math.BigInteger
 
 
 class ChangeSetDelegate {
@@ -453,9 +455,20 @@ class ChangeSetDelegate {
 
   private def makeChangeFromMap(Class klass, Map sourceMap, List paramNames) {
     def change = klass.newInstance()
+
     paramNames.each { name ->
       if(sourceMap[name] != null) {
-        change[name] = sourceMap[name]
+        try {
+            change[name] = sourceMap[name]
+        }
+        catch (GroovyCastException ex) {
+           if(sourceMap[name].isBigInteger()) {
+             change[name] = sourceMap[name].toBigInteger()
+           }
+           else {
+               throw ex
+           }
+         }
       }
     }
 
