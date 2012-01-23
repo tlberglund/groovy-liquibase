@@ -167,7 +167,37 @@ class DataQualityRefactoringTests
     assertEquals 'sequence', changes[0].sequenceName
   }
 
+  @Test
+  void createTypeSafeSequence() {
+    buildChangeSet {
+      createSequence(sequenceName: 'typeSafeSequence', schemaName: 'schema', incrementBy: 42, minValue: 7, maxValue: "999999999999999999999999999", ordered: true, startValue: "1000000")
+    }
 
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof CreateSequenceChange
+    assertEquals 'typeSafeSequence', changes[0].sequenceName
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 42G, changes[0].incrementBy
+    assertEquals 7G, changes[0].minValue
+    assertEquals 999999999999999999999999999 as BigInteger, changes[0].maxValue
+    assertEquals 1000000 as BigInteger, changes[0].startValue
+    assertTrue changes[0].ordered
+  }
+
+  @Test
+  void dropTypeSafeSequence() {
+    buildChangeSet {
+      dropSequence(sequenceName: 'typeSafeSequence')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof DropSequenceChange
+    assertEquals 'typeSafeSequence', changes[0].sequenceName
+  }
 
   @Test
   void addAutoIncrement() {
