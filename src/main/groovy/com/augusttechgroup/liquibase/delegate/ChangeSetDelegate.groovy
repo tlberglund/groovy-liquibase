@@ -459,16 +459,16 @@ class ChangeSetDelegate {
     paramNames.each { name ->
       if(sourceMap[name] != null) {
         try {
-            change[name] = sourceMap[name]
+          change[name] = sourceMap[name]
         }
-        catch (GroovyCastException ex) {
-           if(sourceMap[name].isBigInteger()) {
-             change[name] = sourceMap[name].toBigInteger()
-           }
-           else {
-               throw ex
-           }
-         }
+        catch(GroovyCastException ex) {
+          if(sourceMap[name].isBigInteger()) {
+            change[name] = sourceMap[name].toBigInteger()
+          }
+          else {
+            throw ex
+          }
+        }
       }
     }
 
