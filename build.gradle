@@ -20,10 +20,10 @@ repositories {
 
 
 dependencies {
-  groovy 'org.codehaus.groovy:groovy:1.8.4'
-  runtime 'org.codehaus.groovy:groovy:1.8.4'
+  groovy 'org.codehaus.groovy:groovy:1.8.6'
+  runtime 'org.codehaus.groovy:groovy:1.8.6'
   testCompile 'junit:junit:4.8.2'
-  compile 'org.liquibase:liquibase-core:2.0.1'
+  compile 'org.liquibase:liquibase-core:2.0.3'
   deployment "org.apache.maven.wagon:wagon-webdav-jackrabbit:1.0-beta-7"
   testRuntime 'com.h2database:h2:1.3.159'
 }
