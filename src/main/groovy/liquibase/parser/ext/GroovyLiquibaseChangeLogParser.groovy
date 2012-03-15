@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tim Berglund
+ * Copyright 2011-2012 Tim Berglund
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -55,7 +55,9 @@ class GroovyLiquibaseChangeLogParser
 
       // Parse the script, give it the local changeLog instance, give it access
       // to root-level method delegates, and call.
-      def script = shell.parse(inputStream)
+      def script = shell.parse(new InputStreamReader(inputStream, "UTF8"))
+      script.metaClass.getDatabaseChangeLog = { -> changeLog }
+      script.metaClass.getResourceAccessor = { -> resourceAccessor }
       script.run()
 
       // The changeLog will have been populated by the script
