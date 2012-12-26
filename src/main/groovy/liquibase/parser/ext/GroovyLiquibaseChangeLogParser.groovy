@@ -92,39 +92,41 @@ class GroovyLiquibaseChangeLogParser
   }
 
   private def processDatabaseChangeLogRootElement(databaseChangeLog, resourceAccessor, args) {
+    def delegate;
+    def closure;
+    
     switch(args.size()) {
       case 0:
         throw new ChangeLogParseException("databaseChangeLog element cannot be empty")
       
       case 1:
-        def closure = args[0]
+        closure = args[0]
         if(!(closure instanceof Closure)) {
           throw new ChangeLogParseException("databaseChangeLog element must be followed by a closure (databaseChangeLog { ... })")
         }
-        def delegate = new DatabaseChangeLogDelegate(databaseChangeLog)
-        delegate.resourceAccessor = resourceAccessor
-        closure.delegate = delegate
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.call()
+        delegate = new DatabaseChangeLogDelegate(databaseChangeLog)
         break
         
       case 2:
         def params = args[0]
-        def closure = args[1]
+        closure = args[1]
         if(!(params instanceof Map)) {
           throw new ChangeLogParseException("databaseChangeLog element must take parameters followed by a closure (databaseChangeLog(key: value) { ... })")
         }
         if(!(closure instanceof Closure)) {
           throw new ChangeLogParseException("databaseChangeLog element must take parameters followed by a closure (databaseChangeLog(key: value) { ... })")
         }
-        def delegate = new DatabaseChangeLogDelegate(params, databaseChangeLog)
-        closure.delegate = delegate
-        closure.call()
+        delegate = new DatabaseChangeLogDelegate(params, databaseChangeLog)
         break
         
       default:
         throw new ChangeLogParseException("databaseChangeLog element has too many parameters: ${args}")
     }
+    
+    delegate.resourceAccessor = resourceAccessor
+    closure.delegate = delegate
+    closure.resolveStrategy = Closure.DELEGATE_FIRST
+    closure.call()
   }
 }
 
