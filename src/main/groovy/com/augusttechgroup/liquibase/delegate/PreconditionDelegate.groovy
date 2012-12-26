@@ -21,6 +21,7 @@ import liquibase.precondition.core.OrPrecondition
 import liquibase.precondition.core.SqlPrecondition
 import liquibase.precondition.CustomPreconditionWrapper
 import liquibase.precondition.PreconditionFactory
+import liquibase.precondition.core.NotPrecondition;
 import liquibase.precondition.core.PreconditionContainer
 import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
 import liquibase.precondition.core.PreconditionContainer.ErrorOption
@@ -84,7 +85,12 @@ class PreconditionDelegate
     def precondition = nestedPrecondition(OrPrecondition, closure)
     preconditions << precondition
   }
-
+  
+  def not(Closure closure) {
+    def precondition = nestedPrecondition(NotPrecondition, closure)
+    preconditions << precondition
+  }
+  
 
   static PreconditionContainer buildPreconditionContainer(Map params, Closure closure) {
     def preconditions = new PreconditionContainer()
