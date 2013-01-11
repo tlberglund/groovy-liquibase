@@ -46,7 +46,7 @@ class DatabaseChangeLogDelegate {
       params.author,
       params.alwaysRun?.toBoolean() ?: false,
       params.runOnChange?.toBoolean() ?: false,
-      databaseChangeLog.physicalFilePath,
+      databaseChangeLog.filePath,
       params.context,
       params.dbms,
       params.runInTransaction?.toBoolean() ?: true)
@@ -76,7 +76,7 @@ class DatabaseChangeLogDelegate {
 
 
   void include(Map params = [:]) {
-    def physicalChangeLogLocation = databaseChangeLog.getFilePath().replace(System.getProperty("user.dir").toString() + "/", "")
+    def physicalChangeLogLocation = databaseChangeLog.physicalFilePath.replace(System.getProperty("user.dir").toString() + "/", "")
     def relativeToChangelogFile = false
     if(params.relativeToChangelogFile){
       relativeToChangelogFile = params.relativeToChangelogFile
