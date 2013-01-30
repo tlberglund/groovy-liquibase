@@ -18,6 +18,7 @@ package com.augusttechgroup.liquibase.delegate
 
 import liquibase.changelog.ChangeSet
 import liquibase.parser.ChangeLogParserFactory
+import liquibase.parser.core.xml.XMLChangeLogSAXHandler;
 
 
 class DatabaseChangeLogDelegate {
@@ -78,26 +79,47 @@ class DatabaseChangeLogDelegate {
   void include(Map params = [:]) {
     def physicalChangeLogLocation = databaseChangeLog.physicalFilePath.replace(System.getProperty("user.dir").toString() + "/", "")
     def relativeToChangelogFile = false
-    if(params.relativeToChangelogFile){
+    
+    if (params.relativeToChangelogFile){
       relativeToChangelogFile = params.relativeToChangelogFile
     }
-    if(params.file) {
-    if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
-      params.file = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.file
-    }
+    
+    if (params.file) {
+      if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
+        params.file = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.file
+      }
+      
       includeChangeLog(params.file)
     }
-    else if(params.path) {
-    if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
-      params.path = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.path	
-    }
-      def files = []
-      new File(params.path).eachFileMatch(~/.*.groovy/) { file->
-        files << file.path
+    else if (params.path) {
+      if (!params.path.endsWith("/")) {
+        params.path += "/"
       }
-
-      files.sort().each { filename ->
-        includeChangeLog(filename)
+      
+      if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
+        params.path = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.path
+      }
+      
+      def resources = resourceAccessor.getResources(params.path)
+      resources.each { fileUrl ->
+        if (!fileUrl.toExternalForm().startsWith("file:")) {
+          def zipFileDir = XMLChangeLogSAXHandler.extractZipFile(fileUrl)
+          fileUrl = new File(zipFileDir, params.path).toURI().toURL()
+        }
+        
+        def file = new File(fileUrl.toURI());
+        
+        if (file.isDirectory()) {
+          def names = []  
+          file.eachFileMatch(~/.*.groovy/) { childFile ->
+            names << childFile.name
+          }
+          names.sort().each { name ->
+            includeChangeLog(params.path + name)
+          }
+        } else {
+          includeChangeLog(params.path + file.name)
+        }
       }
     }
   }
