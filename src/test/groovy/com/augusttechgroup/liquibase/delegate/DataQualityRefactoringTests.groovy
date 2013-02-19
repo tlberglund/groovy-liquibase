@@ -140,7 +140,7 @@ class DataQualityRefactoringTests
       createSequence(sequenceName: 'sequence', schemaName: 'schema', incrementBy: 42, minValue: 7, maxValue: 6.023E24, ordered: true, startValue: 8)
     }
 
-    def changes = changeSet.changes
+    def changes = changeSet.changes 
     assertNotNull changes
     assertEquals 1, changes.size()
     assertTrue changes[0] instanceof CreateSequenceChange

@@ -20,6 +20,8 @@ import org.junit.Test
 import static org.junit.Assert.*
 
 import liquibase.change.ConstraintsConfig
+import liquibase.changelog.ChangeLogParameters
+import liquibase.changelog.DatabaseChangeLog
 
 
 class ConstraintDelegateTests
@@ -28,15 +30,10 @@ class ConstraintDelegateTests
 
   @Test
   void verifyDefaultConstraints() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints()
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertTrue constraint.isNullable()
@@ -56,16 +53,11 @@ class ConstraintDelegateTests
 
   @Test
   void primaryKeyConstraintFromMapWithMultipleCalls() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints(nullable: false)
       constraints(primaryKey: true)
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertFalse constraint.isNullable()
@@ -85,7 +77,7 @@ class ConstraintDelegateTests
 
   @Test
   void primaryKeyConstraintFromClosureWithMultipleCalls() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints {
         nullable(false)
       }
@@ -94,11 +86,6 @@ class ConstraintDelegateTests
       }
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertFalse constraint.isNullable()
@@ -119,15 +106,10 @@ class ConstraintDelegateTests
 
   @Test
   void simplePrimaryKeyConstraintFromMap() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints(nullable: false, primaryKey: true)
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertFalse constraint.isNullable()
@@ -147,18 +129,13 @@ class ConstraintDelegateTests
 
   @Test
   void simplePrimaryKeyConstraintFromClosure() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints {
         nullable(false)
         primaryKey(true)
       }
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertFalse constraint.isNullable()
@@ -178,15 +155,10 @@ class ConstraintDelegateTests
 
   @Test
   void richPrimaryKeyConstraintFromMap() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints(nullable: false, primaryKey: true, primaryKeyName: 'primary_key', primaryKeyTablespace: 'key_tablespace')
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertFalse constraint.isNullable()
@@ -206,7 +178,7 @@ class ConstraintDelegateTests
 
   @Test
   void richPrimaryKeyConstraintFromClosure() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints {
         nullable(false)
         primaryKey(true)
@@ -215,11 +187,6 @@ class ConstraintDelegateTests
       }
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertFalse constraint.isNullable()
@@ -239,15 +206,10 @@ class ConstraintDelegateTests
 
   @Test
   void foreignKeyConstraintFromMap() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints(nullable: true, foreignKeyName: 'foreign_key', references: 'monkey(id)', deleteCascade: true, deferrable: true, initiallyDeferred: true)
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertTrue constraint.isNullable()
@@ -267,7 +229,7 @@ class ConstraintDelegateTests
 
   @Test
   void foreignKeyConstraintFromClosure() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints {
         nullable(true)
         foreignKeyName('foreign_key')
@@ -278,11 +240,6 @@ class ConstraintDelegateTests
       }
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertTrue constraint.isNullable()
@@ -302,15 +259,10 @@ class ConstraintDelegateTests
 
   @Test
   void uniqueConstraintFromMap() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints(unique: true, uniqueConstraintName: 'unique_column', check: 'check')
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertTrue constraint.isNullable()
@@ -330,7 +282,7 @@ class ConstraintDelegateTests
 
   @Test
   void uniqueConstraintFromClosure() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints {
         unique(true)
         uniqueConstraintName('unique_column')
@@ -338,11 +290,6 @@ class ConstraintDelegateTests
       }
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertTrue constraint.isNullable()
@@ -362,15 +309,10 @@ class ConstraintDelegateTests
 
   @Test
   void simpleNullableConstraintFromMap() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints(nullable: true)
     }
 
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertTrue constraint.isNullable()
@@ -390,17 +332,12 @@ class ConstraintDelegateTests
 
   @Test
   void simpleNullableConstraintFromClosure() {
-    def closure = {
+    def constraint = buildConstraint {
       constraints {
         nullable(true)
       }
     }
-
-    def delegate = new ConstraintDelegate()
-    closure.delegate = delegate
-    closure.call()
-
-    def constraint = delegate.constraint
+    
     assertNotNull constraint
     assertTrue constraint instanceof ConstraintsConfig
     assertTrue constraint.isNullable()
@@ -415,5 +352,17 @@ class ConstraintDelegateTests
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
     assertFalse constraint.isDeferrable()
+  }
+  
+  def buildConstraint(Closure closure) {
+      def changelog = new DatabaseChangeLog()
+      changelog.changeLogParameters = new ChangeLogParameters()
+      
+      def delegate = new ConstraintDelegate(databaseChangeLog: changelog)
+      closure.delegate = delegate
+      closure.resolveStrategy = Closure.DELEGATE_FIRST
+      closure.call()
+      
+      delegate.constraint
   }
 }

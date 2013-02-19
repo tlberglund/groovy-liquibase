@@ -17,12 +17,14 @@
 package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.ColumnConfig
+import liquibase.util.ObjectUtil;
 
 
 class ColumnDelegate {
   def columns = []
   def columnConfigClass = ColumnConfig
   def whereClause
+  def databaseChangeLog
 
 
   //
@@ -31,7 +33,7 @@ class ColumnDelegate {
   // column-y (not to be confused with calumny) places.
   //
   def where(String whereClause) {
-    this.whereClause = whereClause
+    this.whereClause = expandExpressions(whereClause)
   }
 
 
@@ -39,17 +41,22 @@ class ColumnDelegate {
     def column = columnConfigClass.newInstance()
 
     params.each { key, value ->
-      column[key] = value
+      ObjectUtil.setProperty(column, key, expandExpressions(value)) 
     }
 
     if(closure) {
-      def constraintDelegate = new ConstraintDelegate()
+      def constraintDelegate = new ConstraintDelegate(databaseChangeLog: databaseChangeLog)
       closure.delegate = constraintDelegate
+      closure.resolveStrategy = Closure.DELEGATE_FIRST
       closure.call()
       column.constraints = constraintDelegate.constraint
     }
 
     columns << column
+  }
+  
+  private def expandExpressions(expression) {
+    databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
   }
 
 }

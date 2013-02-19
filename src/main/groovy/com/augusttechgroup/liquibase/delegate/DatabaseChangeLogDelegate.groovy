@@ -17,6 +17,7 @@
 package com.augusttechgroup.liquibase.delegate
 
 import liquibase.changelog.ChangeSet
+import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParserFactory
 import liquibase.parser.core.xml.XMLChangeLogSAXHandler;
 
@@ -72,7 +73,7 @@ class DatabaseChangeLogDelegate {
 
 
   void preConditions(Map params = [:], Closure closure) {
-    databaseChangeLog.preconditions = PreconditionDelegate.buildPreconditionContainer(params, closure)
+    databaseChangeLog.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, params, closure)
   }
 
 
@@ -127,7 +128,7 @@ class DatabaseChangeLogDelegate {
 
   private def includeChangeLog(filename) {
     def parser = ChangeLogParserFactory.getInstance().getParser(filename, resourceAccessor)
-    def includedChangeLog = parser.parse(filename, null, resourceAccessor)
+    def includedChangeLog = parser.parse(filename, databaseChangeLog.changeLogParameters, resourceAccessor)
     includedChangeLog?.changeSets.each { changeSet ->
       databaseChangeLog.addChangeSet(changeSet)
     }
@@ -138,7 +139,33 @@ class DatabaseChangeLogDelegate {
 
 
   void property(Map params = [:]) {
+    def context = params['context'] ?: null
+    def dbms = params['dbms'] ?: null
+    def changeLogParameters = databaseChangeLog.changeLogParameters
     
+    if (!params['file']) {
+      changeLogParameters.set(params['name'], params['value'], context, dbms)
+    } else {
+      def props = new Properties()
+      def propertiesStream = resourceAccessor.getResourceAsStream(params['file'])
+      if (!propertiesStream) {
+        throw new ChangeLogParseException("Unable to load file with properties: ${params['file']}")
+      } else {
+        props.load(propertiesStream)
+        props.each { k, v ->
+          changeLogParameters.set(k, v, context, dbms)
+        }
+      }
+    }
+  }
+  
+  def propertyMissing(String name) {
+    def changeLogParameters = databaseChangeLog.changeLogParameters
+    if (changeLogParameters.hasValue(name)) {
+      return changeLogParameters.getValue(name)
+    } else {
+      throw new MissingPropertyException(name, this.class)
+    }
   }
 
 }

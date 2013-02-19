@@ -26,11 +26,13 @@ import liquibase.precondition.core.PreconditionContainer
 import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
 import liquibase.precondition.core.PreconditionContainer.ErrorOption
 import liquibase.precondition.core.PreconditionContainer.FailOption
+import liquibase.util.ObjectUtil;
 
 
 class PreconditionDelegate
 {
   def preconditions = []
+  def databaseChangeLog
   
 
   //
@@ -42,8 +44,8 @@ class PreconditionDelegate
     def params = args[0]
 
     if(params != null && params instanceof Map) {
-      args[0].each { key, value ->
-        precondition[key] = value
+      params.each { key, value ->
+        ObjectUtil.setProperty(precondition, key, expandExpressions(value))
       }
     }
 
@@ -53,8 +55,8 @@ class PreconditionDelegate
 
   def sqlCheck(Map params = [:], Closure closure) {
     def precondition = new SqlPrecondition()
-    precondition.expectedResult = params.expectedResult
-    precondition.sql = closure.call()
+    precondition.expectedResult = expandExpressions(params.expectedResult)
+    precondition.sql = expandExpressions(closure.call())
     preconditions << precondition
   }
 
@@ -68,7 +70,7 @@ class PreconditionDelegate
     def precondition = new CustomPreconditionWrapper()
     precondition.className = params.className
     delegate.map.each { key, value ->
-      precondition.setParam(key, value.toString())
+      precondition.setParam(key, expandExpressions(value))
     }
 
     preconditions << precondition
@@ -92,7 +94,7 @@ class PreconditionDelegate
   }
   
 
-  static PreconditionContainer buildPreconditionContainer(Map params, Closure closure) {
+  static PreconditionContainer buildPreconditionContainer(databaseChangeLog, Map params, Closure closure) {
     def preconditions = new PreconditionContainer()
 
     if(params.onFail) {
@@ -110,7 +112,7 @@ class PreconditionDelegate
     preconditions.onFailMessage = params.onFailMessage
     preconditions.onErrorMessage = params.onErrorMessage
 
-    def delegate = new PreconditionDelegate()
+    def delegate = new PreconditionDelegate(databaseChangeLog: databaseChangeLog)
     closure.delegate = delegate
     closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()
@@ -125,7 +127,7 @@ class PreconditionDelegate
 
   private def nestedPrecondition(Class preconditionClass, Closure closure) {
     def nestedPrecondition = preconditionClass.newInstance()
-    def delegate = new PreconditionDelegate()
+    def delegate = new PreconditionDelegate(databaseChangeLog: databaseChangeLog)
     closure.delegate = delegate
     closure.resolveStrategy = Closure.DELEGATE_ONLY
     closure.call()
@@ -135,6 +137,10 @@ class PreconditionDelegate
     }
 
     return nestedPrecondition
+  }
+  
+  private def expandExpressions(expression) {
+    databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
   }
 
 }
