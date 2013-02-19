@@ -16,8 +16,6 @@
 
 package com.augusttechgroup.liquibase.delegate
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression.ClosureContext;
-
 import liquibase.change.ColumnConfig
 
 import org.junit.Test
