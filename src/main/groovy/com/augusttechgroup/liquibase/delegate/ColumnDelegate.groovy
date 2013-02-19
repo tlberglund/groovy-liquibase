@@ -47,6 +47,7 @@ class ColumnDelegate {
     if(closure) {
       def constraintDelegate = new ConstraintDelegate(databaseChangeLog: databaseChangeLog)
       closure.delegate = constraintDelegate
+      closure.resolveStrategy = Closure.DELEGATE_FIRST
       closure.call()
       column.constraints = constraintDelegate.constraint
     }
