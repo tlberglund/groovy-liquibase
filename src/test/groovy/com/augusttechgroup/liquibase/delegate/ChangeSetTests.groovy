@@ -17,7 +17,9 @@
 package com.augusttechgroup.liquibase.delegate
 
 import org.junit.Before
+import liquibase.changelog.ChangeLogParameters
 import liquibase.changelog.ChangeSet
+import liquibase.changelog.DatabaseChangeLog
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 
@@ -44,8 +46,12 @@ class ChangeSetTests
 
   
   def buildChangeSet(Closure closure) {
+    def changelog = new DatabaseChangeLog()
+    changelog.changeLogParameters = new ChangeLogParameters()
+      
     closure.delegate = new ChangeSetDelegate(changeSet: changeSet,
-                                             resourceAccessor: resourceAccessor)
+                                             resourceAccessor: resourceAccessor,
+                                             databaseChangeLog: changelog)
     closure.call()
     changeSet
   }

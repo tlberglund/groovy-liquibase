@@ -16,6 +16,8 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression.ClosureContext;
+
 import liquibase.change.ColumnConfig
 
 import org.junit.Test
@@ -23,6 +25,8 @@ import static org.junit.Assert.*
 import java.sql.Timestamp
 import liquibase.change.ConstraintsConfig
 import liquibase.change.core.LoadDataColumnConfig
+import liquibase.changelog.ChangeLogParameters
+import liquibase.changelog.DatabaseChangeLog
 import java.text.SimpleDateFormat
 
 
@@ -32,7 +36,7 @@ class ColumnDelegateTests
 
   @Test
   void buildSimpleStringColumn() {
-    def closure = {
+    def columns = buildColumns {
       column(name: 'column-name',
              type: 'varchar',
              value: 'value',
@@ -40,11 +44,6 @@ class ColumnDelegateTests
              remarks: 'No comment')
     }
 
-    def columnDelegate = new ColumnDelegate()
-    closure.delegate = columnDelegate
-    closure.call()
-
-    def columns = columnDelegate.columns
     assertNotNull columns
     assertEquals 1, columns.size()
     def column = columns[0]
@@ -61,7 +60,7 @@ class ColumnDelegateTests
 
   @Test
   void buildSimpleNumericColumn() {
-    def closure = {
+    def columns = buildColumns {
       column(name: 'column-name',
              type: 'varchar',
              valueNumeric: 56,
@@ -70,11 +69,6 @@ class ColumnDelegateTests
              remarks: 'No numeric comment')
     }
 
-    def columnDelegate = new ColumnDelegate()
-    closure.delegate = columnDelegate
-    closure.call()
-
-    def columns = columnDelegate.columns
     assertNotNull columns
     assertEquals 1, columns.size()
     def column = columns[0]
@@ -93,7 +87,7 @@ class ColumnDelegateTests
   void buildSimpleDateColumn() {
     def now = "2010-11-02 07:52:04"
     def sqlNow = parseSqlTimestamp(now)
-    def closure = {
+    def columns = buildColumns {
       column(name: 'column-name',
              type: 'datetime',
              valueDate: now,
@@ -102,11 +96,6 @@ class ColumnDelegateTests
              remarks: 'No date comment')
     }
 
-    def columnDelegate = new ColumnDelegate()
-    closure.delegate = columnDelegate
-    closure.call()
-
-    def columns = columnDelegate.columns
     assertNotNull columns
     assertEquals 1, columns.size()
     def column = columns[0]
@@ -123,7 +112,7 @@ class ColumnDelegateTests
 
   @Test
   void buildSimpleBooleanColumn() {
-    def closure = {
+    def columns = buildColumns {
       column(name: 'column-name',
              type: 'bit',
              valueBoolean: true,
@@ -132,11 +121,6 @@ class ColumnDelegateTests
              remarks: 'No boolean comment')
     }
 
-    def columnDelegate = new ColumnDelegate()
-    closure.delegate = columnDelegate
-    closure.call()
-
-    def columns = columnDelegate.columns
     assertNotNull columns
     assertEquals 1, columns.size()
     def column = columns[0]
@@ -153,7 +137,7 @@ class ColumnDelegateTests
 
   @Test
   void buildStringColumnWithConstraintsInMap() {
-    def closure = {
+    def columns = buildColumns {
       column(name: 'column-name',
              type: 'varchar',
              value: 'value',
@@ -164,11 +148,6 @@ class ColumnDelegateTests
       }
     }
 
-    def columnDelegate = new ColumnDelegate()
-    closure.delegate = columnDelegate
-    closure.call()
-
-    def columns = columnDelegate.columns
     assertNotNull columns
     assertEquals 1, columns.size()
     def column = columns[0]
@@ -191,7 +170,7 @@ class ColumnDelegateTests
 
   @Test
   void buildStringColumnWithConstraintsInClosure() {
-    def closure = {
+    def columns = buildColumns {
       column(name: 'column-name',
              type: 'varchar',
              value: 'value',
@@ -205,11 +184,6 @@ class ColumnDelegateTests
       }
     }
 
-    def columnDelegate = new ColumnDelegate()
-    closure.delegate = columnDelegate
-    closure.call()
-
-    def columns = columnDelegate.columns
     assertNotNull columns
     assertEquals 1, columns.size()
     def column = columns[0]
@@ -232,17 +206,12 @@ class ColumnDelegateTests
 
   @Test
   void buildMultipleColumns() {
-    def closure = {
+    def columns = buildColumns {
       column(name: 'column-1', type: 'varchar', value: 'value')
       column(name: 'column-2', type: 'integer', valueNumeric: 42)
       column(name: 'column-3', type: 'boolean', valueBoolean: true)
     }
 
-    def columnDelegate = new ColumnDelegate()
-    closure.delegate = columnDelegate
-    closure.call()
-
-    def columns = columnDelegate.columns
     assertNotNull columns
     assertEquals 3, columns.size()
     assertTrue columns[0] instanceof ColumnConfig
@@ -263,17 +232,12 @@ class ColumnDelegateTests
 
   @Test
   void buildloadDataColumnConfigColumnWithHeaders() {
-    def closure = {
+    def columns = buildColumns(columnConfigClass: LoadDataColumnConfig) {
       column(header: 'header-name',
              name: 'database-column-name',
              type: 'STRING')
     }
 
-    def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig)
-    closure.delegate = columnDelegate
-    closure.call()
-
-    def columns = columnDelegate.columns
     assertNotNull columns
     assertEquals 1, columns.size()
     def column = columns[0]
@@ -287,16 +251,13 @@ class ColumnDelegateTests
 
   @Test
   void columnClosureCanContainWhereClause() {
-    def closure = {
+    def columnDelegate = buildColumnDelegate([:]) {
       column(name: 'monkey', type: 'VARCHAR(50)')
       where "emotion='angry'"
     }
-
-    def columnDelegate = new ColumnDelegate()
-    closure.delegate = columnDelegate
-    closure.call()
-
+    
     def columns = columnDelegate.columns
+
     assertNotNull columns
     assertEquals 1, columns.size()
     def column = columns[0]
@@ -307,17 +268,12 @@ class ColumnDelegateTests
 
   @Test
   void buildloadDataColumnConfigColumnWithIndex() {
-    def closure = {
+    def columns = buildColumns(columnConfigClass: LoadDataColumnConfig) {
       column(index: 3,
              name: 'database-column-name',
              type: 'STRING')
     }
 
-    def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig)
-    closure.delegate = columnDelegate
-    closure.call()
-
-    def columns = columnDelegate.columns
     assertNotNull columns
     assertEquals 1, columns.size()
     def column = columns[0]
@@ -326,6 +282,27 @@ class ColumnDelegateTests
     assertEquals 'database-column-name', column.name
     assertEquals 3, column.index
     assertEquals 'STRING', column.type
+  }
+  
+  def buildColumnDelegate(Map args, Closure closure) {
+      def changelog = new DatabaseChangeLog()
+      changelog.changeLogParameters = new ChangeLogParameters()
+      args.databaseChangeLog = changelog
+      
+      def columnDelegate = new ColumnDelegate(args)
+      closure.delegate = columnDelegate
+      closure.resolveStrategy = Closure.DELEGATE_FIRST
+      closure.call()
+      
+      columnDelegate
+  }
+  
+  def buildColumns(Map args, Closure closure) {
+      buildColumnDelegate(args, closure).columns
+  }
+  
+  def buildColumns(Closure closure) {
+      buildColumns([:], closure)
   }
 
 

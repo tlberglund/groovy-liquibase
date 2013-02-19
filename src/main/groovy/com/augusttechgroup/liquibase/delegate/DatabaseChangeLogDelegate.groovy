@@ -73,7 +73,7 @@ class DatabaseChangeLogDelegate {
 
 
   void preConditions(Map params = [:], Closure closure) {
-    databaseChangeLog.preconditions = PreconditionDelegate.buildPreconditionContainer(params, closure)
+    databaseChangeLog.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, params, closure)
   }
 
 

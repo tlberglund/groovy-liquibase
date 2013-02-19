@@ -20,6 +20,7 @@ import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParserFactory
 import liquibase.parser.ChangeLogParser
 import liquibase.resource.FileSystemResourceAccessor
+import liquibase.changelog.ChangeLogParameters
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.precondition.core.PreconditionContainer
 import liquibase.precondition.core.PreconditionContainer.FailOption
@@ -164,7 +165,7 @@ databaseChangeLog {
 """)
 
     def parser = parserFactory.getParser(rootChangeLogFile.absolutePath, resourceAccessor)
-    def rootChangeLog = parser.parse(rootChangeLogFile.absolutePath, null, resourceAccessor)
+    def rootChangeLog = parser.parse(rootChangeLogFile.absolutePath, new ChangeLogParameters(), resourceAccessor)
 
     assertNotNull rootChangeLog
     def changeSets = rootChangeLog.changeSets

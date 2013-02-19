@@ -17,10 +17,12 @@
 package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.ConstraintsConfig
+import liquibase.util.ObjectUtil;
 
 
 class ConstraintDelegate {
   def constraint
+  def databaseChangeLog
 
 
   ConstraintDelegate() {
@@ -41,20 +43,25 @@ class ConstraintDelegate {
 
   def constraints(Map params = [:]) {
     params.each { key, value ->
-      constraint[key] = value
+      ObjectUtil.setProperty(constraint, key, expandExpressions(value))
     }
   }
 
 
   def constraints(Closure closure) {
     closure.delegate = this
+    closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()
   }
-
+  
 
   def methodMissing(String name, params) {
     if(constraint.hasProperty(name)) {
-      constraint[name] = params[0]
+      ObjectUtil.setProperty(constraint, name, expandExpressions(params[0]))
     }
+  }
+  
+  private def expandExpressions(expression) {
+    databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
   }
 }

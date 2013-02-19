@@ -56,10 +56,10 @@ import liquibase.change.core.SQLFileChange
 import liquibase.change.core.ExecuteShellCommandChange
 import liquibase.change.custom.CustomChangeWrapper
 import liquibase.exception.RollbackImpossibleException
+import liquibase.util.ObjectUtil;
 import liquibase.change.core.ModifyDataTypeChange
 import liquibase.change.core.DeleteDataChange
 import org.codehaus.groovy.runtime.typehandling.GroovyCastException
-import java.math.BigInteger
 
 
 class ChangeSetDelegate {
@@ -70,7 +70,7 @@ class ChangeSetDelegate {
 
 
   void comment(String text) {
-    changeSet.comments = text
+    changeSet.comments = expandExpressions(text)
   }
 
   
@@ -88,7 +88,7 @@ class ChangeSetDelegate {
   
 
   void preConditions(Map params = [:], Closure closure) {
-    changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(params, closure)
+    changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, params, closure)
   }
 
 
@@ -104,7 +104,7 @@ class ChangeSetDelegate {
 
   
   void rollback(String sql) {
-    changeSet.addRollBackSQL(sql)
+    changeSet.addRollBackSQL(expandExpressions(sql))
   }
 
 
@@ -188,7 +188,7 @@ class ChangeSetDelegate {
 
   void createView(Map params, Closure closure) {
     def change = makeChangeFromMap(CreateViewChange, params, ['schemaName', 'viewName', 'replaceIfExists'])
-    change.selectQuery = closure.call()
+    change.selectQuery = expandExpressions(closure.call())
     addChange(change)
   }
 
@@ -210,7 +210,7 @@ class ChangeSetDelegate {
 
   void createStoredProcedure(String storedProc) {
     def change = new CreateProcedureChange()
-    change.procedureBody = storedProc
+    change.procedureBody = expandExpressions(storedProc)
     addChange(change)
   }
 
@@ -349,14 +349,14 @@ class ChangeSetDelegate {
 
   void sql(Map params = [:], Closure closure) {
     def change = makeChangeFromMap(RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter'])
-    change.sql = closure.call()
+    change.sql = expandExpressions(closure.call())
     addChange(change)
   }
 
 
   void sql(String sql) {
     def change = new RawSQLChange()
-    change.sql = sql
+    change.sql = expandExpressions(sql)
     addChange(change)
   }
 
@@ -378,7 +378,7 @@ class ChangeSetDelegate {
       closure.delegate = delegate
       closure.call()
       delegate.map.each { key, value ->
-        change.setParam(key, value.toString())
+        change.setParam(key, expandExpressions(value))
       }
     }
 
@@ -410,7 +410,7 @@ class ChangeSetDelegate {
     closure.delegate = delegate
     closure.call()
     delegate.args.each { arg ->
-      change.addArg(arg)
+      change.addArg(expandExpressions(arg))
     }
 
     addChange(change)
@@ -420,7 +420,7 @@ class ChangeSetDelegate {
   private def makeLoadDataColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
     def change = makeChangeFromMap(klass, params, paramNames)
 
-    def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig)
+    def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig, databaseChangeLog: databaseChangeLog)
     closure.delegate = columnDelegate
     closure.call()
 
@@ -435,7 +435,7 @@ class ChangeSetDelegate {
   private def makeColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
     def change = makeChangeFromMap(klass, params, paramNames)
 
-    def columnDelegate = new ColumnDelegate()
+    def columnDelegate = new ColumnDelegate(databaseChangeLog: databaseChangeLog)
     closure.delegate = columnDelegate
     closure.call()
 
@@ -459,15 +459,10 @@ class ChangeSetDelegate {
     paramNames.each { name ->
       if(sourceMap[name] != null) {
         try {
-          change[name] = sourceMap[name]
+          ObjectUtil.setProperty(change, name, expandExpressions(sourceMap[name]))
         }
-        catch(GroovyCastException ex) {
-          if(sourceMap[name].isBigInteger()) {
-            change[name] = sourceMap[name].toBigInteger()
-          }
-          else {
-            throw ex
-          }
+        catch(NumberFormatException ex) {
+          change[name] = sourceMap[name].toBigInteger()
         }
       }
     }
@@ -490,5 +485,8 @@ class ChangeSetDelegate {
     }
     return changeSet
   }
-
+  
+  private def expandExpressions(expression) {
+    databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
+  }
 }

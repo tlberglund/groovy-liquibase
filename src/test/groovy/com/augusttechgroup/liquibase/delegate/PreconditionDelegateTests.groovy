@@ -16,8 +16,12 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import groovy.lang.Closure;
+
 import org.junit.Test
 import static org.junit.Assert.*
+import liquibase.changelog.ChangeLogParameters
+import liquibase.changelog.DatabaseChangeLog
 import liquibase.precondition.core.DBMSPrecondition
 import liquibase.precondition.Precondition
 import liquibase.precondition.core.RunningAsPrecondition
@@ -40,15 +44,10 @@ class PreconditionDelegateTests
 
   @Test
   void dbms() {
-    def c = {
+    def preconditions = buildPreconditions {
       dbms(type: 'mysql')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -59,15 +58,10 @@ class PreconditionDelegateTests
 
   @Test
   void runningAs() {
-    def c = {
+    def preconditions = buildPreconditions {
       runningAs(username: 'tlberglund')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -78,15 +72,10 @@ class PreconditionDelegateTests
 
   @Test
   void changeSetExecuted() {
-    def c = {
+    def preconditions = buildPreconditions {
       changeSetExecuted(id: 'unleash-monkey', author: 'tlberglund', changeLogFile: 'changelog.xml')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -99,15 +88,10 @@ class PreconditionDelegateTests
 
   @Test
   void columnExists() {
-    def c = {
+    def preconditions = buildPreconditions {
       columnExists(schemaName: 'schema', tableName: 'monkey', columnName: 'emotion')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -120,15 +104,10 @@ class PreconditionDelegateTests
 
   @Test
   void tableExists() {
-    def c = {
+    def preconditions = buildPreconditions {
       tableExists(schemaName: 'schema', tableName: 'monkey')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -140,15 +119,10 @@ class PreconditionDelegateTests
 
   @Test
   void viewExists() {
-    def c = {
+    def preconditions = buildPreconditions {
       viewExists(schemaName: 'schema', viewName: 'monkey_view')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -160,15 +134,10 @@ class PreconditionDelegateTests
 
   @Test
   void foreignKeyConstraintExists() {
-    def c = {
+    def preconditions = buildPreconditions {
       foreignKeyConstraintExists(schemaName: 'schema', foreignKeyName: 'fk_monkey_key')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -180,15 +149,10 @@ class PreconditionDelegateTests
 
   @Test
   void indexExists() {
-    def c = {
+    def preconditions = buildPreconditions {
       indexExists(schemaName: 'schema', indexName: 'index')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -200,15 +164,10 @@ class PreconditionDelegateTests
 
   @Test
   void sequenceExists() {
-    def c = {
+    def preconditions = buildPreconditions {
       sequenceExists(schemaName: 'schema', sequenceName: 'seq_next_monkey')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -220,15 +179,10 @@ class PreconditionDelegateTests
 
   @Test
   void primaryKeyExists() {
-    def c = {
+    def preconditions = buildPreconditions {
       primaryKeyExists(schemaName: 'schema', primaryKeyName: 'pk_monkey')
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
     assertEquals 1, preconditions.size()
@@ -240,18 +194,13 @@ class PreconditionDelegateTests
 
   @Test
   void andClause() {
-    def c = {
+    def preconditions = buildPreconditions {
       and {
         dbms(type: 'mysql')
         runningAs(username: 'tlberglund')
       }
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertEquals 1, preconditions.size()
     assertTrue preconditions[0] instanceof AndPrecondition
@@ -265,18 +214,13 @@ class PreconditionDelegateTests
 
   @Test
   void orClause() {
-    def c = {
+    def preconditions = buildPreconditions {
       or {
         dbms(type: 'mysql')
         runningAs(username: 'tlberglund')
       }
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertEquals 1, preconditions.size()
     assertTrue preconditions[0] instanceof OrPrecondition
@@ -290,17 +234,12 @@ class PreconditionDelegateTests
 
   @Test
   void sqlCheck() {
-    def c = {
+    def preconditions = buildPreconditions {
       sqlCheck(expectedResult: 'angry') {
         "SELECT emotion FROM monkey WHERE id=2884"
       }
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertEquals 1, preconditions.size()
     assertTrue preconditions[0] instanceof SqlPrecondition
@@ -312,23 +251,32 @@ class PreconditionDelegateTests
 
   @Test
   void customPreconditionFails() {
-    def c = {
+    def preconditions = buildPreconditions {
       customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
         emotion('angry')
         'rfid-tag'(28763)
       }
     }
 
-    def delegate = new PreconditionDelegate()
-    c.delegate = delegate
-    c.call()
-
-    def preconditions = delegate.preconditions
     assertNotNull preconditions
     assertEquals 1, preconditions.size()
     assertTrue preconditions[0] instanceof CustomPreconditionWrapper
     // There is no way to examine these parameters once they are set in a CustomPreconditionWrapper
     //assertEquals 'angry', preconditions[0].expectedResult
     //assertEquals 'SELECT emotion FROM monkey WHERE id=2884', preconditions[0].sql
+  }
+  
+  
+  
+  def buildPreconditions(Closure closure) {
+      def changelog = new DatabaseChangeLog()
+      changelog.changeLogParameters = new ChangeLogParameters()
+      
+      def delegate = new PreconditionDelegate(databaseChangeLog: changelog)
+      closure.delegate = delegate
+      closure.resolveStrategy = Closure.DELEGATE_FIRST
+      closure.call()
+      
+      delegate.preconditions
   }
 }
