@@ -4,7 +4,7 @@ A pluggable parser for [Liquibase](http://liquibase.org) that allows the creatio
 The DSL syntax is intended to mirror the Liquibase XML syntax directly, such that mapping elements and attributes from the Liquibase documentation to Groovy builder syntax will result in a valid changelog. Hence this DSL is not documented separately from the Liquibase XML format.
 
 ## Author(s)
-Work is currently being done by [Tim Berglund])https://github.com/tlberglund).
+Work is currently being done by [Tim Berglund](https://github.com/tlberglund).
 
 Additional contributions by Erwin van Brandwijk, intern of [42bv Netherlands](http://www.42.nl) and many other faithful OSS supporters who have sent pull requests.
 
