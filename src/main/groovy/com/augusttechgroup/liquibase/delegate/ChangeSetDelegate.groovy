@@ -139,7 +139,7 @@ class ChangeSetDelegate {
     delegate.changeSet = changeSet
     delegate.resourceAccessor = resourceAccessor
     closure.delegate = delegate
-    closure.resolveStrategy = Closure.DELEGATE_ONLY
+    closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()
   }
 
