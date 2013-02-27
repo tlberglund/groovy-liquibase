@@ -81,7 +81,7 @@ class ArchitecturalRefactoringTests
   @Test
   void dropIndex() {
     buildChangeSet {
-      dropIndex(tableName: 'monkey', indexName: 'ndx_monkeys')
+      dropIndex(schemaName: 'schema', tableName: 'monkey', indexName: 'ndx_monkeys')
     }
 
     def changes = changeSet.changes
@@ -89,6 +89,7 @@ class ArchitecturalRefactoringTests
     assertEquals 1, changes.size()
     assertTrue changes[0] instanceof DropIndexChange
     assertEquals 'monkey', changes[0].tableName
+    assertEquals 'schema', changes[0].schemaName
     assertEquals 'ndx_monkeys', changes[0].indexName
   }
 

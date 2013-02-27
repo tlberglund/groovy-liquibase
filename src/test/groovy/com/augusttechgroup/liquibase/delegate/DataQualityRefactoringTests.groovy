@@ -21,6 +21,7 @@ import static org.junit.Assert.*
 
 import liquibase.change.core.AddLookupTableChange
 import liquibase.change.core.AddNotNullConstraintChange
+import liquibase.change.core.AlterSequenceChange;
 import liquibase.change.core.DropNotNullConstraintChange
 import liquibase.change.core.AddUniqueConstraintChange
 import liquibase.change.core.DropUniqueConstraintChange
@@ -29,6 +30,7 @@ import liquibase.change.core.DropSequenceChange
 import liquibase.change.core.AddAutoIncrementChange
 import liquibase.change.core.AddDefaultValueChange
 import liquibase.change.core.DropDefaultValueChange
+import liquibase.statement.DatabaseFunction
 
 
 class DataQualityRefactoringTests
@@ -103,7 +105,7 @@ class DataQualityRefactoringTests
   @Test
   void addUniqueConstraint() {
     buildChangeSet {
-      addUniqueConstraint(tablespace: 'tablespace', schemaName: 'schema', tableName: 'monkey', columnNames: 'species, emotion', constraintName: 'unique_constraint')
+      addUniqueConstraint(tablespace: 'tablespace', schemaName: 'schema', tableName: 'monkey', columnNames: 'species, emotion', constraintName: 'unique_constraint', deferrable: true, initiallyDeferred: true, disabled: true)
     }
 
     def changes = changeSet.changes
@@ -115,6 +117,9 @@ class DataQualityRefactoringTests
     assertEquals 'monkey', changes[0].tableName
     assertEquals 'species, emotion', changes[0].columnNames
     assertEquals 'unique_constraint', changes[0].constraintName
+    assertTrue changes[0].deferrable
+    assertTrue changes[0].initiallyDeferred
+    assertTrue changes[0].disabled
   }
 
 
@@ -137,7 +142,7 @@ class DataQualityRefactoringTests
   @Test
   void createSequence() {
     buildChangeSet {
-      createSequence(sequenceName: 'sequence', schemaName: 'schema', incrementBy: 42, minValue: 7, maxValue: 6.023E24, ordered: true, startValue: 8)
+      createSequence(sequenceName: 'sequence', schemaName: 'schema', incrementBy: 42, minValue: 7, maxValue: 6.023E24, ordered: true, startValue: 8, cycle: true)
     }
 
     def changes = changeSet.changes 
@@ -151,13 +156,31 @@ class DataQualityRefactoringTests
     assertEquals 6023000000000000000000000, changes[0].maxValue
     assertEquals 8G, changes[0].startValue
     assertTrue changes[0].ordered
+    assertTrue changes[0].cycle
+  }
+  
+  @Test
+  void alterSequence() {
+    buildChangeSet {
+      alterSequence(sequenceName: 'sequence', schemaName: 'schema', incrementBy: 42, minValue: 7, maxValue: 6.023E24)
+    }
+
+    def changes = changeSet.changes 
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof AlterSequenceChange
+    assertEquals 'sequence', changes[0].sequenceName
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 42G, changes[0].incrementBy
+    assertEquals 7G, changes[0].minValue
+    assertEquals 6023000000000000000000000, changes[0].maxValue
   }
 
 
   @Test
   void dropSequence() {
     buildChangeSet {
-      dropSequence(sequenceName: 'sequence')
+      dropSequence(sequenceName: 'sequence', schemaName: 'schema')
     }
 
     def changes = changeSet.changes
@@ -165,6 +188,7 @@ class DataQualityRefactoringTests
     assertEquals 1, changes.size()
     assertTrue changes[0] instanceof DropSequenceChange
     assertEquals 'sequence', changes[0].sequenceName
+    assertEquals 'schema', changes[0].schemaName
   }
 
   @Test
@@ -202,23 +226,26 @@ class DataQualityRefactoringTests
   @Test
   void addAutoIncrement() {
     buildChangeSet {
-      addAutoIncrement(tableName: 'monkey', columnName: 'angry', columnDataType: 'boolean')
+      addAutoIncrement(schemaName: 'schema', tableName: 'monkey', columnName: 'angry', columnDataType: 'boolean', startWith: 10, incrementBy: 5)
     }
 
     def changes = changeSet.changes
     assertNotNull changes
     assertEquals 1, changes.size()
     assertTrue changes[0] instanceof AddAutoIncrementChange
+    assertEquals 'schema', changes[0].schemaName
     assertEquals 'monkey', changes[0].tableName
     assertEquals 'angry', changes[0].columnName
     assertEquals 'boolean', changes[0].columnDataType
+    assertEquals 10G, changes[0].startWith
+    assertEquals 5G, changes[0].incrementBy
   }
 
 
   @Test
   void addDefaultValueString() {
     buildChangeSet {
-      addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'emotion', defaultValue: 'angry')
+      addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'emotion', columnDataType: 'varchar', defaultValue: 'angry')
     }
 
     def changes = changeSet.changes
@@ -228,6 +255,7 @@ class DataQualityRefactoringTests
     assertEquals 'schema', changes[0].schemaName
     assertEquals 'monkey', changes[0].tableName
     assertEquals 'emotion', changes[0].columnName
+    assertEquals 'varchar', changes[0].columnDataType
     assertEquals 'angry', changes[0].defaultValue
   }
 
@@ -267,6 +295,22 @@ class DataQualityRefactoringTests
 
 
   @Test
+  void addDefaultValueComputed() {
+    buildChangeSet {
+      addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'birthdate', defaultValueComputed: 'max')
+    }
+
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    assertTrue changes[0] instanceof AddDefaultValueChange
+    assertEquals 'schema', changes[0].schemaName
+    assertEquals 'monkey', changes[0].tableName
+    assertEquals 'birthdate', changes[0].columnName
+    assertEquals new DatabaseFunction('max'), changes[0].defaultValueComputed
+  }
+
+  @Test
   void addDefaultValueDate() {
     buildChangeSet {
       addDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'birthdate', defaultValueDate: '20101109T130400Z')
@@ -286,7 +330,7 @@ class DataQualityRefactoringTests
   @Test
   void dropDefaultValueDate() {
     buildChangeSet {
-      dropDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'emotion')
+      dropDefaultValue(tableName: 'monkey', schemaName: 'schema', columnName: 'emotion', columnDataType: 'varchar')
     }
 
     def changes = changeSet.changes
@@ -296,6 +340,7 @@ class DataQualityRefactoringTests
     assertEquals 'schema', changes[0].schemaName
     assertEquals 'monkey', changes[0].tableName
     assertEquals 'emotion', changes[0].columnName
+    assertEquals 'varchar', changes[0].columnDataType
   }
 
 }

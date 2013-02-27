@@ -161,12 +161,12 @@ class ChangeSetDelegate {
 
 
   void dropColumn(Map params) {
-    addMapBasedChange(DropColumnChange, params, ['schemaName', 'tableName', 'columnName', 'cascadeConstraints'])
+    addMapBasedChange(DropColumnChange, params, ['schemaName', 'tableName', 'columnName'])
   }
 
 
   void alterSequence(Map params) {
-    addMapBasedChange(AlterSequenceChange, params, ['sequenceName', 'incrementBy'])
+    addMapBasedChange(AlterSequenceChange, params, ['sequenceName', 'schemaName', 'incrementBy', 'minValue', 'maxValue'])
   }
 
 
@@ -182,7 +182,7 @@ class ChangeSetDelegate {
 
 
   void dropTable(Map params) {
-    addMapBasedChange(DropTableChange, params, ['schemaName', 'tableName'])
+    addMapBasedChange(DropTableChange, params, ['schemaName', 'tableName', 'cascadeConstraints'])
   }
 
 
@@ -231,7 +231,7 @@ class ChangeSetDelegate {
 
 
   void addUniqueConstraint(Map params) {
-    addMapBasedChange(AddUniqueConstraintChange, params, ['tablespace', 'schemaName', 'tableName', 'columnNames', 'constraintName'])
+    addMapBasedChange(AddUniqueConstraintChange, params, ['tablespace', 'schemaName', 'tableName', 'columnNames', 'constraintName', 'deferrable', 'initiallyDeferred', 'disabled'])
   }
 
 
@@ -241,32 +241,32 @@ class ChangeSetDelegate {
 
 
   void createSequence(Map params) {
-    addMapBasedChange(CreateSequenceChange, params, ['sequenceName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered', 'startValue'])
+    addMapBasedChange(CreateSequenceChange, params, ['sequenceName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered', 'startValue', 'cycle'])
   }
 
 
   void dropSequence(Map params) {
-    addMapBasedChange(DropSequenceChange, params, ['sequenceName'])
+    addMapBasedChange(DropSequenceChange, params, ['sequenceName', 'schemaName'])
   }
 
 
   void addAutoIncrement(Map params) {
-    addMapBasedChange(AddAutoIncrementChange, params, ['tableName', 'columnName', 'columnDataType'])
+    addMapBasedChange(AddAutoIncrementChange, params, ['tableName', 'schemaName', 'columnName', 'columnDataType', 'startWith', 'incrementBy'])
   }
 
 
   void addDefaultValue(Map params) {
-    addMapBasedChange(AddDefaultValueChange, params, ['tableName', 'schemaName', 'columnName', 'defaultValue', 'defaultValueNumeric', 'defaultValueBoolean', 'defaultValueDate'])
+    addMapBasedChange(AddDefaultValueChange, params, ['tableName', 'schemaName', 'columnName', 'columnDataType', 'defaultValue', 'defaultValueNumeric', 'defaultValueBoolean', 'defaultValueDate', 'defaultValueComputed'])
   }
 
 
   void dropDefaultValue(Map params) {
-    addMapBasedChange(DropDefaultValueChange, params, ['tableName', 'schemaName', 'columnName'])
+    addMapBasedChange(DropDefaultValueChange, params, ['tableName', 'schemaName', 'columnName', 'columnDataType'])
   }
 
 
   void addForeignKeyConstraint(Map params) {
-    addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'deleteCascade', 'onDelete', 'onUpdate'])
+    addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])
   }
 
 
@@ -296,7 +296,7 @@ class ChangeSetDelegate {
       params.file = params.file.canonicalPath
     }
 
-    def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding'])
+    def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar'])
     change.resourceAccessor = resourceAccessor
     addChange(change)
   }
@@ -307,7 +307,7 @@ class ChangeSetDelegate {
       params.file = params.file.canonicalPath
     }
 
-    def change = makeLoadDataColumnarChangeFromMap(LoadUpdateDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding', 'primaryKey'])
+    def change = makeLoadDataColumnarChangeFromMap(LoadUpdateDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar', 'primaryKey'])
     addChange(change)
   }
 
@@ -343,7 +343,7 @@ class ChangeSetDelegate {
 
 
   void dropIndex(Map params) {
-    addMapBasedChange(DropIndexChange, params, ['tableName', 'indexName'])
+    addMapBasedChange(DropIndexChange, params, ['tableName', 'schemaName', 'indexName'])
   }
 
 
