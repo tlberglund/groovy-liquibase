@@ -64,7 +64,7 @@ class PreconditionDelegate
   def customPrecondition(Map params = [:], Closure closure) {
     def delegate = new KeyValueDelegate()
     closure.delegate = delegate
-    closure.resolveStrategy = Closure.DELEGATE_ONLY
+    closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()
 
     def precondition = new CustomPreconditionWrapper()
@@ -126,10 +126,11 @@ class PreconditionDelegate
 
 
   private def nestedPrecondition(Class preconditionClass, Closure closure) {
+      
     def nestedPrecondition = preconditionClass.newInstance()
     def delegate = new PreconditionDelegate(databaseChangeLog: databaseChangeLog)
     closure.delegate = delegate
-    closure.resolveStrategy = Closure.DELEGATE_ONLY
+    closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()
 
     delegate.preconditions.each { precondition ->

@@ -176,7 +176,7 @@ class StructuralRefactoringTests
   @Test
   void dropTable() {
     buildChangeSet {
-      dropTable(schemaName: 'schema', tableName: 'fail_table')
+      dropTable(schemaName: 'schema', tableName: 'fail_table', cascadeConstraints: true)
     }
 
     def changes = changeSet.changes
@@ -185,6 +185,7 @@ class StructuralRefactoringTests
     assertTrue changes[0] instanceof DropTableChange
     assertEquals 'schema', changes[0].schemaName
     assertEquals 'fail_table', changes[0].tableName
+    assertTrue changes[0].cascadeConstraints
   }
 
 

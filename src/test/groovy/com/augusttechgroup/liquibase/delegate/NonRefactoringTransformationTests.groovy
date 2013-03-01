@@ -74,7 +74,7 @@ class NonRefactoringTransformationTests
     resourceAccessor = new FileSystemResourceAccessor()
     
     buildChangeSet {
-      loadData(schemaName: 'schema', tableName: 'monkey', file: 'data.csv', encoding: 'UTF-8') {
+      loadData(schemaName: 'schema', tableName: 'monkey', file: 'data.csv', encoding: 'UTF-8', separator: ';', quotchar: '"') {
         column(header: 'header_id', name: 'id', type: 'NUMERIC')
         column(header: 'header_emotion', name: 'emotion', type: 'STRING')
         column(header: 'header_last_updated', name: 'last_updated', type: 'DATETIME')
@@ -90,6 +90,8 @@ class NonRefactoringTransformationTests
     assertEquals 'schema', changes[0].schemaName
     assertEquals 'data.csv', changes[0].file
     assertEquals 'UTF-8', changes[0].encoding
+    assertEquals ';', changes[0].separator
+    assertEquals '"', changes[0].quotchar
     assertNotNull 'LoadDataChange.resourceAccessor should not be null', changes[0].resourceAccessor
     def columns = changes[0].columns
     assertNotNull columns
@@ -113,7 +115,7 @@ class NonRefactoringTransformationTests
   @Test
   void loadDataFromFilenameUsingIndexes() {
     buildChangeSet {
-      loadData(schemaName: 'schema', tableName: 'monkey', file: 'data.csv', encoding: 'UTF-8') {
+      loadData(schemaName: 'schema', tableName: 'monkey', file: 'data.csv', encoding: 'UTF-8', separator: ';', quotchar: '"') {
         column(index: 0, name: 'id', type: 'NUMERIC')
         column(index: 1, name: 'emotion', type: 'STRING')
         column(index: 2, name: 'last_updated', type: 'DATETIME')
@@ -129,6 +131,8 @@ class NonRefactoringTransformationTests
     assertEquals 'schema', changes[0].schemaName
     assertEquals 'data.csv', changes[0].file
     assertEquals 'UTF-8', changes[0].encoding
+    assertEquals ';', changes[0].separator
+    assertEquals '"', changes[0].quotchar
     def columns = changes[0].columns
     assertNotNull columns
     assertTrue columns.every { column -> column instanceof LoadDataColumnConfig}
@@ -151,7 +155,7 @@ class NonRefactoringTransformationTests
   @Test
   void loadDataFromFileUsingColumnNames() {
     buildChangeSet {
-      loadData(schemaName: 'schema', tableName: 'monkey', file: new File('data.csv'), encoding: 'UTF-8') {
+      loadData(schemaName: 'schema', tableName: 'monkey', file: new File('data.csv'), encoding: 'UTF-8', separator: ';', quotchar: '"') {
         column(header: 'header_emotion', name: 'emotion', type: 'STRING')
       }
     }
@@ -164,6 +168,8 @@ class NonRefactoringTransformationTests
     assertEquals 'schema', changes[0].schemaName
     assertEquals new File('data.csv').canonicalPath, changes[0].file
     assertEquals 'UTF-8', changes[0].encoding
+    assertEquals ';', changes[0].separator
+    assertEquals '"', changes[0].quotchar
     def columns = changes[0].columns
     assertNotNull columns
     assertTrue columns.every { column -> column instanceof LoadDataColumnConfig}
@@ -178,7 +184,7 @@ class NonRefactoringTransformationTests
   @Test
   void loadUpdateDataFromFilenameUsingColumnNames() {
     buildChangeSet {
-      loadUpdateData(schemaName: 'schema', tableName: 'monkey', file: 'data.csv', encoding: 'UTF-8', primaryKey: 'id') {
+      loadUpdateData(schemaName: 'schema', tableName: 'monkey', file: 'data.csv', encoding: 'UTF-8', primaryKey: 'id', separator: ';', quotchar: '"') {
         column(header: 'header_id', name: 'id', type: 'NUMERIC')
         column(header: 'header_emotion', name: 'emotion', type: 'STRING')
         column(header: 'header_last_updated', name: 'last_updated', type: 'DATETIME')
@@ -195,6 +201,8 @@ class NonRefactoringTransformationTests
     assertEquals 'data.csv', changes[0].file
     assertEquals 'UTF-8', changes[0].encoding
     assertEquals 'id', changes[0].primaryKey
+    assertEquals ';', changes[0].separator
+    assertEquals '"', changes[0].quotchar
     def columns = changes[0].columns
     assertNotNull columns
     assertTrue columns.every { column -> column instanceof LoadDataColumnConfig}
@@ -217,7 +225,7 @@ class NonRefactoringTransformationTests
   @Test
   void loadUpdateDataFromFilenameUsingIndexes() {
     buildChangeSet {
-      loadUpdateData(schemaName: 'schema', tableName: 'monkey', file: 'data.csv', encoding: 'UTF-8', primaryKey: 'id') {
+      loadUpdateData(schemaName: 'schema', tableName: 'monkey', file: 'data.csv', encoding: 'UTF-8', primaryKey: 'id', separator: ';', quotchar: '"') {
         column(index: 0, name: 'id', type: 'NUMERIC')
         column(index: 1, name: 'emotion', type: 'STRING')
         column(index: 2, name: 'last_updated', type: 'DATETIME')
@@ -234,6 +242,8 @@ class NonRefactoringTransformationTests
     assertEquals 'data.csv', changes[0].file
     assertEquals 'UTF-8', changes[0].encoding
     assertEquals 'id', changes[0].primaryKey
+    assertEquals ';', changes[0].separator
+    assertEquals '"', changes[0].quotchar
     def columns = changes[0].columns
     assertNotNull columns
     assertTrue columns.every { column -> column instanceof LoadDataColumnConfig}
@@ -256,7 +266,7 @@ class NonRefactoringTransformationTests
   @Test
   void loadUpdateDataFromFileUsingColumnNames() {
     buildChangeSet {
-      loadUpdateData(schemaName: 'schema', tableName: 'monkey', file: new File('data.csv'), encoding: 'UTF-8', primaryKey: 'id') {
+      loadUpdateData(schemaName: 'schema', tableName: 'monkey', file: new File('data.csv'), encoding: 'UTF-8', primaryKey: 'id', separator: ';', quotchar: '"') {
         column(header: 'header_emotion', name: 'emotion', type: 'STRING')
       }
     }
@@ -270,6 +280,8 @@ class NonRefactoringTransformationTests
     assertEquals new File('data.csv').canonicalPath, changes[0].file
     assertEquals 'UTF-8', changes[0].encoding
     assertEquals 'id', changes[0].primaryKey
+    assertEquals ';', changes[0].separator
+    assertEquals '"', changes[0].quotchar
     def columns = changes[0].columns
     assertNotNull columns
     assertTrue columns.every { column -> column instanceof LoadDataColumnConfig}
