@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 
-version = '0.7.4'
+version = '0.7.6'
 group = 'com.augusttechgroup'
 def artifact = 'groovy-liquibase-dsl'
 
@@ -30,7 +30,7 @@ dependencies {
 
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '1.3'
+  gradleVersion = '1.4'
 }
 
 jar {
