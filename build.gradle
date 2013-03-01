@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 
-version = '0.7.5'
+version = '0.7.6'
 group = 'com.augusttechgroup'
 def artifact = 'groovy-liquibase-dsl'
 
