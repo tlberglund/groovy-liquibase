@@ -119,7 +119,12 @@ class DatabaseChangeLogDelegate {
             includeChangeLog(params.path + name)
           }
         } else {
-          includeChangeLog(params.path + file.name)
+          //single file inclusion
+          if (params.path.endsWith("/")) {
+            //remove the last slash (it could have only been added some lines above)
+            params.path = params.path[0..-2]
+          }
+          includeChangeLog(params.path) //directly include the file identified by the path param
         }
       }
     }
