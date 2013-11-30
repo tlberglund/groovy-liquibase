@@ -2,19 +2,13 @@ package com.augusttechgroup.liquibase.change
 
 import liquibase.change.AbstractChange
 import liquibase.change.ChangeMetaData
-import liquibase.change.custom.CustomChange
-import liquibase.change.custom.CustomSqlChange
-import liquibase.change.custom.CustomSqlRollback
-import liquibase.change.custom.CustomTaskChange
-import liquibase.change.custom.CustomTaskRollback
+import liquibase.change.custom.*
 import liquibase.database.Database
 import liquibase.exception.CustomChangeException
 import liquibase.exception.RollbackImpossibleException
-import liquibase.exception.UnsupportedChangeException
 import liquibase.exception.ValidationErrors
 import liquibase.exception.Warnings
 import liquibase.statement.SqlStatement
-
 
 /**
  * Based on liquibase.change.custom.CustomChangeWrapper but more friendly to 
@@ -28,7 +22,7 @@ class CustomProgrammaticChangeWrapper
   final CustomChange customChange
 
   CustomProgrammaticChangeWrapper(CustomChange change) {
-    super('customChange', 'Custom Change', ChangeMetaData.PRIORITY_DEFAULT)
+    super()
     this.customChange = change
   }
 

@@ -40,8 +40,8 @@ class CustomRefactoringTests
     assertNotNull changes
     assertEquals 1, changes.size()
     assertTrue changes[0] instanceof RawSQLChange
-    assertTrue changes[0].isStrippingComments()
-    assertTrue changes[0].isSplittingStatements()
+    assertTrue changes[0].isStripComments()
+    assertTrue changes[0].isSplitStatements()
     assertEquals '!', changes[0].endDelimiter
     assertEquals "UPDATE monkey SET emotion='ANGRY' WHERE id IN (1,2,3,4,5)", changes[0].sql
   }
@@ -90,8 +90,8 @@ class CustomRefactoringTests
     assertTrue changes[0] instanceof SQLFileChange
     assertEquals 'db/file.sql', changes[0].path
     assertEquals 'UTF-8', changes[0].encoding
-    assertTrue changes[0].isStrippingComments()
-    assertTrue changes[0].isSplittingStatements()
+    assertTrue changes[0].isStripComments()
+    assertTrue changes[0].isSplitStatements()
     assertEquals '@', changes[0].endDelimiter
     assertNotNull 'SQLFileChange.resourceAccessor cannot be null', changes[0].resourceAccessor
   }

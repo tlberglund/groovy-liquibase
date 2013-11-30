@@ -41,7 +41,7 @@ class ArchitecturalRefactoringSerializerTests
       ]
     ] as CreateIndexChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = """\
 createIndex(indexName: 'ndx_monkeys', schemaName: 'schema', tableName: 'monkey', tablespace: 'tablespace', unique: true) {
   column(name: 'species')
@@ -62,7 +62,7 @@ createIndex(indexName: 'ndx_monkeys', schemaName: 'schema', tableName: 'monkey',
       columns: [ [ name: 'name' ] as ColumnConfig ]
     ] as CreateIndexChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = """\
 createIndex(indexName: 'ndx_monkeys', schemaName: 'schema', tableName: 'monkey', tablespace: 'tablespace', unique: true) {
   column(name: 'name')
@@ -78,7 +78,7 @@ createIndex(indexName: 'ndx_monkeys', schemaName: 'schema', tableName: 'monkey',
       indexName: 'ndx_monkeys'
     ] as DropIndexChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = "dropIndex(indexName: 'ndx_monkeys', tableName: 'monkey')"
     assertEquals expectedText, serializedText
   }

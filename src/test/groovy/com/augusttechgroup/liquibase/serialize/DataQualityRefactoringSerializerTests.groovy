@@ -40,7 +40,7 @@ class DataQualityRefactoringSerializerTests
       defaultValueBoolean: true
     ] as AddDefaultValueChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = "addDefaultValue(columnName: 'emotion', defaultValueBoolean: true, schemaName: 'schema', tableName: 'monkey')"
     assertEquals expectedText, serializedText
   }

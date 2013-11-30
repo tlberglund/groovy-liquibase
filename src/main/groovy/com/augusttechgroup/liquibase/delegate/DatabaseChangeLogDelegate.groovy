@@ -51,7 +51,8 @@ class DatabaseChangeLogDelegate {
       databaseChangeLog.filePath,
       params.context,
       params.dbms,
-      params.runInTransaction?.toBoolean() ?: true)
+      params.runInTransaction?.toBoolean() ?: true,
+      databaseChangeLog)
 
     if(params.failOnError) {
       changeSet.failOnError = params.failOnError?.toBoolean()

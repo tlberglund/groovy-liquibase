@@ -50,7 +50,7 @@ class StructuralRefactoringSerializerTests
       ]
     ] as AddColumnChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = """\
 addColumn(schemaName: 'schema', tableName: 'animal') {
   column(name: 'monkey_status', type: 'varchar(98)')
@@ -68,7 +68,7 @@ addColumn(schemaName: 'schema', tableName: 'animal') {
       columnDataType: 'varchar(9001)'
     ] as RenameColumnChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = "renameColumn(columnDataType: 'varchar(9001)', newColumnName: 'win', oldColumnName: 'fail', tableName: 'monkey')"
     assertEquals expectedText, serializedText
   }
@@ -82,7 +82,7 @@ addColumn(schemaName: 'schema', tableName: 'animal') {
       tableName: 'monkey'
     ] as DropColumnChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = "dropColumn(columnName: 'emotion', schemaName: 'schema', tableName: 'monkey')"
     assertEquals expectedText, serializedText
   }
@@ -95,7 +95,7 @@ addColumn(schemaName: 'schema', tableName: 'animal') {
       incrementBy: 314
     ] as AlterSequenceChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = "alterSequence(incrementBy: 314, sequenceName: 'seq')"
     assertEquals expectedText, serializedText
   }
@@ -120,7 +120,7 @@ addColumn(schemaName: 'schema', tableName: 'animal') {
       ]
     ] as CreateTableChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = """\
 createTable(remarks: 'angry', schemaName: 'schema', tableName: 'monkey', tablespace: 'oracle_tablespace') {
   column(name: 'status', type: 'varchar(100)')
@@ -138,7 +138,7 @@ createTable(remarks: 'angry', schemaName: 'schema', tableName: 'monkey', tablesp
       newTableName: 'win_table'
     ] as RenameTableChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = "renameTable(newTableName: 'win_table', oldTableName: 'fail_table', schemaName: 'schema')"
     assertEquals expectedText, serializedText
   }
@@ -151,7 +151,7 @@ createTable(remarks: 'angry', schemaName: 'schema', tableName: 'monkey', tablesp
       tableName: 'fail_table'
     ] as DropTableChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = "dropTable(schemaName: 'schema', tableName: 'fail_table')"
     assertEquals expectedText, serializedText
   }
@@ -166,7 +166,7 @@ createTable(remarks: 'angry', schemaName: 'schema', tableName: 'monkey', tablesp
       selectQuery: "SELECT * FROM monkey WHERE state='angry'"
     ] as CreateViewChange
 
-    def serializedText = serializer.serialize(change)
+    def serializedText = serializer.serialize(change, true)
     def expectedText = """\
 createView(replaceIfExists: true, schemaName: 'schema', viewName: 'monkey_view') {
   "SELECT * FROM monkey WHERE state='angry'"

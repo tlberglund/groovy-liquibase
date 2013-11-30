@@ -41,7 +41,8 @@ class ChangeSetTests
       '/filePath',
       'context',
       'mysql',
-      true)
+      true,
+      new DatabaseChangeLog())
   }
 
   

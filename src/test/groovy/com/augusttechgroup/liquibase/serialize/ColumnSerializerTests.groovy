@@ -40,7 +40,7 @@ class ColumnSerializerTests
     columnConfig.defaultValue = 'default-string-value'
     columnConfig.remarks = 'No comment'
 
-    def serializedText = serializer.serialize(columnConfig)
+    def serializedText = serializer.serialize(columnConfig, true)
     def expectedText = "column(name: 'column-name', type: 'varchar', value: 'value', defaultValue: 'default-string-value', remarks: 'No comment')"
     assertEquals expectedText, serializedText
   }
@@ -55,7 +55,7 @@ class ColumnSerializerTests
     columnConfig.defaultValueNumeric = 42
     columnConfig.autoIncrement = false
 
-    def serializedText = serializer.serialize(columnConfig)
+    def serializedText = serializer.serialize(columnConfig, true)
     def expectedText = "column(name: 'column-name', type: 'int', valueNumeric: 3, defaultValueNumeric: 42, autoIncrement: false)"
     assertEquals expectedText, serializedText
   }
@@ -63,8 +63,8 @@ class ColumnSerializerTests
 
   @Test
   void buildSimpleDateColumn() {
-    def now = "2010-11-02T07:52:04.0"
-    def then = "2010-11-28T22:09:43.0"
+    def now = "2010-11-02T07:52:04.000"
+    def then = "2010-11-28T22:09:43.000"
     def sqlNow = parseSqlTimestamp(now)
     def sqlThen = parseSqlTimestamp(then)
 
@@ -75,7 +75,7 @@ class ColumnSerializerTests
     columnConfig.defaultValueDate = then
     columnConfig.remarks = 'No date comment'
 
-    def serializedText = serializer.serialize(columnConfig)
+    def serializedText = serializer.serialize(columnConfig, true)
     def expectedText = "column(name: 'column-name', type: 'datetime', valueDate: '${now}', defaultValueDate: '${then}', remarks: 'No date comment')"
     assertEquals expectedText as String, serializedText
   }
@@ -90,7 +90,7 @@ class ColumnSerializerTests
     columnConfig.defaultValueBoolean = false
     columnConfig.remarks = 'No boolean comment'
 
-    def serializedText = serializer.serialize(columnConfig)
+    def serializedText = serializer.serialize(columnConfig, true)
     def expectedText = "column(name: 'column-name', type: 'bit', valueBoolean: true, defaultValueBoolean: false, remarks: 'No boolean comment')"
   }
 
@@ -111,7 +111,7 @@ class ColumnSerializerTests
       ] as ConstraintsConfig
     ] as ColumnConfig
     
-    def serializedText = serializer.serialize(columnConfig)
+    def serializedText = serializer.serialize(columnConfig, true)
     def expectedText = """\
 column(name: 'column-name', type: 'varchar', value: 'value', defaultValue: 'default-string-value', remarks: 'No comment') {
   constraints(nullable: false, unique: true, uniqueConstraintName: 'unique_monkey_constraint')
