@@ -364,7 +364,13 @@ class ChangeSetDelegate {
   void sqlFile(Map params) {
     def change = makeChangeFromMap(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter', 'relativeToChangelogFile'])
     change.resourceAccessor = resourceAccessor
-    addChange(change)
+	  // Before we add the change, work around the Liquibase bug where sqlFile
+	  // change sets don't load the SQL until it is too late to calculate
+	  // checksums properly after a clearChecksum command.  See
+	  // https://liquibase.jira.com/browse/CORE-1293
+	  change.finishInitialization()
+
+	  addChange(change)
   }
 
 
@@ -466,7 +472,6 @@ class ChangeSetDelegate {
         }
       }
     }
-
     return change
   }
 
