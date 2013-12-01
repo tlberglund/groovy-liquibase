@@ -58,20 +58,6 @@ class GroovyChangeLogSerializer
 	 */
 	@Override
 	String serialize(LiquibaseSerializable change, boolean pretty) {
-		// First things first. If the change is of a type that needs special
-		// treatment, call the helper to do it.
-//		if ( change instanceof ChangeSet ) {
-//			return serializeChangeSet(change)
-//		}
-//		if ( change instanceof Change ) {
-//			return serializeChange(change)
-//		}
-//		if ( change instanceof ColumnConfig ) {
-//			return serializeColumnConfig(change)
-//		}
-//		if ( change instanceof ConstraintsConfig) {
-//			return serializeConstraintsConfig(change)
-//		}
 		// call the appropriate helper through the magic of polymorphism.
 		serializeObject(change)
 
@@ -81,7 +67,7 @@ class GroovyChangeLogSerializer
 	@Override
 	void write(List changeSets, OutputStream out) {
 		out << 'databaseChangeLog {\n'
-		out << changeSets.collect { changeSet -> indent(serializeChangeSet(changeSet)) }.join('\n\n')
+		out << changeSets.collect { changeSet -> indent(serialize(changeSet, true)) }.join('\n\n')
 		out << '\n\n}\n'
 	}
 

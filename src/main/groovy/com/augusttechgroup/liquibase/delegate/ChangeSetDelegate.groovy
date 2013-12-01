@@ -17,6 +17,7 @@
 package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.core.AddColumnChange
+import liquibase.change.core.DropAllForeignKeyConstraintsChange
 import liquibase.change.core.RenameColumnChange
 import liquibase.change.core.DropColumnChange
 import liquibase.change.core.AlterSequenceChange
@@ -145,66 +146,66 @@ class ChangeSetDelegate {
 
 
   void addColumn(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(AddColumnChange, closure, params, ['schemaName', 'tableName'])
+    def change = makeColumnarChangeFromMap(AddColumnChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
     addChange(change)
   }
 
 
   void renameColumn(Map params) {
-    addMapBasedChange(RenameColumnChange, params, ['schemaName', 'tableName', 'oldColumnName', 'newColumnName', 'columnDataType'])
+    addMapBasedChange(RenameColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'oldColumnName', 'newColumnName', 'columnDataType'])
   }
 
 
   void modifyDataType(Map params) {
-    addMapBasedChange(ModifyDataTypeChange, params, ['schemaName', 'tableName', 'columnName', 'newDataType'])
+    addMapBasedChange(ModifyDataTypeChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'newDataType'])
   }
 
 
   void dropColumn(Map params) {
-    addMapBasedChange(DropColumnChange, params, ['schemaName', 'tableName', 'columnName'])
+    addMapBasedChange(DropColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName'])
   }
 
 
   void alterSequence(Map params) {
-    addMapBasedChange(AlterSequenceChange, params, ['sequenceName', 'schemaName', 'incrementBy', 'minValue', 'maxValue'])
+    addMapBasedChange(AlterSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered'])
   }
 
 
   void createTable(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(CreateTableChange, closure, params, ['schemaName', 'tablespace', 'tableName', 'remarks'])
+    def change = makeColumnarChangeFromMap(CreateTableChange, closure, params, ['catalogName', 'schemaName', 'tablespace', 'tableName', 'remarks'])
     addChange(change)
   }
 
 
   void renameTable(Map params) {
-    addMapBasedChange(RenameTableChange, params, ['schemaName', 'oldTableName', 'newTableName'])
+    addMapBasedChange(RenameTableChange, params, ['catalogName', 'schemaName', 'oldTableName', 'newTableName'])
   }
 
 
   void dropTable(Map params) {
-    addMapBasedChange(DropTableChange, params, ['schemaName', 'tableName', 'cascadeConstraints'])
+    addMapBasedChange(DropTableChange, params, ['catalogName', 'schemaName', 'tableName', 'cascadeConstraints'])
   }
 
 
-  void createView(Map params, Closure closure) {
-    def change = makeChangeFromMap(CreateViewChange, params, ['schemaName', 'viewName', 'replaceIfExists'])
+ void createView(Map params, Closure closure) {
+    def change = makeChangeFromMap(CreateViewChange, params, ['catalogName', 'schemaName', 'viewName', 'replaceIfExists', 'selectQuery'])
     change.selectQuery = expandExpressions(closure.call())
     addChange(change)
   }
 
 
   void renameView(Map params) {
-    addMapBasedChange(RenameViewChange, params, ['schemaName', 'oldViewName', 'newViewName'])
+    addMapBasedChange(RenameViewChange, params, ['catalogName', 'schemaName', 'oldViewName', 'newViewName'])
   }
 
 
   void dropView(Map params) {
-    addMapBasedChange(DropViewChange, params, ['schemaName', 'viewName'])
+    addMapBasedChange(DropViewChange, params, ['catalogName', 'schemaName', 'viewName'])
   }
 
 
   void mergeColumns(Map params) {
-    addMapBasedChange(MergeColumnChange, params, ['schemaName', 'tableName', 'column1Name', 'column2Name', 'finalColumnName', 'finalColumnType', 'joinString'])
+    addMapBasedChange(MergeColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'column1Name', 'column2Name', 'finalColumnName', 'finalColumnType', 'joinString'])
   }
 
 
@@ -216,87 +217,89 @@ class ChangeSetDelegate {
 
 
   void addLookupTable(Map params) {
-    addMapBasedChange(AddLookupTableChange, params, ['existingTableName', 'existingTableSchemaName', 'existingColumnName', 'newTableName', 'newTableSchemaName', 'newColumnName', 'newColumnDataType', 'constraintName'])
+    addMapBasedChange(AddLookupTableChange, params, ['existingTableName', 'existingTableCatalogName', 'existingTableSchemaName', 'existingColumnName', 'newTableName', 'newTableCatalogName', 'newTableSchemaName', 'newColumnName', 'newColumnDataType', 'constraintName'])
   }
 
 
   void addNotNullConstraint(Map params) {
-    addMapBasedChange(AddNotNullConstraintChange, params, ['schemaName', 'tableName', 'columnName', 'defaultNullValue', 'columnDataType'])
+    addMapBasedChange(AddNotNullConstraintChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'defaultNullValue', 'columnDataType'])
   }
 
 
   void dropNotNullConstraint(Map params) {
-    addMapBasedChange(DropNotNullConstraintChange, params, ['schemaName', 'tableName', 'columnName', 'columnDataType'])
+    addMapBasedChange(DropNotNullConstraintChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'columnDataType'])
   }
 
 
   void addUniqueConstraint(Map params) {
-    addMapBasedChange(AddUniqueConstraintChange, params, ['tablespace', 'schemaName', 'tableName', 'columnNames', 'constraintName', 'deferrable', 'initiallyDeferred', 'disabled'])
+    addMapBasedChange(AddUniqueConstraintChange, params, ['tablespace', 'catalogName', 'schemaName', 'tableName', 'columnNames', 'constraintName', 'deferrable', 'initiallyDeferred', 'disabled'])
   }
 
 
   void dropUniqueConstraint(Map params) {
-    addMapBasedChange(DropUniqueConstraintChange, params, ['tableName', 'schemaName', 'constraintName'])
+    addMapBasedChange(DropUniqueConstraintChange, params, ['tableName', 'catalogName', 'schemaName', 'constraintName', 'uniqueColumns'])
   }
 
 
   void createSequence(Map params) {
-    addMapBasedChange(CreateSequenceChange, params, ['sequenceName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered', 'startValue', 'cycle'])
+    addMapBasedChange(CreateSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered', 'startValue', 'cycle'])
   }
 
 
   void dropSequence(Map params) {
-    addMapBasedChange(DropSequenceChange, params, ['sequenceName', 'schemaName'])
+    addMapBasedChange(DropSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName'])
   }
 
 
   void addAutoIncrement(Map params) {
-    addMapBasedChange(AddAutoIncrementChange, params, ['tableName', 'schemaName', 'columnName', 'columnDataType', 'startWith', 'incrementBy'])
+    addMapBasedChange(AddAutoIncrementChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType', 'startWith', 'incrementBy'])
   }
 
 
   void addDefaultValue(Map params) {
-    addMapBasedChange(AddDefaultValueChange, params, ['tableName', 'schemaName', 'columnName', 'columnDataType', 'defaultValue', 'defaultValueNumeric', 'defaultValueBoolean', 'defaultValueDate', 'defaultValueComputed'])
+    addMapBasedChange(AddDefaultValueChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType', 'defaultValue', 'defaultValueNumeric', 'defaultValueBoolean', 'defaultValueDate', 'defaultValueComputed', 'defaultValueSequenceNext'])
   }
 
 
   void dropDefaultValue(Map params) {
-    addMapBasedChange(DropDefaultValueChange, params, ['tableName', 'schemaName', 'columnName', 'columnDataType'])
+    addMapBasedChange(DropDefaultValueChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType'])
   }
 
 
   void addForeignKeyConstraint(Map params) {
-    addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])
+    addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableCatalogName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])
+  }
+
+
+  void dropAllForeignKeyConstraintsChange(Map params) {
+    addMapBasedChange(DropAllForeignKeyConstraintsChange, params, ['baseTableName', 'baseTableCatalogName', 'baseTableSchemaName'])
   }
 
 
   void dropForeignKeyConstraint(Map params) {
-    addMapBasedChange(DropForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableSchemaName'])
-  }
+		addMapBasedChange(DropForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName'])
+	}
 
 
   void addPrimaryKey(Map params) {
-    addMapBasedChange(AddPrimaryKeyChange, params, ['tableName', 'schemaName', 'columnNames', 'constraintName', 'tablespace'])
+    addMapBasedChange(AddPrimaryKeyChange, params, ['tableName', 'catalogName', 'schemaName', 'columnNames', 'constraintName', 'tablespace'])
   }
-
 
   void dropPrimaryKey(Map params) {
-    addMapBasedChange(DropPrimaryKeyChange, params, ['tableName', 'schemaName', 'constraintName'])
+    addMapBasedChange(DropPrimaryKeyChange, params, ['tableName', 'catalogName', 'schemaName', 'constraintName'])
   }
-
 
   void insert(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(InsertDataChange, closure, params, ['schemaName', 'tableName'])
+    def change = makeColumnarChangeFromMap(InsertDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'dbms'])
     addChange(change)
   }
-
 
   void loadData(Map params, Closure closure) {
     if(params.file instanceof File) {
       params.file = params.file.canonicalPath
     }
 
-    def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar'])
+    def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar'])
     change.resourceAccessor = resourceAccessor
     addChange(change)
   }
@@ -307,19 +310,19 @@ class ChangeSetDelegate {
       params.file = params.file.canonicalPath
     }
 
-    def change = makeLoadDataColumnarChangeFromMap(LoadUpdateDataChange, closure, params, ['schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar', 'primaryKey'])
+    def change = makeLoadDataColumnarChangeFromMap(LoadUpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar', 'primaryKey'])
     addChange(change)
   }
 
 
   void update(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['schemaName', 'tableName'])
+    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
     addChange(change)
   }
 
 
   void delete(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(DeleteDataChange, closure, params, ['schemaName', 'tableName'])
+    def change = makeColumnarChangeFromMap(DeleteDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
     addChange(change)
   }
 
@@ -337,18 +340,18 @@ class ChangeSetDelegate {
 
 
   void createIndex(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(CreateIndexChange, closure, params, ['schemaName', 'tableName', 'tablespace', 'indexName', 'unique'])
+    def change = makeColumnarChangeFromMap(CreateIndexChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'tablespace', 'indexName', 'unique'])
     addChange(change)
   }
 
 
   void dropIndex(Map params) {
-    addMapBasedChange(DropIndexChange, params, ['tableName', 'schemaName', 'indexName'])
+    addMapBasedChange(DropIndexChange, params, ['tableName', 'catalogName', 'schemaName', 'indexName'])
   }
 
 
   void sql(Map params = [:], Closure closure) {
-    def change = makeChangeFromMap(RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter'])
+    def change = makeChangeFromMap(RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter', 'dbms'])
     change.sql = expandExpressions(closure.call())
     addChange(change)
   }
@@ -362,7 +365,7 @@ class ChangeSetDelegate {
 
 
   void sqlFile(Map params) {
-    def change = makeChangeFromMap(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter', 'relativeToChangelogFile'])
+    def change = makeChangeFromMap(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter', 'relativeToChangelogFile', 'dbms'])
     change.resourceAccessor = resourceAccessor
 	  // Before we add the change, work around the Liquibase bug where sqlFile
 	  // change sets don't load the SQL until it is too late to calculate

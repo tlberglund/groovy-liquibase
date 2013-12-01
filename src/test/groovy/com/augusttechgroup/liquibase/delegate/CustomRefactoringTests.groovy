@@ -81,14 +81,14 @@ class CustomRefactoringTests
   void sqlFile() {
     resourceAccessor = new FileSystemResourceAccessor()
     buildChangeSet {
-      sqlFile(path: 'db/file.sql', stripComments: true, splitStatements: true, encoding: 'UTF-8', endDelimiter: '@')
+      sqlFile(path: 'src/test/changelog/file.sql', stripComments: true, splitStatements: true, encoding: 'UTF-8', endDelimiter: '@')
     }
 
     def changes = changeSet.changes
     assertNotNull changes
     assertEquals 1, changes.size()
     assertTrue changes[0] instanceof SQLFileChange
-    assertEquals 'db/file.sql', changes[0].path
+    assertEquals 'src/test/changelog/file.sql', changes[0].path
     assertEquals 'UTF-8', changes[0].encoding
     assertTrue changes[0].isStripComments()
     assertTrue changes[0].isSplitStatements()
