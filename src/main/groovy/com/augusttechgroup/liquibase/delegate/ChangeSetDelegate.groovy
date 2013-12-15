@@ -316,14 +316,13 @@ class ChangeSetDelegate {
 
 
   void update(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
+    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'where'])
     addChange(change)
   }
 
 
-  void delete(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(DeleteDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
-    addChange(change)
+  void delete(Map params) {
+    addMapBasedChange(DeleteDataChange, params, ['catalogName', 'schemaName', 'tableName', 'where'])
   }
 
 
@@ -450,12 +449,6 @@ class ChangeSetDelegate {
 
     columnDelegate.columns.each { column ->
       change.addColumn(column)
-    }
-
-    // It is a bit sloppy to do this here from a coherence standpoint, but where clauses mostly
-    // only get used when we are dealing with columns
-    if(columnDelegate.whereClause != null) {
-      change.whereClause = columnDelegate.whereClause
     }
 
     return change
