@@ -297,11 +297,12 @@ class NonRefactoringTransformationTests
     def now = '2010-11-02 07:52:04'
     def sqlNow = parseSqlTimestamp(now)
     buildChangeSet {
-      update(schemaName: 'schema', tableName: 'monkey', where: 'id=882') {
+      update(schemaName: 'schema', tableName: 'monkey') {
         column(name: 'rfid_tag', valueNumeric: 5023442)
         column(name: 'emotion', value: 'angry')
         column(name: 'last_updated', valueDate: now)
         column(name: 'active', valueBoolean: true)
+	      where "id=882"
       }
     }
 
@@ -330,8 +331,9 @@ class NonRefactoringTransformationTests
   @Test
   void deleteData() {
     buildChangeSet {
-      delete(schemaName: 'schema', tableName: 'monkey',
-             where: "emotion='angry' AND active=true")
+      delete(schemaName: 'schema', tableName: 'monkey') {
+             where "emotion='angry' AND active=true"
+      }
     }
 
     def changes = changeSet.changes

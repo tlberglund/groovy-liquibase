@@ -12,3 +12,4 @@ This code is released under the Apache Public License 2.0, just like Liquibase 2
  * Support for the [property tag](http://www.liquibase.org/manual/changelog_parameters).
  * Support for extensions. modifyColumn is probably a good place to start.
  * Proper testing of validCheckSum under changeSet. It's implemented, but I have not tested it properly.
+ * Support for comments in a sql change.

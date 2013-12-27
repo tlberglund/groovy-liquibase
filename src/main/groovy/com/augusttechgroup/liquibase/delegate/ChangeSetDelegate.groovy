@@ -316,13 +316,14 @@ class ChangeSetDelegate {
 
 
   void update(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'where'])
+    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
     addChange(change)
   }
 
 
-  void delete(Map params) {
-    addMapBasedChange(DeleteDataChange, params, ['catalogName', 'schemaName', 'tableName', 'where'])
+  void delete(Map params, Closure closure) {
+	  def change = makeColumnarChangeFromMap(DeleteDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
+	  addChange(change)
   }
 
 
@@ -450,6 +451,10 @@ class ChangeSetDelegate {
     columnDelegate.columns.each { column ->
       change.addColumn(column)
     }
+
+	  if ( columnDelegate.whereClause != null ) {
+		  change.where = columnDelegate.whereClause
+	  }
 
     return change
   }
