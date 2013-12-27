@@ -211,7 +211,7 @@ databaseChangeLog(logicalFilePath: '') {
   
   
   changeSet(id: 'create-sequence', author: 'tlberglund') {
-    createSequence(sequenceName: '', schemaName: '' incrementBy: '', minValue: '', maxValue: '', ordered: true, startValue: '')
+    createSequence(sequenceName: '', schemaName: '', incrementBy: '', minValue: '', maxValue: '', ordered: true, startValue: '')
   }
   
   

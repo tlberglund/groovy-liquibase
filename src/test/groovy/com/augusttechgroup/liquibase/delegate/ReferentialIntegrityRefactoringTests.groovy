@@ -50,7 +50,6 @@ class ReferentialIntegrityRefactoringTests
     assertTrue changes[0].initiallyDeferred
     assertEquals 'CASCADE', changes[0].onDelete
     assertEquals 'CASCADE', changes[0].onUpdate
-    assertFalse changes[0].referencesUniqueColumn
   }
 
 
@@ -58,7 +57,7 @@ class ReferentialIntegrityRefactoringTests
   @Test
   void addForeignKeyConstraintWithDeleteCascadeProperty() {
     buildChangeSet {
-      addForeignKeyConstraint(constraintName: 'fk_monkey_emotion', baseTableName: 'monkey', baseTableSchemaName: 'base_schema', baseColumnNames: 'emotion_id', referencedTableName: 'emotions', referencedTableSchemaName: 'referenced_schema', referencedColumnNames: 'id', deferrable: true, initiallyDeferred: true, deleteCascade: true, onUpdate: 'CASCADE', referencesUniqueColumn: true)
+      addForeignKeyConstraint(constraintName: 'fk_monkey_emotion', baseTableName: 'monkey', baseTableSchemaName: 'base_schema', baseColumnNames: 'emotion_id', referencedTableName: 'emotions', referencedTableSchemaName: 'referenced_schema', referencedColumnNames: 'id', deferrable: true, initiallyDeferred: true, deleteCascade: true, onUpdate: 'CASCADE')
     }
 
     def changes = changeSet.changes
@@ -76,7 +75,6 @@ class ReferentialIntegrityRefactoringTests
     assertTrue changes[0].initiallyDeferred
     assertEquals 'CASCADE', changes[0].onDelete
     assertEquals 'CASCADE', changes[0].onUpdate
-    assertTrue changes[0].referencesUniqueColumn
   }
 
 

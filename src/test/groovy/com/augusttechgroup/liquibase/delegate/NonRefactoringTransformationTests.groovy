@@ -302,7 +302,7 @@ class NonRefactoringTransformationTests
         column(name: 'emotion', value: 'angry')
         column(name: 'last_updated', valueDate: now)
         column(name: 'active', valueBoolean: true)
-        where "id=882"
+	      where "id=882"
       }
     }
 
@@ -332,7 +332,7 @@ class NonRefactoringTransformationTests
   void deleteData() {
     buildChangeSet {
       delete(schemaName: 'schema', tableName: 'monkey') {
-        where "emotion='angry' AND active=true"
+             where "emotion='angry' AND active=true"
       }
     }
 

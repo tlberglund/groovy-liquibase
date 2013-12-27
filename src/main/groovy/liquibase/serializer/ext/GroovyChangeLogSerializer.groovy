@@ -20,12 +20,11 @@ import liquibase.serializer.ChangeLogSerializer
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.changelog.ChangeSet
 import liquibase.change.Change
+import liquibase.serializer.LiquibaseSerializable
 import liquibase.sql.visitor.SqlVisitor
 import liquibase.change.ColumnConfig
 import liquibase.util.ISODateFormat
 import liquibase.change.ConstraintsConfig
-import liquibase.change.ChangeProperty
-import liquibase.change.TextNode
 import java.sql.Timestamp
 
 
@@ -39,25 +38,59 @@ class GroovyChangeLogSerializer
 {
   ISODateFormat isoFormat = new ISODateFormat()
 
+	/**
+	 * What file extensions can this serializer handle?
+	 * @return an array of valid file extensions.
+	 */
+	@Override
+	String[] getValidFileExtensions() {
+		['groovy']
+	}
 
-  String[] getValidFileExtensions() {
-    ['groovy']
-  }
+	/**
+	 * Convert a single serializable Liquibase change into its Groovy
+	 * representation.
+	 * @param change the change to serialize.
+	 * @param pretty whether or not to make it pretty.  It doesn't matter what
+	 *        you pass here because this DSL refuses to make a serialization that
+	 *        isn't pretty.
+	 * @return the Groovy representation of the change.
+	 */
+	@Override
+	String serialize(LiquibaseSerializable change, boolean pretty) {
+		// call the appropriate helper through the magic of polymorphism.
+		serializeObject(change)
+
+	}
+
+//	@Override
+	@Override
+	void write(List changeSets, OutputStream out) {
+		out << 'databaseChangeLog {\n'
+		out << changeSets.collect { changeSet -> indent(serialize(changeSet, true)) }.join('\n\n')
+		out << '\n\n}\n'
+	}
 
 
-  String serialize(DatabaseChangeLog databaseChangeLog) {
-    //TODO This is not implemented in the Liquibase XML serializer either
-    return null
-  }
+	@Override
+	void append(ChangeSet changeSet, File changeLogFile) throws IOException {
+		throw new UnsupportedOperationException("""GroovyChangeLogSerializer does not append changelog content.
+  To append a newly generated changelog to an existing changelog, specify a new filename
+  for the new changelog, then copy and paste that content into the existing file.""")
+	}
 
 
-  String serialize(SqlVisitor visitor) {
-    "${visitor.name}(${buildPropertyListFrom(getChangeFieldsToSerialize(visitor), visitor).join(', ')})"
-  }
+  //---------------------------------------------------------------------------
+	// In Liquibase 2.x, there were many different serialize methods for different
+	// types of liquibase objects. In version 3.0, the different serializable
+	// objects all implement a common interface, and the serialize methods were
+	// replaced by a single method.  However, we want to do different things with
+	// different objects with respect to ordering of attributes, etc. Therefore,
+	// certain objects have their own serialize methods which will be called by
+	// the master method.  These methods are private to force outside classes to
+	// use serialization method defined by the interface.
 
-
-  
-  String serialize(ChangeSet changeSet) {
+  private String serializeObject(ChangeSet changeSet) {
     def attrNames = [ 'id', 'author', 'runAlways', 'runOnChange', 'failOnError', 'context', 'dbms' ]
     def attributes = [
       id: changeSet.id,
@@ -68,7 +101,7 @@ class GroovyChangeLogSerializer
     //
     // Do these the hard way to keep them out of the map if they're false
     //
-    
+
     if(changeSet.isAlwaysRun()) {
       attributes.runAlways = true
     }
@@ -93,7 +126,7 @@ class GroovyChangeLogSerializer
       children << "comment \"${changeSet.comments.replaceAll('"', '\\\"')}\""
     }
 
-    changeSet.changes.each { change -> children << serialize(change) }
+    changeSet.changes.each { change -> children << serialize(change, true) }
 
     def renderedChildren = children.collect { child -> indent(child) }.join('\n')
     return """\
@@ -103,26 +136,29 @@ ${renderedChildren}
   }
 
 
-  String serialize(Change change) {
-    def fields = getChangeFieldsToSerialize(change)
+  private String serializeObject(Change change) {
+    def fields = change.serializableFields
     def children = []
     def attributes = []
     def textBody
     fields.each { field ->
-      def fieldName = field.name
-      def fieldValue = change[fieldName]
+      def fieldName = field
+      def fieldValue = change.getSerializableFieldValue(fieldName)
 
-      def textNodeAnnotation = field.getAnnotation(TextNode.class)
+	    // TODO: The TextNode annotation used to mark a special case where
+	    // we set the text body to the field value.  This only applied to
+	    // UpdateDataChange and DeleteDataChange.  we need to figure out what to
+	    // do with these classes in 3.0
+//	    def textNodeAnnotation = fieldValue.class.getAnnotation(StringBuilder.class)
+	    def textNodeAnnotation = null
       if(textNodeAnnotation) {
         textBody = fieldValue
-      }
-      else if(fieldValue instanceof Collection) {
+      } else if(fieldValue instanceof Collection) {
         fieldValue.findAll { it instanceof ColumnConfig }.each {
-          children << serialize(it)
+          children << serialize(it, true)
         }
-      }
-      else if(fieldValue instanceof ColumnConfig) {
-        children << serialize(fieldValue)
+      } else if(fieldValue instanceof ColumnConfig) {
+        children << serialize(fieldValue, true)
       }
       else if(fieldName in [ 'procedureBody', 'sql', 'selectQuery' ]) {
         textBody = fieldValue
@@ -132,14 +168,14 @@ ${renderedChildren}
       }
     }
 
-    attributes = attributes.sort { it } 
+    attributes = attributes.sort { it }
 
     def serializedChange
     if(attributes) {
-      serializedChange = "${change.changeMetaData.name}(${buildPropertyListFrom(attributes, change).join(', ')})"
+      serializedChange = "${change.serializedObjectName}(${buildPropertyListFrom(attributes, change).join(', ')})"
     }
     else {
-      serializedChange = "${change.changeMetaData.name}"
+      serializedChange = "${change.serializedObjectName}"
     }
 
     if(children) {
@@ -160,14 +196,14 @@ ${serializedChange} {
   }
 
 
-  String serialize(ColumnConfig columnConfig) {
+  private String serializeObject(ColumnConfig columnConfig) {
     def propertyNames = [ 'name', 'type', 'value', 'valueNumeric', 'valueDate', 'valueBoolean', 'valueComputed', 'defaultValue', 'defaultValueNumeric', 'defaultValueDate', 'defaultValueBoolean', 'defaultValueComputed', 'autoIncrement', 'remarks' ]
     def properties = buildPropertyListFrom(propertyNames, columnConfig)
     def column = "column(${properties.join(', ')})"
     if(columnConfig.constraints) {
       """\
 ${column} {
-  ${serialize(columnConfig.constraints)}
+  ${serialize(columnConfig.constraints, true)}
 }"""
     }
     else {
@@ -176,31 +212,101 @@ ${column} {
   }
 
 
-  String serialize(ConstraintsConfig constraintsConfig) {
-    def propertyNames = [ 'nullable', 'primaryKey', 'primaryKeyName', 'primaryKeyTablespace', 'references', 'unique', 'uniqueConstraintName', 'check', 'deleteCascade', 'foreignKeyName', 'initiallyDeferred', 'deferrable' ]
+  private String serializeObject(ConstraintsConfig constraintsConfig) {
+    def propertyNames = [ 'nullable', 'primaryKey', 'primaryKeyName', 'primaryKeyTablespace', 'references', 'referencedTableName', 'referencedColumnNames', 'unique', 'uniqueConstraintName', 'checkConstraint', 'deleteCascade', 'foreignKeyName', 'initiallyDeferred', 'deferrable' ]
     "constraints(${buildPropertyListFrom(propertyNames, constraintsConfig).join(', ')})"
   }
 
 
-  void write(List changeSets, OutputStream out) {
-    out << 'databaseChangeLog {\n'
-    out << changeSets.collect { changeSet -> indent(serialize(changeSet)) }.join('\n\n')
-    out << '\n\n}\n'
-  }
+	private String serializeObject(SqlVisitor visitor) {
+		"${visitor.name}(${buildPropertyListFrom(visitor.getSerializableFields(), visitor).join(', ')})"
+	}
 
+	private String serializeObject(LiquibaseSerializable change) {
+		def fields = change.getSerializableFields()
+		def children = []
+		def attributes = []
+		def textBody = null
+		fields.each { field ->
+			def fieldValue = change.getSerializableFieldValue(field)
+			if ( fieldValue == null ) {
+				return
+			}
+			def serializationType = change.getSerializableFieldType(field)
 
-  void append(File changeLogFile, String newChangeLogText) {
-    throw new UnsupportedOperationException("""GroovyChangeLogSerializer does not append changelog content.
-  To append a newly generated changelog to an existing changelog, specify a new filename
-  for the new changelog, then copy and paste that content into the existing file.""")
-  }
+			// TODO: The TextNode annotation used to mark a special case where
+			// we set the text body to the field value.  This only applied to
+			// UpdateDataChange and DeleteDataChange.  we need to figure out what to
+			// do with these classes in 3.0
+			def textNodeAnnotation = fieldValue.class.getAnnotation(Integer.class)
+			if(textNodeAnnotation) {
+				textBody = fieldValue
+			} else if(fieldValue instanceof Collection) {
+				fieldValue.findAll { it instanceof LiquibaseSerializable }.each {
+					children << serialize(it, true)
+				}
+//      } else if (fieldValue instanceof Map) {
+//			  for (Map.Entry entry : (Set<Map.Entry>) ((Map) fieldValue).entrySet()) {
+//			  	children << setValueOnNode((String) entry.getKey(), entry.getValue(), serializationType);
+//        }
+			} else if(field in [ 'procedureBody', 'sql', 'selectQuery' ]) {
+				textBody = fieldValue
+			} else if ( fieldValue instanceof ChangeSet ) {
+				children << serialize(fieldValue, true)
+			} else if (fieldValue instanceof LiquibaseSerializable) {
+				children << serialize((LiquibaseSerializable)fieldValue, true)
+			} else if (serializationType.equals(LiquibaseSerializable.SerializationType.NESTED_OBJECT)) {
+				children << serialize(fieldValue, true);
+			} else if (serializationType.equals(LiquibaseSerializable.SerializationType.DIRECT_VALUE)) {
+				textBody = fieldValue.toString()
+			} else {
+				attributes << field
+			}
+		}
 
+		attributes = attributes.sort { it }
 
+		def serializedChange
+		if(attributes) {
+			serializedChange = "${change.serializedObjectName}(${buildPropertyListFrom(attributes, change).join(', ')})"
+		}
+		else {
+			serializedChange = "${change.serializedObjectName}"
+		}
+
+		if(children) {
+			def renderedChildren = children.collect { child -> indent(child) }.join('\n')
+			serializedChange = """\
+${serializedChange} {
+${renderedChildren}
+}"""
+		}
+		else if(textBody) {
+			serializedChange = """\
+${serializedChange} {
+  "${textBody}"
+}"""
+		}
+
+		return serializedChange
+	}
+
+	/**
+	 * Indents lines of text by two spaces.
+	 * @param text the text to indent
+	 * @return the indented text
+	 */
   private indent(text) {
     text?.readLines().collect { line -> "  ${line}" }.join('\n')
   }
-  
 
+	/**
+	 * Builds the correct string representation of an object's properties based
+	 * on the property's type.
+	 * @param propertyNames the names of the properties we're interested in.
+	 * @param object an array of strings representing each property.
+	 * @return
+	 */
   private buildPropertyListFrom(propertyNames, object) {
     def properties = []
 
@@ -238,20 +344,4 @@ ${column} {
     return properties
   }
 
-
-  private getChangeFieldsToSerialize(Change change) {
-    def fields = change.class.declaredFields
-
-    // Find all fields that don't have these two excluded names
-    fields = fields.findAll { field -> !(field.name in [ 'serialVersionUID', '$VRc' ]) }
-
-    // Find all fields that don't have the @ChangeProperty(includeInSerialization=false) annotation
-    fields = fields.findAll { field ->
-      def annotation = field.getAnnotation(ChangeProperty)
-      !(annotation && !annotation?.includeInSerialization())
-    }
-
-    return fields
-  }
-  
 }

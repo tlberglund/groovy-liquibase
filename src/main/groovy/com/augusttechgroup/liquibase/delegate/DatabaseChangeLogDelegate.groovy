@@ -51,7 +51,8 @@ class DatabaseChangeLogDelegate {
       databaseChangeLog.filePath,
       params.context,
       params.dbms,
-      params.runInTransaction?.toBoolean() ?: true)
+      params.runInTransaction?.toBoolean() ?: true,
+      databaseChangeLog)
 
     if(params.failOnError) {
       changeSet.failOnError = params.failOnError?.toBoolean()
@@ -93,34 +94,17 @@ class DatabaseChangeLogDelegate {
       includeChangeLog(params.file)
     }
     else if (params.path) {
-      if (!params.path.endsWith("/")) {
-        params.path += "/"
-      }
-      
       if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
         params.path = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.path
       }
-      
-      def resources = resourceAccessor.getResources(params.path)
-      resources.each { fileUrl ->
-        if (!fileUrl.toExternalForm().startsWith("file:")) {
-          def zipFileDir = XMLChangeLogSAXHandler.extractZipFile(fileUrl)
-          fileUrl = new File(zipFileDir, params.path).toURI().toURL()
-        }
-        
-        def file = new File(fileUrl.toURI());
-        
-        if (file.isDirectory()) {
-          def names = []  
-          file.eachFileMatch(~/.*.groovy/) { childFile ->
-            names << childFile.name
-          }
-          names.sort().each { name ->
-            includeChangeLog(params.path + name)
-          }
-        } else {
-          includeChangeLog(params.path + file.name)
-        }
+
+      def files = []
+      new File(params.path).eachFileMatch(~/.*.groovy/) { file->
+        files << file.path
+      }
+
+      files.sort().each { filename ->
+        includeChangeLog(filename)
       }
     }
   }

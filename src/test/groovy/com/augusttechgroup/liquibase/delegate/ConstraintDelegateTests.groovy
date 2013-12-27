@@ -41,9 +41,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertNull constraint.references
-    assertFalse constraint.isUnique()
+	  assertNull constraint.referencedTableName
+		assertNull constraint.referencedColumnNames
+	  assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -65,9 +67,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertNull constraint.references
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -93,9 +97,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertNull constraint.references
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -117,9 +123,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertNull constraint.references
-    assertFalse constraint.isUnique()
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
+	  assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -143,9 +151,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertNull constraint.references
-    assertFalse constraint.isUnique()
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
+	  assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -166,9 +176,11 @@ class ConstraintDelegateTests
     assertEquals 'primary_key', constraint.primaryKeyName
     assertEquals 'key_tablespace', constraint.primaryKeyTablespace
     assertNull constraint.references
-    assertFalse constraint.isUnique()
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
+	  assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -194,9 +206,11 @@ class ConstraintDelegateTests
     assertEquals 'primary_key', constraint.primaryKeyName
     assertEquals 'key_tablespace', constraint.primaryKeyTablespace
     assertNull constraint.references
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -207,7 +221,7 @@ class ConstraintDelegateTests
   @Test
   void foreignKeyConstraintFromMap() {
     def constraint = buildConstraint {
-      constraints(nullable: true, foreignKeyName: 'foreign_key', references: 'monkey(id)', deleteCascade: true, deferrable: true, initiallyDeferred: true)
+      constraints(nullable: true, foreignKeyName: 'foreign_key', references: 'monkey(id)', referencedTableName: 'monkey', referencedColumnNames: 'id', deleteCascade: true, deferrable: true, initiallyDeferred: true)
     }
 
     assertNotNull constraint
@@ -217,9 +231,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertEquals 'monkey(id)', constraint.references
+	  assertEquals 'monkey', constraint.referencedTableName
+	  assertEquals 'id', constraint.referencedColumnNames
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertTrue constraint.isDeleteCascade()
     assertEquals 'foreign_key', constraint.foreignKeyName
     assertTrue constraint.isInitiallyDeferred()
@@ -234,6 +250,8 @@ class ConstraintDelegateTests
         nullable(true)
         foreignKeyName('foreign_key')
         references('monkey(id)')
+	      referencedTableName('monkey')
+	      referencedColumnNames('id')
         deleteCascade(true)
         deferrable(true)
         initiallyDeferred(true)
@@ -247,9 +265,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertEquals 'monkey(id)', constraint.references
-    assertFalse constraint.isUnique()
+	  assertEquals 'monkey', constraint.referencedTableName
+	  assertEquals 'id', constraint.referencedColumnNames
+	  assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertTrue constraint.isDeleteCascade()
     assertEquals 'foreign_key', constraint.foreignKeyName
     assertTrue constraint.isInitiallyDeferred()
@@ -260,7 +280,7 @@ class ConstraintDelegateTests
   @Test
   void uniqueConstraintFromMap() {
     def constraint = buildConstraint {
-      constraints(unique: true, uniqueConstraintName: 'unique_column', check: 'check')
+      constraints(unique: true, uniqueConstraintName: 'unique_column', checkConstraint: 'check')
     }
 
     assertNotNull constraint
@@ -270,9 +290,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertNull constraint.references
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
     assertTrue constraint.isUnique()
     assertEquals 'unique_column', constraint.uniqueConstraintName
-    assertEquals 'check', constraint.check
+    assertEquals 'check', constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -286,7 +308,7 @@ class ConstraintDelegateTests
       constraints {
         unique(true)
         uniqueConstraintName('unique_column')
-        check('check')
+        checkConstraint('check')
       }
     }
 
@@ -297,9 +319,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertNull constraint.references
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
     assertTrue constraint.isUnique()
     assertEquals 'unique_column', constraint.uniqueConstraintName
-    assertEquals 'check', constraint.check
+    assertEquals 'check', constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -320,9 +344,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertNull constraint.references
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()
@@ -345,9 +371,11 @@ class ConstraintDelegateTests
     assertNull constraint.primaryKeyName
     assertNull constraint.primaryKeyTablespace
     assertNull constraint.references
+	  assertNull constraint.referencedTableName
+	  assertNull constraint.referencedColumnNames
     assertFalse constraint.isUnique()
     assertNull constraint.uniqueConstraintName
-    assertNull constraint.check
+    assertNull constraint.checkConstraint
     assertFalse constraint.isDeleteCascade()
     assertNull constraint.foreignKeyName
     assertFalse constraint.isInitiallyDeferred()

@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.serialize
 
+import liquibase.changelog.DatabaseChangeLog
 import org.junit.Test
 import static org.junit.Assert.*
 import liquibase.changelog.ChangeSet
@@ -38,10 +39,11 @@ class ChangeSetSerializerTests
       '.',
       null,
       null,
-      true)
+      true,
+      new DatabaseChangeLog())
     changeSet.addChange([ schemaName: 'schema', tableName: 'monkey' ] as DropTableChange)
 
-    def serializedText = serializer.serialize(changeSet)
+    def serializedText = serializer.serialize(changeSet, true)
     def expectedText = """\
 changeSet(id: 'drop-table', author: 'tlberglund') {
   dropTable(schemaName: 'schema', tableName: 'monkey')
@@ -60,12 +62,13 @@ changeSet(id: 'drop-table', author: 'tlberglund') {
       '.',
       'dev, staging',
       'mysql, oracle',
-      true)
+      true,
+      new DatabaseChangeLog())
     changeSet.addChange([ schemaName: 'schema', tableName: 'monkey' ] as DropTableChange)
     changeSet.addChange([ constraintName: 'fk_monkey_emotion', baseTableName: 'monkey', baseTableSchemaName: 'base_schema', baseColumnNames: 'emotion_id', referencedTableName: 'emotions', referencedTableSchemaName: 'referenced_schema', referencedColumnNames: 'id', deferrable: true, initiallyDeferred: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' ] as AddForeignKeyConstraintChange)
     changeSet.comments = comment
 
-    def serializedText = serializer.serialize(changeSet)
+    def serializedText = serializer.serialize(changeSet, true)
     def expectedText = """\
 changeSet(id: 'drop-table', author: 'tlberglund', runAlways: true, runOnChange: true, context: 'staging,dev', dbms: 'oracle,mysql') {
   comment "${comment}"
