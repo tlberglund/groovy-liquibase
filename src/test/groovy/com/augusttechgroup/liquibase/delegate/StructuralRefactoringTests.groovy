@@ -613,8 +613,104 @@ class StructuralRefactoringTests extends ChangeSetTests {
 	}
 
 	/**
-	 * Test parsing a createStoredProcedure change when we have an empty map and
+	 * Test parsing a createProcedure change when we have an empty map and
 	 * closure to make sure the DSL doesn't try to set any defaults.
+	 */
+	@Test
+	void createProcedureEmpty() {
+		buildChangeSet {
+			createProcedure ([:]) {}
+		}
+
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertNull changes[0].comments
+		assertNull changes[0].procedureBody
+		assertNoOutput()
+	}
+
+	/**
+	 * test parsing a createProcedure change when we have no attributes
+	 * just the body in a closure.  Since the only supported attribute is for
+	 * comments, this will be common.
+	 */
+	@Test
+	void createProcedureClosureOnly() {
+		def sql = """\
+CREATE OR REPLACE PROCEDURE testMonkey
+IS
+BEGIN
+ -- do something with the monkey
+END;"""
+		buildChangeSet {
+			createProcedure { sql }
+		}
+
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof CreateProcedureChange
+		assertNull changes[0].comments
+		assertEquals sql, changes[0].procedureBody
+		assertNoOutput()
+	}
+
+	/**
+	 * Test parsing a createProcedure change when we have no attributes,
+	 * just the procedure body as a string.  Since the only supported attribute
+	 * is for comments, this will be common.
+	 */
+	@Test
+	void createProcedureSqlOnlyAsString() {
+		def sql = """\
+CREATE OR REPLACE PROCEDURE testMonkey
+IS
+BEGIN
+ -- do something with the monkey
+END;"""
+		buildChangeSet {
+			createProcedure sql
+		}
+
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof CreateProcedureChange
+		assertNull changes[0].comments
+		assertEquals sql, changes[0].procedureBody
+		assertNoOutput()
+	}
+
+	/**
+	 * Test parsing a createProcedure change when we have both comments
+	 * and SQL.
+	 */
+	@Test
+	void createProcedureFull() {
+		def sql = """\
+CREATE OR REPLACE PROCEDURE testMonkey
+IS
+BEGIN
+ -- do something with the monkey
+END;"""
+		buildChangeSet {
+			createProcedure(comments: 'someComments') { sql }
+		}
+
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof CreateProcedureChange
+		assertEquals 'someComments', changes[0].comments
+		assertEquals sql, changes[0].procedureBody
+		assertNoOutput()
+	}
+
+	/**
+	 * Test parsing a createStoredProcedure change when we have an empty map and
+	 * closure to make sure the DSL doesn't try to set any defaults.  This is
+	 * deprecated, so expect a warning.
 	 */
 	@Test
 	void createStoredProcedureEmpty() {
@@ -627,13 +723,14 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 1, changes.size()
 		assertNull changes[0].comments
 		assertNull changes[0].procedureBody
-		assertNoOutput()
+		assertPrinted("createStoredProcedure has been deprecated")
 	}
 
 	/**
 	 * test parsing a createStoredProcedure change when we have no attributes
 	 * just the body in a closure.  Since the only supported attribute is for
-	 * comments, this will be common.
+	 * comments, this will be common.  This has been deprecated, so expect a
+	 * warning.
 	 */
 	@Test
 	void createStoredProcedureClosureOnly() {
@@ -653,14 +750,14 @@ END;"""
 		assertTrue changes[0] instanceof CreateProcedureChange
 		assertNull changes[0].comments
 		assertEquals sql, changes[0].procedureBody
-		assertNoOutput()
+		assertPrinted("createStoredProcedure has been deprecated")
 	}
 
-	// no map with string
 	/**
 	 * Test parsing a createStoredProcedure change when we have no attributes,
 	 * just the procedure body as a string.  Since the only supported attribute
-	 * is for comments, this will be common.
+	 * is for comments, this will be common.  This has been deprecated, so expect
+	 * a warning.
 	 */
 	@Test
 	void createStoredProcedureSqlOnlyAsString() {
@@ -680,12 +777,12 @@ END;"""
 		assertTrue changes[0] instanceof CreateProcedureChange
 		assertNull changes[0].comments
 		assertEquals sql, changes[0].procedureBody
-		assertNoOutput()
+		assertPrinted("createStoredProcedure has been deprecated")
 	}
 
 	/**
 	 * Test parsing a createStoredProcedure change when we have both comments
-	 * and SQL.
+	 * and SQL. This has been deprecated, so expect a warning.
 	 */
 	@Test
 	void createStoredProcedureFull() {
@@ -705,6 +802,6 @@ END;"""
 		assertTrue changes[0] instanceof CreateProcedureChange
 		assertEquals 'someComments', changes[0].comments
 		assertEquals sql, changes[0].procedureBody
-		assertNoOutput()
+		assertPrinted("createStoredProcedure has been deprecated")
 	}
 }

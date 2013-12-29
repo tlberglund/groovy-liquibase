@@ -223,20 +223,40 @@ class ChangeSetDelegate {
     addMapBasedChange(MergeColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'column1Name', 'column2Name', 'finalColumnName', 'finalColumnType', 'joinString'])
   }
 
-
+	@Deprecated
 	void createStoredProcedure(Map params = [:], Closure closure) {
+		println "Warning: ChangeSet ${changeSet.id}: createStoredProcedure has been deprecated, and may be removed in a future release."
+		println "Consider using createProcedure instead."
+
 		def change = makeChangeFromMap(CreateProcedureChange, params, ['comments'])
 		change.procedureBody = expandExpressions(closure.call())
 		addChange(change)
 	}
 
 
+	@Deprecated
 	void createStoredProcedure(String storedProc) {
+		println "Warning: ChangeSet ${changeSet.id}: createStoredProcedure has been deprecated, and may be removed in a future release."
+		println "Consider using createProcedure instead."
+
 		def change = new CreateProcedureChange()
 		change.procedureBody = expandExpressions(storedProc)
 		addChange(change)
 	}
 
+
+	void createProcedure(Map params = [:], Closure closure) {
+		def change = makeChangeFromMap(CreateProcedureChange, params, ['comments'])
+		change.procedureBody = expandExpressions(closure.call())
+		addChange(change)
+	}
+
+
+	void createProcedure(String storedProc) {
+		def change = new CreateProcedureChange()
+		change.procedureBody = expandExpressions(storedProc)
+		addChange(change)
+	}
 
 	void addLookupTable(Map params) {
     addMapBasedChange(AddLookupTableChange, params, ['existingTableName', 'existingTableCatalogName', 'existingTableSchemaName', 'existingColumnName', 'newTableName', 'newTableCatalogName', 'newTableSchemaName', 'newColumnName', 'newColumnDataType', 'constraintName'])
@@ -294,11 +314,11 @@ class ChangeSetDelegate {
 	 */
   void addForeignKeyConstraint(Map params) {
     if ( params['deleteCascade'] != null ) {
-	    println "Warning: addForeignKeyConstraint's deleteCascade parameter has been deprecated, and may be removed in a future release."
+	    println "Warning: ChangeSet ${changeSet.id}: addForeignKeyConstraint's deleteCascade parameter has been deprecated, and may be removed in a future release."
 	    println "Consider using \"onDelete='CASCADE'\" instead."
     }
 	  if ( params['referencesUniqueColumn'] != null ) {
-		  println "Warning: addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated, and may be removed in a future release."
+		  println "Warning: ChangeSet \${changeSet.id}: addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated, and may be removed in a future release."
 		  println "Consider removing it, as Liquibase ignores it anyway."
 	  }
     addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableCatalogName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])

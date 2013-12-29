@@ -150,7 +150,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertTrue changes[0].initiallyDeferred
 		assertEquals 'CASCADE', changes[0].onDelete // set by deleteCascade: true
 		assertEquals 'RESTRICT', changes[0].onUpdate
-		assertPrinted("Warning: addForeignKeyConstraint's deleteCascade parameter has been deprecated")
+		assertPrinted("addForeignKeyConstraint's deleteCascade parameter has been deprecated")
 	}
 
 	/**
@@ -194,7 +194,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertTrue changes[0].initiallyDeferred
 		assertEquals 'CASCADE', changes[0].onDelete // set by deleteCascade: true
 		assertEquals 'RESTRICT', changes[0].onUpdate
-		assertPrinted("Warning: addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated")
+		assertPrinted("addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated")
 	}
 
 	/**
