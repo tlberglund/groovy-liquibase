@@ -506,20 +506,40 @@ class ChangeSetDelegate {
     return change
   }
 
-
+	/**
+	 * Create a new Liquibase change and set its properties from the given
+	 * map of parameters.
+	 * @param klass the type of change to create/
+	 * @param sourceMap a map of parameter names and values for the new change
+	 * @param paramNames a list of valid parameter names.
+	 * @return the newly create change, with the appropriate properties set.
+	 * @throws IllegalArgumentException if the source map contains any keys that
+	 * are not in the list of valid paramNames.
+	 */
   private def makeChangeFromMap(Class klass, Map sourceMap, List paramNames) {
     def change = klass.newInstance()
 
-    paramNames.each { name ->
-      if(sourceMap[name] != null) {
-        try {
-          ObjectUtil.setProperty(change, name, expandExpressions(sourceMap[name]))
-        }
-        catch(NumberFormatException ex) {
-          change[name] = sourceMap[name].toBigInteger()
-        }
-      }
-    }
+		sourceMap.each { name, value ->
+			if ( paramNames.contains(name) && value != null ) {
+				try {
+					ObjectUtil.setProperty(change, name, expandExpressions(sourceMap[name]))
+				}
+				catch(NumberFormatException ex) {
+					change[name] = sourceMap[name].toBigInteger()
+				}
+			} else {
+				// To help the user find the error.  We could pass in the change name,
+				// but that has some large ripple effects, and we can take advantage of
+				// the fact that our refactorings almost match the liquibase class names.
+				// This works as long as that is true, and all changes end with "Change"
+				// in Liquibase.
+				String changeName = klass.simpleName
+				changeName = changeName.subSequence(0, changeName.indexOf("Change"))
+				changeName = changeName[0].toLowerCase() + changeName.substring(1)
+				throw new IllegalArgumentException("changeSet '${changeSet.id}' has a ${changeName} change with the invalid property '${name}'.")
+			}
+
+		}
     return change
   }
 
