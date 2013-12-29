@@ -24,15 +24,14 @@ import org.junit.Ignore
 import static org.junit.Assert.*
 
 
-class ChangeSetMethodTests
-  extends ChangeSetTests
-{
+class ChangeSetMethodTests extends ChangeSetTests {
   @Test
   void testComments() {
     buildChangeSet {
       comment "This is a comment"
     }
     assertEquals "This is a comment", changeSet.comments
+	  assertNoOutput()
   }
 
 
@@ -46,6 +45,7 @@ class ChangeSetMethodTests
       validCheckSum checksum
     }
     assertTrue "Arbitrary checksum should be valid after being added", changeSet.isCheckSumValid(liquibaseChecksum)
+	  assertNoOutput()
   }
   
 
@@ -59,6 +59,7 @@ class ChangeSetMethodTests
     assertNotNull changes
     assertEquals 1, changes.size()
     assertEquals(new RawSQLChange(rollbackSql).sql, changes[0].sql)
+	  assertNoOutput()
   }
 
 
@@ -77,7 +78,6 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
     assertEquals 2, changes.size()
     assertEquals(new RawSQLChange("UPDATE monkey_table SET emotion='angry' WHERE status='PENDING'").sql, changes[0].sql)
     assertEquals(new RawSQLChange("ALTER TABLE monkey_table DROP COLUMN angry").sql, changes[1].sql)
+	  assertNoOutput()
   }
-  
-
 }

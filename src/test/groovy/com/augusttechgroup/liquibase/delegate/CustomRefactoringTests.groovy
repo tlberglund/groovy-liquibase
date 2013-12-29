@@ -55,6 +55,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertFalse changes[0].stripComments
 		assertNull changes[0].sql
 		assertNull changes[0].comment
+		assertNoOutput()
 	}
 
 	/**
@@ -77,6 +78,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertFalse changes[0].stripComments
 		assertEquals "UPDATE monkey SET emotion='ANGRY' WHERE id IN (1,2,3,4,5)", changes[0].sql
 		assertNull changes[0].comment
+		assertNoOutput()
 	}
 
 	/**
@@ -99,6 +101,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertFalse changes[0].stripComments
 		assertEquals "UPDATE monkey SET emotion='ANGRY' WHERE id IN (1,2,3,4,5)", changes[0].sql
 		assertNull changes[0].comment
+		assertNoOutput()
 	}
 
 	/**
@@ -123,6 +126,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertFalse changes[0].stripComments
 		assertEquals "UPDATE monkey SET emotion='ANGRY' WHERE id IN (1,2,3,4,5)", changes[0].sql
 		assertEquals "No comment", changes[0].comment
+		assertNoOutput()
 	}
 
 	/**
@@ -151,7 +155,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertEquals '!', changes[0].endDelimiter
 		assertEquals "UPDATE monkey SET emotion='ANGRY' WHERE id IN (1,2,3,4,5)", changes[0].sql
 		assertNull changes[0].comment
-
+		assertNoOutput()
 	}
 
 	/**
@@ -180,7 +184,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertEquals '!', changes[0].endDelimiter
 		assertEquals "UPDATE monkey SET emotion='ANGRY' WHERE id IN (1,2,3,4,5)", changes[0].sql
 		assertEquals "No comment", changes[0].comment
-
+		assertNoOutput()
 	}
 
 	/**
@@ -210,6 +214,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].endDelimiter
 		assertNull changes[0].dbms
 		assertNotNull 'SQLFileChange.resourceAccessor cannot be null', changes[0].resourceAccessor
+		assertNoOutput()
 	}
 
 	/**
@@ -241,6 +246,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertEquals '@', changes[0].endDelimiter
 		assertEquals 'oracle', changes[0].dbms
 		assertNotNull 'SQLFileChange.resourceAccessor cannot be null', changes[0].resourceAccessor
+		assertNoOutput()
 	}
 
 	/**
@@ -262,6 +268,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		def args = changes[0].args
 		assertNotNull args
 		assertEquals 0, args.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -283,6 +290,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		def args = changes[0].args
 		assertNotNull args
 		assertEquals 0, args.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -308,6 +316,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		def args = changes[0].args
 		assertNotNull args
 		assertEquals 0, args.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -338,6 +347,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertTrue args.every { arg -> arg instanceof String }
 		assertEquals '/monkey/ { count++ } END { print count }', args[0]
 		assertEquals '-f database.log', args[1]
+		assertNoOutput()
 	}
 
 	/**
@@ -369,6 +379,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertTrue args.every { arg -> arg instanceof String }
 		assertEquals '/monkey/ { count++ } END { print count }', args[0]
 		assertEquals '-f database.log', args[1]
+		assertNoOutput()
 	}
 
 
@@ -383,6 +394,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertEquals 1, changes.size()
 		assertTrue changes[0] instanceof CustomChangeWrapper
 		assertEquals 'org.liquibase.change.custom.MonkeyChange', changes[0].className
+		assertNoOutput()
 	}
 
 
@@ -407,6 +419,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertTrue args.containsKey('rfid-tag')
 		assertEquals 'angry', args.emotion
 		assertEquals '28763', args.'rfid-tag'
+		assertNoOutput()
 	}
 
 }

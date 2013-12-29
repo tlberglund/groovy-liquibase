@@ -57,6 +57,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].tableName
 		assertNull changes[0].dbms
+		assertNoOutput()
 	}
 
 	/**
@@ -100,6 +101,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals sqlNow, columns[2].valueDate
 		assertEquals 'active', columns[3].name
 		assertTrue columns[3].valueBoolean
+		assertNoOutput()
 	}
 
 	/**
@@ -131,6 +133,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertEquals 0, columns.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -175,6 +178,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 2, columns.size()
 		assertEquals 'id', columns[0].name
 		assertEquals 'emotion', columns[1].name
+		assertNoOutput()
 	}
 
 	/**
@@ -214,6 +218,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 2, columns.size()
 		assertEquals 'id', columns[0].name
 		assertEquals 'emotion', columns[1].name
+		assertNoOutput()
 	}
 
 	/**
@@ -245,6 +250,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertEquals 0, columns.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -289,6 +295,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 2, columns.size()
 		assertEquals 'id', columns[0].name
 		assertEquals 'emotion', columns[1].name
+		assertNoOutput()
 	}
 
 	/**
@@ -328,6 +335,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 2, columns.size()
 		assertEquals 'id', columns[0].name
 		assertEquals 'emotion', columns[1].name
+		assertNoOutput()
 	}
 
 	/**
@@ -352,6 +360,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertEquals 0, columns.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -386,6 +395,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'emotion', columns[1].name
 		assertEquals 'last_updated', columns[2].name
 		assertEquals 'active', columns[3].name
+		assertNoOutput()
 	}
 
 	/**
@@ -420,6 +430,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'emotion', columns[1].name
 		assertEquals 'last_updated', columns[2].name
 		assertEquals 'active', columns[3].name
+		assertNoOutput()
 	}
 
 	/**
@@ -440,6 +451,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].tableName
 		assertNull changes[0].whereClause
+		assertNoOutput()
 	}
 
 	/**
@@ -461,6 +473,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals "emotion='angry' AND active=true", changes[0].whereClause
+		assertNoOutput()
 	}
 
 	/**
@@ -481,6 +494,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey', changes[0].tableName
 		assertNull changes[0].whereClause
+		assertNoOutput()
 	}
 
 	/**
@@ -498,6 +512,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 1, changes.size()
 		assertTrue changes[0] instanceof TagDatabaseChange
 		assertNull changes[0].tag
+		assertNoOutput()
 	}
 
 	/**
@@ -514,6 +529,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 1, changes.size()
 		assertTrue changes[0] instanceof TagDatabaseChange
 		assertEquals 'monkey', changes[0].tag
+		assertNoOutput()
 	}
 
 	/**
@@ -531,6 +547,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 1, changes.size()
 		assertTrue changes[0] instanceof StopChange
 		assertEquals 'Stop command in changelog file', changes[0].message
+		assertNoOutput()
 	}
 
 	/**
@@ -547,6 +564,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 1, changes.size()
 		assertTrue changes[0] instanceof StopChange
 		assertEquals 'Stop the refactoring. Just...stop.', changes[0].message
+		assertNoOutput()
 	}
 
 	/**
@@ -563,7 +581,6 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 1, changes.size()
 		assertTrue changes[0] instanceof StopChange
 		assertEquals 'Stop the refactoring. Just...stop.', changes[0].message
+		assertNoOutput()
 	}
-
-
 }

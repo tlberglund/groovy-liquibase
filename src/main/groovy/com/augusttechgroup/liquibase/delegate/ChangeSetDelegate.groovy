@@ -289,6 +289,10 @@ class ChangeSetDelegate {
 
 
   void addForeignKeyConstraint(Map params) {
+    if ( params['deleteCascade'] != null ) {
+	    println "Warning: addForeignKeyConstraint's deleteCascade parameter has been deprecated, and may be removed in a future release."
+	    println "Consider using \"onDelete='CASCADE'\" instead"
+    }
     addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableCatalogName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])
   }
 

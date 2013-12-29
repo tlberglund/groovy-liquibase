@@ -63,6 +63,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].initiallyDeferred
 		assertNull changes[0].onDelete
 		assertNull changes[0].onUpdate
+		assertNoOutput()
 	}
 
 	/**
@@ -104,14 +105,15 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertFalse changes[0].initiallyDeferred
 		assertEquals 'RESTRICT', changes[0].onDelete
 		assertEquals 'CASCADE', changes[0].onUpdate
-
+		assertNoOutput()
 	}
 
 	/**
 	 * Liquibase has an undocumented attribute {@code deleteCascade}, which does
 	 * the same thing as {@code onDelete: 'CASCADE'}, so let's make sure it works.
 	 * Since it is undocumented, we may want to deprecate this option.  We can't
-	 * just delete it because older versions of the DSL supported it.
+	 * just delete it because older versions of the DSL supported it, but we can
+	 * make sure we get the deprecation warning on stdout.
 	 */
 	@Test
 	void addForeignKeyConstraintWithDeleteCascadeProperty() {
@@ -148,6 +150,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertTrue changes[0].initiallyDeferred
 		assertEquals 'CASCADE', changes[0].onDelete // set by deleteCascade: true
 		assertEquals 'RESTRICT', changes[0].onUpdate
+		assertPrinted("Warning: addForeignKeyConstraint's deleteCascade parameter has been deprecated")
 	}
 
 	/**
@@ -168,6 +171,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].baseTableSchemaName
 		assertNull changes[0].baseTableName
 		assertNull changes[0].constraintName
+		assertNoOutput()
 	}
 
 	/**
@@ -190,6 +194,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].baseTableSchemaName
 		assertEquals 'monkey', changes[0].baseTableName
 		assertEquals 'fk_monkey_emotion', changes[0].constraintName
+		assertNoOutput()
 	}
 
 	/**
@@ -209,6 +214,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].baseTableCatalogName
 		assertNull changes[0].baseTableSchemaName
 		assertNull changes[0].baseTableName
+		assertNoOutput()
 	}
 
 	/**
@@ -230,6 +236,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertEquals 'catalog', changes[0].baseTableCatalogName
 		assertEquals 'schema', changes[0].baseTableSchemaName
 		assertEquals 'monkey', changes[0].baseTableName
+		assertNoOutput()
 	}
 
 	/**
@@ -252,6 +259,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].tableName
 		assertNull changes[0].tablespace
 		assertNull changes[0].columnNames
+		assertNoOutput()
 	}
 
 	/**
@@ -278,6 +286,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'tablespace', changes[0].tablespace
 		assertEquals 'id', changes[0].columnNames
+		assertNoOutput()
 	}
 
 	/**
@@ -298,6 +307,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].tableName
 		assertNull changes[0].constraintName
+		assertNoOutput()
 	}
 
 	/**
@@ -320,5 +330,6 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'pk_monkey', changes[0].constraintName
+		assertNoOutput()
 	}
 }

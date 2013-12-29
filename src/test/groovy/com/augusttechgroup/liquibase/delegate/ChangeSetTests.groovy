@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import org.junit.After
 import org.junit.Before
 import liquibase.changelog.ChangeLogParameters
 import liquibase.changelog.ChangeSet
@@ -23,42 +24,104 @@ import liquibase.changelog.DatabaseChangeLog
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 
-
-class ChangeSetTests
-{
-  def sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-  def changeSet
-  def resourceAccessor
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertTrue
 
 
-  @Before
-  void createChangeSet() {
-    changeSet = new ChangeSet(
-      'generic-changeset-id',
-      'tlberglund',
-      false,
-      false,
-      '/filePath',
-      'context',
-      'mysql',
-      true,
-      new DatabaseChangeLog())
-  }
+/**
+ * This is the base class for all of the change set related tests.  It mostly
+ * contains utility methods to help with testing.
+ */
+class ChangeSetTests {
+	def sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+	def changeSet
+	def resourceAccessor
+	def oldStdOut = System.out;
+	def bufStr = new ByteArrayOutputStream()
 
-  
-  def buildChangeSet(Closure closure) {
-    def changelog = new DatabaseChangeLog()
-    changelog.changeLogParameters = new ChangeLogParameters()
-      
-    closure.delegate = new ChangeSetDelegate(changeSet: changeSet,
-                                             resourceAccessor: resourceAccessor,
-                                             databaseChangeLog: changelog)
-    closure.call()
-    changeSet
-  }
+	/**
+	 * Set up for each test.  This involves two things; creating a change set
+	 * for each test to modify with changes, and capture stdout so that tests
+	 * can check for the presence/absence of messages.
+	 */
+	@Before
+	void createChangeSet() {
+		changeSet = new ChangeSet(
+						'generic-changeset-id',
+						'tlberglund',
+						false,
+						false,
+						'/filePath',
+						'context',
+						'mysql',
+						true,
+						new DatabaseChangeLog())
 
+		// Capture stdout to confirm the presence of a deprecation warning.
+		System.out = new PrintStream(bufStr)
 
-  Timestamp parseSqlTimestamp(dateTimeString) {
-    new Timestamp(sdf.parse(dateTimeString).time)
-  }
+	}
+
+	/**
+	 * After each test, make sure stdout is back to what it should be, and for
+	 * good measure, print out any output we got.
+	 */
+	@After
+	void restoreStdOut() {
+		if ( oldStdOut != null ) {
+			System.out = oldStdOut
+		}
+		String testOutput = bufStr.toString()
+		if ( testOutput != null && testOutput.length() > 0 ) {
+			println("Test output:\n${testOutput}")
+		}
+	}
+
+	/**
+	 * Helper method that builds a changeSet from the given closure.  Tests will
+	 * use this to test parsing the various closures that make up the Groovy DSL.
+	 * @param closure the closure containing changes to parse.
+	 * @return the changeSet, with parsed changes from the closure added.
+	 */
+	def buildChangeSet(Closure closure) {
+		def changelog = new DatabaseChangeLog()
+		changelog.changeLogParameters = new ChangeLogParameters()
+
+		closure.delegate = new ChangeSetDelegate(changeSet: changeSet,
+						resourceAccessor: resourceAccessor,
+						databaseChangeLog: changelog)
+		closure.call()
+		changeSet
+	}
+
+	/**
+	 * Small helper to parse a string into a Timestamp
+	 * @param dateTimeString the string to parse
+	 * @return the parsed string
+	 */
+	Timestamp parseSqlTimestamp(dateTimeString) {
+		new Timestamp(sdf.parse(dateTimeString).time)
+	}
+
+	/**
+	 * Make sure the given message is present in the standard output.  This can
+	 * be used to verify that we got expected deprecation warnings.  This method
+	 * will fail the test of the given message is not in standard out.
+	 * @param message the message that must exist.
+	 */
+	def assertPrinted(message) {
+		String testOutput = bufStr.toString()
+		assertTrue "'${message}' was not found in:\n '${testOutput}'",
+						testOutput.contains(message)
+	}
+
+	/**
+	 * Make sure the test did not have any output to standard out.  This can be
+	 * used to make sure there are no deprecation warnings.
+	 */
+	def assertNoOutput() {
+		String testOutput = bufStr.toString()
+		assertTrue "Did not expect to have output, but got:\n '${testOutput}",
+						testOutput.length() < 1
+	}
 }

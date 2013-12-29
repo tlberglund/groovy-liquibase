@@ -57,6 +57,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertEquals 0, columns.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -92,6 +93,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertTrue columns.every { column -> column instanceof ColumnConfig }
 		assertEquals 1, columns.size()
 		assertEquals 'name', columns[0].name
+		assertNoOutput()
 	}
 
 	/**
@@ -128,6 +130,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertEquals 2, columns.size()
 		assertEquals 'species', columns[0].name
 		assertEquals 'name', columns[1].name
+		assertNoOutput()
 	}
 
 	/**
@@ -148,6 +151,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].tableName
 		assertNull changes[0].indexName
+		assertNoOutput()
 	}
 
 	/**
@@ -170,6 +174,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'ndx_monkeys', changes[0].indexName
+		assertNoOutput()
 	}
 }
 

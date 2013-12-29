@@ -66,6 +66,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertEquals 0, columns.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -91,6 +92,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertEquals 1, columns.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -120,6 +122,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 2, columns.size()
 		assertEquals 'monkey_status', columns[0].name
 		assertEquals 'monkey_business', columns[1].name
+		assertNoOutput()
 	}
 
 	/**
@@ -142,6 +145,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].oldColumnName
 		assertNull changes[0].newColumnName
 		assertNull changes[0].columnDataType
+		assertNoOutput()
 	}
 
 	/**
@@ -168,6 +172,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'fail', changes[0].oldColumnName
 		assertEquals 'win', changes[0].newColumnName
 		assertEquals 'varchar(9001)', changes[0].columnDataType
+		assertNoOutput()
 	}
 
 	/**
@@ -188,6 +193,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].tableName
 		assertNull changes[0].columnName
+		assertNoOutput()
 	}
 
 	/**
@@ -210,6 +216,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'emotion', changes[0].columnName
+		assertNoOutput()
 	}
 
 	/**
@@ -237,6 +244,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertEquals 0, columns.size()
+		assertNoOutput()
 	}
 
 	/**
@@ -275,6 +283,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertTrue columns[1] instanceof ColumnConfig
 		assertEquals 'id', columns[1].name
 		assertEquals 'int', columns[1].type
+		assertNoOutput()
 	}
 
 	/**
@@ -295,6 +304,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].oldTableName
 		assertNull changes[0].newTableName
+		assertNoOutput()
 	}
 
 	/**
@@ -317,6 +327,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'fail_table', changes[0].oldTableName
 		assertEquals 'win_table', changes[0].newTableName
+		assertNoOutput()
 	}
 
 	/**
@@ -337,6 +348,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].tableName
 		assertNull changes[0].cascadeConstraints
+		assertNoOutput()
 	}
 
 	/**
@@ -359,6 +371,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'fail_table', changes[0].tableName
 		assertTrue changes[0].cascadeConstraints
+		assertNoOutput()
 	}
 
 	/**
@@ -380,6 +393,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].viewName
 		assertNull changes[0].replaceIfExists
 		assertNull changes[0].selectQuery
+		assertNoOutput()
 	}
 
 	/**
@@ -407,6 +421,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'monkey_view', changes[0].viewName
 		assertTrue changes[0].replaceIfExists
 		assertEquals "SELECT * FROM monkey WHERE state='angry'", changes[0].selectQuery
+		assertNoOutput()
 	}
 
 	/**
@@ -427,6 +442,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].oldViewName
 		assertNull changes[0].newViewName
+		assertNoOutput()
 	}
 
 	/**
@@ -449,6 +465,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'fail_view', changes[0].oldViewName
 		assertEquals 'win_view', changes[0].newViewName
+		assertNoOutput()
 	}
 
 	/**
@@ -468,6 +485,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].catalogName
 		assertNull changes[0].schemaName
 		assertNull changes[0].viewName
+		assertNoOutput()
 	}
 
 	/**
@@ -488,6 +506,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'catalog', changes[0].catalogName
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'fail_view', changes[0].viewName
+		assertNoOutput()
 	}
 
 	/**
@@ -512,6 +531,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].finalColumnName
 		assertNull changes[0].finalColumnType
 		assertNull changes[0].joinString
+		assertNoOutput()
 	}
 
 	/**
@@ -542,6 +562,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'full_name', changes[0].finalColumnName
 		assertEquals 'varchar(99)', changes[0].finalColumnType
 		assertEquals ' ', changes[0].joinString
+		assertNoOutput()
 	}
 
 	/**
@@ -563,6 +584,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].tableName
 		assertNull changes[0].columnName
 		assertNull changes[0].newDataType
+		assertNoOutput()
 	}
 
 	/**
@@ -587,6 +609,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'table', changes[0].tableName
 		assertEquals 'first_name', changes[0].columnName
 		assertEquals 'varchar(99)', changes[0].newDataType
+		assertNoOutput()
 	}
 
 	/**
@@ -604,6 +627,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 1, changes.size()
 		assertNull changes[0].comments
 		assertNull changes[0].procedureBody
+		assertNoOutput()
 	}
 
 	/**
@@ -629,6 +653,7 @@ END;"""
 		assertTrue changes[0] instanceof CreateProcedureChange
 		assertNull changes[0].comments
 		assertEquals sql, changes[0].procedureBody
+		assertNoOutput()
 	}
 
 	// no map with string
@@ -655,6 +680,7 @@ END;"""
 		assertTrue changes[0] instanceof CreateProcedureChange
 		assertNull changes[0].comments
 		assertEquals sql, changes[0].procedureBody
+		assertNoOutput()
 	}
 
 	/**
@@ -679,5 +705,6 @@ END;"""
 		assertTrue changes[0] instanceof CreateProcedureChange
 		assertEquals 'someComments', changes[0].comments
 		assertEquals sql, changes[0].procedureBody
+		assertNoOutput()
 	}
 }

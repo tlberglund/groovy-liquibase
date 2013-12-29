@@ -15,7 +15,8 @@ Before upgrading, we strongly recommend the following procedure for upgrading:
     some subtle differences in the way SQL is generated.  For example, adding a
     default value to a boolean column in MySql using ```defaultValue: "0"```
     worked fine in Liquibase 2, but in Liquibase 3, it generates invalid SQL.
-    ```defaultValueNumeric: 0``` needs to be used instead.
+    ```defaultValueNumeric: 0``` needs to be used instead.  This is also a good
+    time to look for and fix any deprecation warnings.
  3. When you are sure all the change sets are correct for Liquibase 3, clear
     all checksums calculated by Liquibase 2 by using the ```clearChecksums```
     command in all databases.

@@ -65,6 +65,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].newColumnName
 		assertNull changes[0].newColumnDataType
 		assertNull changes[0].constraintName
+		assertNoOutput()
 	}
 
 	/**
@@ -100,6 +101,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 'emotion_display', changes[0].newColumnName
 		assertEquals 'varchar(50)', changes[0].newColumnDataType
 		assertEquals 'fk_monkey_emotion', changes[0].constraintName
+		assertNoOutput()
 	}
 
 	/**
@@ -122,6 +124,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].columnName
 		assertNull changes[0].defaultNullValue
 		assertNull changes[0].columnDataType
+		assertNoOutput()
 	}
 
 	/**
@@ -148,6 +151,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 'emotion', changes[0].columnName
 		assertEquals 'angry', changes[0].defaultNullValue
 		assertEquals 'varchar(75)', changes[0].columnDataType
+		assertNoOutput()
 	}
 
 	/**
@@ -169,6 +173,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].tableName
 		assertNull changes[0].columnName
 		assertNull changes[0].columnDataType
+		assertNoOutput()
 	}
 
 	/**
@@ -193,6 +198,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'emotion', changes[0].columnName
 		assertEquals 'varchar(75)', changes[0].columnDataType
+		assertNoOutput()
 	}
 
 	/**
@@ -218,6 +224,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].deferrable
 		assertNull changes[0].initiallyDeferred
 		assertNull changes[0].disabled
+		assertNoOutput()
 	}
 
 	/**
@@ -252,6 +259,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertTrue changes[0].deferrable
 		assertFalse changes[0].initiallyDeferred
 		assertFalse changes[0].disabled
+		assertNoOutput()
 	}
 
 	/**
@@ -286,6 +294,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertFalse changes[0].deferrable
 		assertTrue changes[0].initiallyDeferred
 		assertFalse changes[0].disabled
+		assertNoOutput()
 	}
 
 	/**
@@ -320,6 +329,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertFalse changes[0].deferrable
 		assertFalse changes[0].initiallyDeferred
 		assertTrue changes[0].disabled
+		assertNoOutput()
 	}
 
 	/**
@@ -341,6 +351,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].tableName
 		assertNull changes[0].constraintName
 		assertNull changes[0].uniqueColumns
+		assertNoOutput()
 	}
 
 	/**
@@ -365,6 +376,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 'table', changes[0].tableName
 		assertEquals 'unique_constraint', changes[0].constraintName
 		assertEquals 'unique_column', changes[0].uniqueColumns
+		assertNoOutput()
 	}
 
 	/**
@@ -390,6 +402,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].maxValue
 		assertNull changes[0].ordered
 		assertNull changes[0].cycle
+		assertNoOutput()
 	}
 
 	/**
@@ -423,6 +436,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 8G, changes[0].startValue
 		assertTrue changes[0].ordered
 		assertFalse changes[0].cycle
+		assertNoOutput()
 	}
 
 	/**
@@ -446,6 +460,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].minValue
 		assertNull changes[0].maxValue
 		assertNull changes[0].ordered // it is an Object and can be null.
+		assertNoOutput()
 	}
 
 	/**
@@ -475,6 +490,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 300G, changes[0].minValue
 		assertEquals 400G, changes[0].maxValue
 		assertTrue changes[0].ordered
+		assertNoOutput()
 	}
 
 	/**
@@ -494,6 +510,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].catalogName
 		assertNull changes[0].schemaName
 		assertNull changes[0].sequenceName
+		assertNoOutput()
 	}
 
 	/**
@@ -514,6 +531,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 'catalog', changes[0].catalogName
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'sequence', changes[0].sequenceName
+		assertNoOutput()
 	}
 
 	/**
@@ -537,6 +555,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].columnDataType
 		assertNull changes[0].startWith
 		assertNull changes[0].incrementBy
+		assertNoOutput()
 	}
 
 	/**
@@ -565,6 +584,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 'boolean', changes[0].columnDataType
 		assertEquals 10G, changes[0].startWith
 		assertEquals 5G, changes[0].incrementBy
+		assertNoOutput()
 	}
 
 	/**
@@ -592,6 +612,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].defaultValueDate
 		assertNull changes[0].defaultValueNumeric
 		assertNull changes[0].defaultValueSequenceNext
+		assertNoOutput()
 	}
 
 	/**
@@ -631,6 +652,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals '20101109T130400Z', changes[0].defaultValueDate
 		assertEquals '2.718281828459045', changes[0].defaultValueNumeric
 		assertEquals 'sequence', changes[0].defaultValueSequenceNext.value
+		assertNoOutput()
 	}
 
 	/**
@@ -652,6 +674,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].tableName
 		assertNull changes[0].columnName
 		assertNull changes[0].columnDataType
+		assertNoOutput()
 	}
 
 	/**
@@ -676,5 +699,6 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'emotion', changes[0].columnName
 		assertEquals 'varchar', changes[0].columnDataType
+		assertNoOutput()
 	}
 }

@@ -26,9 +26,7 @@ import liquibase.resource.FileSystemResourceAccessor
  * 
  * @author Tim Berglund
  */
-class GroovyChangeDelegateTests
-  extends ChangeSetTests
-{
+class GroovyChangeDelegateTests extends ChangeSetTests {
 
   @Ignore
   @Test
@@ -87,5 +85,7 @@ class GroovyChangeDelegateTests
     assertTrue validateWasCalled
     assertTrue changeWasCalled
     assertTrue rollbackWasCalled
+	  assertNoOutput()
+
   }
 }

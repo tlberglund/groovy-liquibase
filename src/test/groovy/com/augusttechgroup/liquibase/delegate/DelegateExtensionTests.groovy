@@ -14,8 +14,7 @@ import com.augusttechgroup.liquibase.custom.MyCustomSqlChange
  *
  * @author Jason Clawson
  */
-class DelegateExtensionTests 
-  extends ChangeSetTests {
+class DelegateExtensionTests extends ChangeSetTests {
 
   @Test
   void testMyCustomSqlChange() {
@@ -31,5 +30,6 @@ class DelegateExtensionTests
     assertTrue changes[0].customChange instanceof MyCustomSqlChange
     assertEquals(new RawSQLChange("SELECT * FROM monkey").sql,
                  changes[0].customChange.generateStatements(null)[0].sql);
+	  assertNoOutput()
   }
 }

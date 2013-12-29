@@ -25,8 +25,7 @@ import static org.junit.Assert.*
  * 
  * @author Tim Berglund
  */
-class ChangeSetPreconditionTests
-  extends ChangeSetTests
+class ChangeSetPreconditionTests extends ChangeSetTests
 {
 
   @Test
@@ -45,5 +44,6 @@ class ChangeSetPreconditionTests
     assertEquals 1, changes.size()
     def preconditions = changeSet.preconditions?.nestedPreconditions
     assertNotNull preconditions
+	  assertNoOutput()
   }
 }
