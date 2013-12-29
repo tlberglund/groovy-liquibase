@@ -391,13 +391,13 @@ class ChangeSetDelegate {
 	}
 
   void createIndex(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(CreateIndexChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'tablespace', 'indexName', 'unique'])
+    def change = makeColumnarChangeFromMap(CreateIndexChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'tablespace', 'indexName', 'unique', 'associatedWith'])
     addChange(change)
   }
 
 
   void dropIndex(Map params) {
-    addMapBasedChange(DropIndexChange, params, ['tableName', 'catalogName', 'schemaName', 'indexName'])
+    addMapBasedChange(DropIndexChange, params, ['tableName', 'catalogName', 'schemaName', 'indexName', 'associatedWith'])
   }
 
 

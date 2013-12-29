@@ -32,6 +32,18 @@ documented separately from the Liquibase XML format, except for the few minor
 differences or enhancements to the XML format, and the one gaping hole in the
 XML documentation.
 
+- The documentation mentions a referencesUniqueColumn attribute of
+  addForeignKeyConstraint, but it is ignored and marked deprecated, so we've
+  deprecated it as well.
+- createIndex and dropIndex have an undocumented attribute named "associatedWith".
+  From an old Liquibase forum, it appears to be an attempt to solve the problem
+  of some databases creating indexes on primary keys and foreign keys and
+  constraints and others not.  The idea is that if a createIndex change is
+  tagged with the reason, Liquibase can skip the creation of them if the
+  database will inherently create one.  The Liquibase authors do say it is
+  experimental, so use at your own risk...
+
+
 - executeCommand has os, args can just be strings...
 - loadData and loadUpdateData can use File as well as filename
 - sql - comments must be BEFORE sql string.

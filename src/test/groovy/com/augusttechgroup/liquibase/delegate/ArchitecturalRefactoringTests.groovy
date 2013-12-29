@@ -54,6 +54,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].tablespace
 		assertNull changes[0].indexName
 		assertNull changes[0].unique
+		assertNull changes[0].associatedWith
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertEquals 0, columns.size()
@@ -73,7 +74,8 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 							    tableName: 'monkey',
 							    tablespace: 'tablespace',
 							    indexName: 'ndx_monkeys',
-							    unique: true) {
+							    unique: true,
+			            associatedWith: 'foreignKey') {
 				column(name: 'name')
 			}
 		}
@@ -87,6 +89,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'tablespace', changes[0].tablespace
 		assertEquals 'ndx_monkeys', changes[0].indexName
+		assertEquals 'foreignKey', changes[0].associatedWith
 		assertTrue changes[0].unique
 		def columns = changes[0].columns
 		assertNotNull columns
@@ -108,7 +111,8 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 							    tableName: 'monkey',
 							    tablespace: 'tablespace',
 							    indexName: 'ndx_monkeys',
-							    unique: true) {
+							    unique: true,
+							    associatedWith: 'foreignKey') {
 				column(name: 'species')
 				column(name: 'name')
 			}
@@ -123,6 +127,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'tablespace', changes[0].tablespace
 		assertEquals 'ndx_monkeys', changes[0].indexName
+		assertEquals 'foreignKey', changes[0].associatedWith
 		assertTrue changes[0].unique
 		def columns = changes[0].columns
 		assertNotNull columns
@@ -163,7 +168,8 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 			dropIndex(catalogName: 'catalog',
 							  schemaName: 'schema',
 							  tableName: 'monkey',
-							  indexName: 'ndx_monkeys')
+							  indexName: 'ndx_monkeys',
+			          associatedWith: 'foreignKey')
 		}
 
 		def changes = changeSet.changes
@@ -174,6 +180,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'ndx_monkeys', changes[0].indexName
+		assertEquals 'foreignKey', changes[0].associatedWith
 		assertNoOutput()
 	}
 }
