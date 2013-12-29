@@ -389,13 +389,30 @@ class ChangeSetDelegate {
 		addMapBasedChange(DeleteDataChange, params, ['catalogName', 'schemaName', 'tableName'])
 	}
 
+	/**
+	 * Parse a tagDatabase change.  This version of the method follows the XML
+	 * by taking a 'tag' parameter.
+	 * @param params params the parameter map
+	 */
   void tagDatabase(Map params) {
     addMapBasedChange(TagDatabaseChange, params, ['tag'])
   }
 
 	/**
-	 * Parse a stop change.  This version of the method follows the XML with a
-	 * 'message' parameter
+	 * Parse a tagDatabase change.  This version of the method is syntactic sugar
+	 * that allows {@code tagDatabase 'my-tag-name'} in stead of the usual
+	 * parameter based change.
+	 * @param tagName the name of the tag to create.
+	 */
+	void tagDatabase(String tagName) {
+		def change = new TagDatabaseChange()
+		change.tag = tagName
+		addChange(change)
+	}
+
+	/**
+	 * Parse a stop change.  This version of the method follows the XML by taking
+	 * a 'message' parameter
 	 * @param params the parameter map
 	 */
   void stop(Map params) {

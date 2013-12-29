@@ -521,9 +521,26 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	 * Test parsing a tagDatabase change when we have all supported attributes.
 	 */
 	@Test
-	void tagDatabaseFull() {
+	void tagDatabaseNameInAttributes() {
 		buildChangeSet {
 			tagDatabase(tag: 'monkey')
+		}
+
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof TagDatabaseChange
+		assertEquals 'monkey', changes[0].tag
+		assertNoOutput()
+	}
+
+	/**
+	 * Test parsing a tagDatabase change when the name is not in an attribute.
+	 */
+	@Test
+	void tagDatabaseNameIsArgument() {
+		buildChangeSet {
+			tagDatabase 'monkey'
 		}
 
 		def changes = changeSet.changes
