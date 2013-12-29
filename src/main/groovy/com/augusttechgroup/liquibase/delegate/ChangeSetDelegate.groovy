@@ -287,12 +287,20 @@ class ChangeSetDelegate {
     addMapBasedChange(DropDefaultValueChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType'])
   }
 
-
+	/**
+	 * process an addForeignKeyConstraint change.  This change has 2 deprecated
+	 * properties for which we need a warning.
+	 * @param params the properties to set on the new changes.
+	 */
   void addForeignKeyConstraint(Map params) {
     if ( params['deleteCascade'] != null ) {
 	    println "Warning: addForeignKeyConstraint's deleteCascade parameter has been deprecated, and may be removed in a future release."
-	    println "Consider using \"onDelete='CASCADE'\" instead"
+	    println "Consider using \"onDelete='CASCADE'\" instead."
     }
+	  if ( params['referencesUniqueColumn'] != null ) {
+		  println "Warning: addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated, and may be removed in a future release."
+		  println "Consider removing it, as Liquibase ignores it anyway."
+	  }
     addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableCatalogName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])
   }
 

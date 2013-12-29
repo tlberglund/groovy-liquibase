@@ -154,6 +154,50 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 	}
 
 	/**
+	 * Liquibase has deprecated, though still documented, attribute
+	 * {@code referencedUniqueColumn}, which is currently ignored by Liquibase,
+	 * so let's make sure we get a deprecation warning for it.
+	 */
+	@Test
+	void addForeignKeyConstraintWithWithReferencesUniqueColumnProperty() {
+		buildChangeSet {
+			addForeignKeyConstraint(constraintName: 'fk_monkey_emotion',
+							baseTableName: 'monkey',
+							baseTableCatalogName: 'base_catalog',
+							baseTableSchemaName: 'base_schema',
+							baseColumnNames: 'emotion_id',
+							referencedTableName: 'emotions',
+							referencedTableCatalogName: 'referenced_catalog',
+							referencedTableSchemaName: 'referenced_schema',
+							referencedColumnNames: 'id',
+							referencesUniqueColumn: 'true',
+							deferrable: false,
+							initiallyDeferred: true,
+							onDelete: 'CASCADE',
+							onUpdate: 'RESTRICT')
+		}
+
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof AddForeignKeyConstraintChange
+		assertEquals 'fk_monkey_emotion', changes[0].constraintName
+		assertEquals 'monkey', changes[0].baseTableName
+		assertEquals 'base_catalog', changes[0].baseTableCatalogName
+		assertEquals 'base_schema', changes[0].baseTableSchemaName
+		assertEquals 'emotion_id', changes[0].baseColumnNames
+		assertEquals 'emotions', changes[0].referencedTableName
+		assertEquals 'referenced_catalog', changes[0].referencedTableCatalogName
+		assertEquals 'referenced_schema', changes[0].referencedTableSchemaName
+		assertEquals 'id', changes[0].referencedColumnNames
+		assertFalse changes[0].deferrable
+		assertTrue changes[0].initiallyDeferred
+		assertEquals 'CASCADE', changes[0].onDelete // set by deleteCascade: true
+		assertEquals 'RESTRICT', changes[0].onUpdate
+		assertPrinted("Warning: addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated")
+	}
+
+	/**
 	 * Test parsing a dropForeignKeyConstraint change with no attributes to make
 	 * sure the DSL doesn't introduce unexpected defaults.
 	 */
