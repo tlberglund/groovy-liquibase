@@ -17,27 +17,18 @@
 package com.augusttechgroup.liquibase.delegate
 
 /**
- * This class processes the {@code arg} closure that can be present in an
- * {@code executeCommand} change.
+ * This class processes the closure that can be present in a {@code sql} change.
+ * the closure will either contain just SQL, or a comment and some SQL.
+ * For now, we only support the SQL coming after the comment.
  */
-class ArgumentDelegate {
-	def args = []
+class CommentDelegate {
+	def comment = null
 
 	/**
-	 * Process an argument where the argument is simply a string.  This is not
-	 * how the Liquibase XML works, but it is really nice shorthand.
-	 * @param value the argument to add
+	 * Process a comment in the closure
+	 * @param value the value of the comment.
 	 */
-	def arg(String value) {
-		args << value
-	}
-
-	/**
-	 * Process an argument where the argument is in the {@code value} entry of
-	 * the given map.  This is consistent with how Liquibase XML works.
-	 * @param valueMap the map containing the argument.
-	 */
-	def arg(Map valueMap) {
-		args << valueMap.value
+	def comment(String value) {
+		this.comment = value
 	}
 }

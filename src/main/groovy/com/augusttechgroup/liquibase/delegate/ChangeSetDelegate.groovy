@@ -62,7 +62,22 @@ import liquibase.change.core.ModifyDataTypeChange
 import liquibase.change.core.DeleteDataChange
 import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 
-
+/**
+ * This class is the closure delegate for a ChangeSet.  It processes all the
+ * refactoring changes for the ChangeSet.  it basically creates all the changes
+ * that need to belong to the ChangeSet, but it doesn't worry too much about
+ * validity of the change because Liquibase itself will deal with that.
+ * <p>
+ * To keep the code simple, we don't worry too much about supporting things
+ * that we know to be invalid.  For example, if you try to use a change like
+ * <b>addColumn { column(columnName: 'newcolumn') }</b>, you'll get a
+ * wonderfully helpful MissingMethodException because of the missing map in
+ * the change.  We aren't going to muddy up the code trying to support
+ * addColumn changes with no attributes because we know that at least a
+ * table name is required.  Similarly, it doesn't make sense to have an
+ * addColumn change without at least one column, so we don't deal well with the
+ * addColumn change without a closure.
+ */
 class ChangeSetDelegate {
   def changeSet
   def databaseChangeLog
@@ -209,14 +224,21 @@ class ChangeSetDelegate {
   }
 
 
-  void createStoredProcedure(String storedProc) {
-    def change = new CreateProcedureChange()
-    change.procedureBody = expandExpressions(storedProc)
-    addChange(change)
-  }
+	void createStoredProcedure(Map params = [:], Closure closure) {
+		def change = makeChangeFromMap(CreateProcedureChange, params, ['comments'])
+		change.procedureBody = expandExpressions(closure.call())
+		addChange(change)
+	}
 
 
-  void addLookupTable(Map params) {
+	void createStoredProcedure(String storedProc) {
+		def change = new CreateProcedureChange()
+		change.procedureBody = expandExpressions(storedProc)
+		addChange(change)
+	}
+
+
+	void addLookupTable(Map params) {
     addMapBasedChange(AddLookupTableChange, params, ['existingTableName', 'existingTableCatalogName', 'existingTableSchemaName', 'existingColumnName', 'newTableName', 'newTableCatalogName', 'newTableSchemaName', 'newColumnName', 'newColumnDataType', 'constraintName'])
   }
 
@@ -271,7 +293,7 @@ class ChangeSetDelegate {
   }
 
 
-  void dropAllForeignKeyConstraintsChange(Map params) {
+  void dropAllForeignKeyConstraints(Map params) {
     addMapBasedChange(DropAllForeignKeyConstraintsChange, params, ['baseTableName', 'baseTableCatalogName', 'baseTableSchemaName'])
   }
 
@@ -311,6 +333,7 @@ class ChangeSetDelegate {
     }
 
     def change = makeLoadDataColumnarChangeFromMap(LoadUpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar', 'primaryKey'])
+	  change.resourceAccessor = resourceAccessor
     addChange(change)
   }
 
@@ -326,18 +349,34 @@ class ChangeSetDelegate {
 	  addChange(change)
   }
 
+	void delete(Map params) {
+		addMapBasedChange(DeleteDataChange, params, ['catalogName', 'schemaName', 'tableName'])
+	}
 
   void tagDatabase(Map params) {
     addMapBasedChange(TagDatabaseChange, params, ['tag'])
   }
 
-
-  void stop(String message) {
-    def change = new StopChange()
-    change.message = message
-    addChange(change)
+	/**
+	 * Parse a stop change.  This version of the method follows the XML with a
+	 * 'message' parameter
+	 * @param params the parameter map
+	 */
+  void stop(Map params) {
+	  addMapBasedChange(StopChange, params, ['message'])
   }
 
+	/**
+	 * Parse a stop change.  This version of the method is syntactic sugar that
+	 * allows {@code stop 'some message'} in stead of the usual parameter based
+	 * change.
+	 * @param message the stop message.
+	 */
+	void stop(String message) {
+		def change = new StopChange()
+		change.message = message
+		addChange(change)
+	}
 
   void createIndex(Map params, Closure closure) {
     def change = makeColumnarChangeFromMap(CreateIndexChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'tablespace', 'indexName', 'unique'])
@@ -352,8 +391,12 @@ class ChangeSetDelegate {
 
   void sql(Map params = [:], Closure closure) {
     def change = makeChangeFromMap(RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter', 'dbms'])
-    change.sql = expandExpressions(closure.call())
-    addChange(change)
+	  def delegate = new CommentDelegate()
+	  closure.delegate = delegate
+	  closure.resolveStrategy = Closure.DELEGATE_FIRST
+	  change.sql = expandExpressions(closure.call())
+	  change.comment = (expandExpressions(delegate.comment))
+	  addChange(change)
   }
 
 
@@ -493,6 +536,9 @@ class ChangeSetDelegate {
   }
   
   private def expandExpressions(expression) {
-    databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
+	  // Don't expand a null into "null"
+	  if ( expression != null ) {
+      databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
+	  }
   }
 }
