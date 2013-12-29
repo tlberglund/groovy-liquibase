@@ -42,10 +42,15 @@ XML documentation.
   tagged with the reason, Liquibase can skip the creation of them if the
   database will inherently create one.  The Liquibase authors do say it is
   experimental, so use at your own risk...
+- executeCommand has an undocumented attribute named ```os```, which is clearly
+  important, so we'll document it here.  The ```os``` attribute is a string with
+  a list of operating systems under which the command should execute.  If
+  present, the ```os.name``` system property will be checked against this list.
+- The Groovy DSL supports a simplified means of passing arguments to the
+  exececuteCommand change.  Instead of ```arg(value='somevalue')```, you can use
+  the simpler ```arg "somevalue"``` syntax.
 
 
-- executeCommand has os, args can just be strings...
-- loadData and loadUpdateData can use File as well as filename
 - sql - comments must be BEFORE sql string.
 - sql can just be a string.
 - sqlFile says you can set the sql attribute, but it doesn't make sense, so

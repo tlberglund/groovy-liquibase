@@ -350,7 +350,9 @@ class ChangeSetDelegate {
 
   void loadData(Map params, Closure closure) {
     if(params.file instanceof File) {
-      params.file = params.file.canonicalPath
+	    println "Warning: ChangeSet \${changeSet.id}: using a File object for loadData's 'file' attribute has been deprecated, and may be removed in a future release."
+	    println "Consider using the path to the file instead."
+	    params.file = params.file.canonicalPath
     }
 
     def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar'])
@@ -361,6 +363,8 @@ class ChangeSetDelegate {
 
   void loadUpdateData(Map params, Closure closure) {
     if(params.file instanceof File) {
+	    println "Warning: ChangeSet \${changeSet.id}: using a File object for loadUpdateData's 'file' attribute has been deprecated, and may be removed in a future release."
+	    println "Consider using the path to the file instead."
       params.file = params.file.canonicalPath
     }
 

@@ -184,7 +184,8 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	/**
 	 * Test parsing a loadData change when the file name is actually a File
 	 * object.  Again, we're not validating the columns, just that they are
-	 * present.
+	 * present.  Using a File object has been deprecated, so look for a warning
+	 * in standard out.
 	 */
 	@Test
 	void loadDataFullWithFile() {
@@ -218,7 +219,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 2, columns.size()
 		assertEquals 'id', columns[0].name
 		assertEquals 'emotion', columns[1].name
-		assertNoOutput()
+		assertPrinted "using a File object for loadData's 'file' attribute has been deprecated"
 	}
 
 	/**
@@ -301,7 +302,8 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	/**
 	 * Test parsing a loadData change when the file name is actually a File
 	 * object.  Again, we're not validating the columns, just that they are
-	 * present.
+	 * present. Using a File object has been deprecated, so look for a warning
+	 * in standard out.
 	 */
 	@Test
 	void loadUpdateDataFullWithFile() {
@@ -335,7 +337,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 2, columns.size()
 		assertEquals 'id', columns[0].name
 		assertEquals 'emotion', columns[1].name
-		assertNoOutput()
+		assertPrinted "using a File object for loadUpdateData's 'file' attribute has been deprecated"
 	}
 
 	/**
