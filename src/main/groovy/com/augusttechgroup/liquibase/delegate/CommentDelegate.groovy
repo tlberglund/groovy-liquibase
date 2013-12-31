@@ -22,13 +22,30 @@ package com.augusttechgroup.liquibase.delegate
  * For now, we only support the SQL coming after the comment.
  */
 class CommentDelegate {
-	def comment = null
+	String comment = null
+	def changeSetId = '<unknown>' // used for error messages
+	def changeName = '<unknown>' // used for error messages
 
 	/**
 	 * Process a comment in the closure
 	 * @param value the value of the comment.
 	 */
-	def comment(String value) {
-		this.comment = value
+	void comment(String value) {
+		if ( comment != null ) {
+			comment = "${comment} ${value}"
+		} else {
+		  this.comment = value
+		}
 	}
+
+	/**
+	 * Groovy calls methodMissing when it can't find a matching method to call.
+	 * We use it to tell the user which changeSet had the invalid element.
+	 * @param name the name of the method Groovy wanted to call.
+	 * @param args the original arguments to that method.
+	 */
+	def methodMissing(String name, args) {
+		throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${name} is not a valid child element of ${changeName} changes")
+	}
+
 }

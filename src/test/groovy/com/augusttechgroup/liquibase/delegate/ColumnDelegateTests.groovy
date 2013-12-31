@@ -17,293 +17,390 @@
 package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.ColumnConfig
-
+import liquibase.statement.DatabaseFunction
+import liquibase.statement.SequenceCurrentValueFunction
+import liquibase.statement.SequenceNextValueFunction
 import org.junit.Test
 import static org.junit.Assert.*
 import java.sql.Timestamp
-import liquibase.change.ConstraintsConfig
 import liquibase.change.core.LoadDataColumnConfig
 import liquibase.changelog.ChangeLogParameters
 import liquibase.changelog.DatabaseChangeLog
 import java.text.SimpleDateFormat
 
-
-class ColumnDelegateTests
-{
+/**
+ * Test class for the {@link ColumnDelegate}.  As usual, we're only verifying
+ * that we can pass things to Liquibase correctly. We check all attributes that
+ * are known at this time - note that several are undocumented.
+ */
+class ColumnDelegateTests {
   def sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-  @Test
-  void buildSimpleStringColumn() {
-    def columns = buildColumns {
-      column(name: 'column-name',
-             type: 'varchar',
-             value: 'value',
-             defaultValue: 'default-string-value',
-             remarks: 'No comment')
-    }
+	/**
+	 * Build a column with no attributes and no closure to make sure we don't
+	 * introduce any unintended defaults.
+	 */
+	@Test
+	void oneColumnEmptyNoClosure() {
+		def delegate = buildColumnDelegate(ColumnConfig.class) {
+			column([:])
+		}
 
-    assertNotNull columns
-    assertEquals 1, columns.size()
-    def column = columns[0]
-    assertTrue column instanceof ColumnConfig
+		assertNull delegate.whereClause
+		assertEquals 1, delegate.columns.size()
+		assertTrue delegate.columns[0] instanceof ColumnConfig
+		assertNull delegate.columns[0].name
+		assertNull delegate.columns[0].type
+		assertNull delegate.columns[0].value
+		assertNull delegate.columns[0].valueNumeric
+		assertNull delegate.columns[0].valueBoolean
+		assertNull delegate.columns[0].valueDate
+		assertNull delegate.columns[0].valueComputed
+		assertNull delegate.columns[0].valueSequenceNext
+		assertNull delegate.columns[0].valueSequenceCurrent
+		assertNull delegate.columns[0].valueBlobFile
+		assertNull delegate.columns[0].valueClobFile
+		assertNull delegate.columns[0].defaultValue
+		assertNull delegate.columns[0].defaultValueNumeric
+		assertNull delegate.columns[0].defaultValueDate
+		assertNull delegate.columns[0].defaultValueBoolean
+		assertNull delegate.columns[0].defaultValueComputed
+		assertNull delegate.columns[0].autoIncrement
+		assertNull delegate.columns[0].startWith
+		assertNull delegate.columns[0].incrementBy
+		assertNull delegate.columns[0].remarks
+		assertNull delegate.columns[0].defaultValueSequenceNext
+		assertNull delegate.columns[0].constraints
+	}
 
-    assertEquals 'column-name', column.name
-    assertEquals 'varchar', column.type
-    assertEquals 'value', column.value
-    assertEquals 'default-string-value', column.defaultValue
-    assertNull column.isAutoIncrement()
-    assertEquals 'No comment', column.remarks
-  }
+	/**
+	 * Build a column with no attributes and an empty closure to make sure we
+	 * don't introduce any unintended defaults.  The main difference between this
+	 * and the no closure version is that the presence of a closure will cause
+	 * the column to gain constraints with their defaults.
+	 */
+	@Test
+	void oneColumnEmptyWithClosure() {
+		def delegate = buildColumnDelegate(ColumnConfig.class) {
+			column([:]) {}
+		}
+
+		assertNull delegate.whereClause
+		assertEquals 1, delegate.columns.size()
+		assertTrue delegate.columns[0] instanceof ColumnConfig
+		assertNull delegate.columns[0].name
+		assertNull delegate.columns[0].type
+		assertNull delegate.columns[0].value
+		assertNull delegate.columns[0].valueNumeric
+		assertNull delegate.columns[0].valueBoolean
+		assertNull delegate.columns[0].valueDate
+		assertNull delegate.columns[0].valueComputed
+		assertNull delegate.columns[0].valueSequenceNext
+		assertNull delegate.columns[0].valueSequenceCurrent
+		assertNull delegate.columns[0].valueBlobFile
+		assertNull delegate.columns[0].valueClobFile
+		assertNull delegate.columns[0].defaultValue
+		assertNull delegate.columns[0].defaultValueNumeric
+		assertNull delegate.columns[0].defaultValueDate
+		assertNull delegate.columns[0].defaultValueBoolean
+		assertNull delegate.columns[0].defaultValueComputed
+		assertNull delegate.columns[0].autoIncrement
+		assertNull delegate.columns[0].startWith
+		assertNull delegate.columns[0].incrementBy
+		assertNull delegate.columns[0].remarks
+		assertNull delegate.columns[0].defaultValueSequenceNext
+		assertNotNull delegate.columns[0].constraints
+	}
+
+	/**
+	 * Test creating a column with all currently supported Liquibase attributes.
+	 * There are a lot of them, and not all of them are documented. We'd never
+	 * use all of them at the same time, but we're only concerned with making
+	 * sure any given attribute is properly passed to Liquibase.  Making sure
+	 * a change is valid from a Liquibase point of view is between Liquibase and
+	 * the change set author.  Note that care was taken to make sure none of the
+	 * attribute values match the attribute names.
+	 */
+	@Test
+	void oneColumnFull() {
+		def dateValue = "2010-11-02 07:52:04"
+		def columnDateValue = parseSqlTimestamp(dateValue)
+		def defaultDate = "2013-12-31 09:30:04"
+		def columnDefaultDate = parseSqlTimestamp(defaultDate)
+
+		def delegate = buildColumnDelegate(ColumnConfig.class) {
+			column(name: 'columnName',
+						 type: 'varchar(30)',
+						 value: 'someValue',
+						 valueNumeric: 1,
+						 valueBoolean: false,
+						 valueDate: dateValue,
+						 valueComputed: new DatabaseFunction('databaseValue'),
+						 valueSequenceNext: new SequenceNextValueFunction('sequenceNext'),
+						 valueSequenceCurrent: new SequenceCurrentValueFunction('sequenceCurrent'),
+						 valueBlobFile: 'someBlobFile',
+						 valueClobFile: 'someClobFile',
+						 defaultValue: 'someDefaultValue',
+						 defaultValueNumeric: 2,
+						 defaultValueDate: defaultDate,
+						 defaultValueBoolean: false,
+						 defaultValueComputed: new DatabaseFunction("defaultDatabaseValue"),
+						 autoIncrement: true, // should be the only true.
+						 startWith: 3,
+						 incrementBy: 4,
+						 remarks: 'No comment',
+						 defaultValueSequenceNext: new SequenceNextValueFunction('defaultSequence'))
+		}
+
+		assertNull delegate.whereClause
+		assertEquals 1, delegate.columns.size()
+		assertTrue delegate.columns[0] instanceof ColumnConfig
+		assertEquals 'columnName', delegate.columns[0].name
+		assertEquals 'varchar(30)', delegate.columns[0].type
+		assertEquals 'someValue', delegate.columns[0].value
+		assertEquals 1, delegate.columns[0].valueNumeric
+		assertFalse delegate.columns[0].valueBoolean
+		assertEquals columnDateValue, delegate.columns[0].valueDate
+		assertEquals 'databaseValue', delegate.columns[0].valueComputed.value
+		assertEquals 'sequenceNext', delegate.columns[0].valueSequenceNext.value
+		assertEquals 'sequenceCurrent', delegate.columns[0].valueSequenceCurrent.value
+		assertEquals 'someBlobFile', delegate.columns[0].valueBlobFile
+		assertEquals 'someClobFile', delegate.columns[0].valueClobFile
+		assertEquals 'someDefaultValue', delegate.columns[0].defaultValue
+		assertEquals 2, delegate.columns[0].defaultValueNumeric
+		assertEquals columnDefaultDate, delegate.columns[0].defaultValueDate
+		assertFalse delegate.columns[0].defaultValueBoolean
+		assertEquals 'defaultDatabaseValue', delegate.columns[0].defaultValueComputed.value
+		assertTrue delegate.columns[0].autoIncrement
+		assertEquals 3G, delegate.columns[0].startWith
+		assertEquals 4G, delegate.columns[0].incrementBy
+		assertEquals 'No comment', delegate.columns[0].remarks
+		assertEquals 'defaultSequence', delegate.columns[0].defaultValueSequenceNext.value
+		assertNull delegate.columns[0].constraints
+	}
+
+	/**
+	 * Try adding more than one column.  We don't need full columns, we just want
+	 * to make sure we can handle more than one column. This will also let us
+	 * isolate the booleans a little better.
+	 */
+	@Test
+	void twoColumns() {
+		def delegate = buildColumnDelegate(ColumnConfig.class) {
+			// first one has only the boolean value set to true
+			column(name: 'first',
+						 valueBoolean: true,
+			       defaultValueBoolean: false,
+			       autoIncrement: false)
+			// the second one has just the default value set to true.
+			column(name: 'second',
+						 valueBoolean: false,
+						 defaultValueBoolean: true,
+						 autoIncrement: false)
+		}
+
+		assertNull delegate.whereClause
+		assertEquals 2, delegate.columns.size()
+		assertTrue delegate.columns[0] instanceof ColumnConfig
+		assertEquals 'first', delegate.columns[0].name
+		assertTrue delegate.columns[0].valueBoolean
+		assertFalse delegate.columns[0].defaultValueBoolean
+		assertFalse delegate.columns[0].autoIncrement
+		assertNull delegate.columns[0].constraints
+		assertTrue delegate.columns[1] instanceof ColumnConfig
+		assertEquals 'second', delegate.columns[1].name
+		assertFalse delegate.columns[1].valueBoolean
+		assertTrue delegate.columns[1].defaultValueBoolean
+		assertFalse delegate.columns[1].autoIncrement
+		assertNull delegate.columns[1].constraints
+
+	}
+
+	/**
+	 * Try a column that contains a constraint.  We're not concerned with the
+	 * contents of the constraint, just that the closure could be called, and the
+	 * contents added to the column.
+	 */
+	@Test
+	void columnWithConstraint() {
+		def delegate = buildColumnDelegate(ColumnConfig.class) {
+			// first one has only the boolean value set to true
+			column(name: 'first',
+						 type: 'int') {
+				constraints(nullable: false, unique: true)
+			}
+		}
+
+		assertNull delegate.whereClause
+		assertEquals 1, delegate.columns.size()
+		assertTrue delegate.columns[0] instanceof ColumnConfig
+		assertEquals 'first', delegate.columns[0].name
+		assertEquals 'int', delegate.columns[0].type
+		assertNotNull delegate.columns[0].constraints
+		assertFalse delegate.columns[0].constraints.nullable
+		assertTrue delegate.columns[0].constraints.unique
+	}
+
+	/**
+	 * Test creating a "loadData" column with all currently supported Liquibase
+	 * attributes. A "loadData" column is the same as a normal column, but adds
+	 * 2 new attributes.  Let's repeat the {@link #oneColumnFull()} test, but
+	 * change the type of column to create to make sure we can set the 2 new
+	 * attributes.  This is the only "loadData" test we'll have since there is
+	 * not any code in the Delegate itself that does anything different for
+	 * "loadData" columns.  It makes a different type of object because the
+	 * caller tells it to.
+	 */
+	@Test
+	void oneLoadDataColumnFull() {
+		def dateValue = "2010-11-02 07:52:04"
+		def columnDateValue = parseSqlTimestamp(dateValue)
+		def defaultDate = "2013-12-31 09:30:04"
+		def columnDefaultDate = parseSqlTimestamp(defaultDate)
+
+		def delegate = buildColumnDelegate(LoadDataColumnConfig.class) {
+			column(name: 'columnName',
+							type: 'varchar(30)',
+							value: 'someValue',
+							valueNumeric: 1,
+							valueBoolean: false,
+							valueDate: dateValue,
+							valueComputed: new DatabaseFunction('databaseValue'),
+							valueSequenceNext: new SequenceNextValueFunction('sequenceNext'),
+							valueSequenceCurrent: new SequenceCurrentValueFunction('sequenceCurrent'),
+							valueBlobFile: 'someBlobFile',
+							valueClobFile: 'someClobFile',
+							defaultValue: 'someDefaultValue',
+							defaultValueNumeric: 2,
+							defaultValueDate: defaultDate,
+							defaultValueBoolean: false,
+							defaultValueComputed: new DatabaseFunction("defaultDatabaseValue"),
+							autoIncrement: true, // should be the only true.
+							startWith: 3,
+							incrementBy: 4,
+							remarks: 'No comment',
+							defaultValueSequenceNext: new SequenceNextValueFunction('defaultSequence'),
+			        header: 'columnHeader',
+			        index: 5)
+		}
+
+		assertNull delegate.whereClause
+		assertEquals 1, delegate.columns.size()
+		assertTrue delegate.columns[0] instanceof LoadDataColumnConfig
+		assertEquals 'columnName', delegate.columns[0].name
+		assertEquals 'varchar(30)', delegate.columns[0].type
+		assertEquals 'someValue', delegate.columns[0].value
+		assertEquals 1, delegate.columns[0].valueNumeric
+		assertFalse delegate.columns[0].valueBoolean
+		assertEquals columnDateValue, delegate.columns[0].valueDate
+		assertEquals 'databaseValue', delegate.columns[0].valueComputed.value
+		assertEquals 'sequenceNext', delegate.columns[0].valueSequenceNext.value
+		assertEquals 'sequenceCurrent', delegate.columns[0].valueSequenceCurrent.value
+		assertEquals 'someBlobFile', delegate.columns[0].valueBlobFile
+		assertEquals 'someClobFile', delegate.columns[0].valueClobFile
+		assertEquals 'someDefaultValue', delegate.columns[0].defaultValue
+		assertEquals 2, delegate.columns[0].defaultValueNumeric
+		assertEquals columnDefaultDate, delegate.columns[0].defaultValueDate
+		assertFalse delegate.columns[0].defaultValueBoolean
+		assertEquals 'defaultDatabaseValue', delegate.columns[0].defaultValueComputed.value
+		assertTrue delegate.columns[0].autoIncrement
+		assertEquals 3G, delegate.columns[0].startWith
+		assertEquals 4G, delegate.columns[0].incrementBy
+		assertEquals 'No comment', delegate.columns[0].remarks
+		assertEquals 'defaultSequence', delegate.columns[0].defaultValueSequenceNext.value
+		assertEquals 'columnHeader', delegate.columns[0].header
+		assertEquals 5, delegate.columns[0].index
+		assertNull delegate.columns[0].constraints
+	}
+
+	/**
+	 * Test a column closure that has a where clause.
+	 */
+	@Test
+	void columnClosureCanContainWhereClause() {
+		def delegate = buildColumnDelegate(ColumnConfig.class) {
+			column(name: 'monkey', type: 'VARCHAR(50)')
+			where "emotion='angry'"
+		}
+
+		assertNotNull delegate.columns
+		assertEquals 1, delegate.columns.size()
+		assertTrue delegate.columns[0] instanceof ColumnConfig
+		assertEquals 'monkey', delegate.columns[0].name
+		assertEquals "emotion='angry'", delegate.whereClause
+	}
+
+	/**
+	 * {@code delete} changes will have a where clause, but no actual columns.
+	 * Make sure we can handle this.
+	 */
+	@Test
+	void columnClosureIsJustWhereClause() {
+		def delegate = buildColumnDelegate(ColumnConfig.class) {
+			where "emotion='angry'"
+		}
+
+		assertNotNull delegate.columns
+		assertEquals 0, delegate.columns.size()
+		assertEquals "emotion='angry'", delegate.whereClause
+	}
+
+	/**
+	 * Try an invalid method in the closure to make sure we get our
+	 * IllegalArgumentException instead of the standard MissingMethodException.
+	 */
+	@Test(expected = IllegalArgumentException)
+	void invalidMethodInClosure() {
+		def delegate = buildColumnDelegate(ColumnConfig.class) {
+			table(name: 'monkey')
+		}
+
+		assertNotNull delegate.columns
+		assertEquals 0, delegate.columns.size()
+		assertEquals "emotion='angry'", delegate.whereClause
+	}
 
 
-  @Test
-  void buildSimpleNumericColumn() {
-    def columns = buildColumns {
-      column(name: 'column-name',
-             type: 'varchar',
-             valueNumeric: 56,
-             defaultValueNumeric: 42,
-             autoIncrement: true,
-             remarks: 'No numeric comment')
-    }
-
-    assertNotNull columns
-    assertEquals 1, columns.size()
-    def column = columns[0]
-    assertTrue column instanceof ColumnConfig
-
-    assertEquals 'column-name', column.name
-    assertEquals 'varchar', column.type
-    assertEquals 56, column.valueNumeric
-    assertEquals 42, column.defaultValueNumeric
-    assertTrue column.autoIncrement
-    assertEquals 'No numeric comment', column.remarks
-  }
+	/**
+	 * Try building a column when it contains an invalid attribute.  Do we
+	 * get an IllegalArgumentException, which will have our pretty message?
+	 * We try to trick the system by using what is a valid "loadData" column
+	 * attribute on a normal ColumnConfig.
+	 */
+	@Test(expected = IllegalArgumentException)
+	void columnWithInvalidAttribute() {
+		def delegate = buildColumnDelegate(ColumnConfig.class) {
+			column(header: 'invalid')
+		}
+	}
 
 
-  @Test
-  void buildSimpleDateColumn() {
-    def now = "2010-11-02 07:52:04"
-    def sqlNow = parseSqlTimestamp(now)
-    def columns = buildColumns {
-      column(name: 'column-name',
-             type: 'datetime',
-             valueDate: now,
-             defaultValueDate: now,
-             autoIncrement: false,
-             remarks: 'No date comment')
-    }
+	// Test invalid
 
-    assertNotNull columns
-    assertEquals 1, columns.size()
-    def column = columns[0]
-    assertTrue column instanceof ColumnConfig
-
-    assertEquals 'column-name', column.name
-    assertEquals 'datetime', column.type
-    assertEquals sqlNow, column.valueDate
-    assertEquals sqlNow, column.defaultValueDate
-    assertFalse column.autoIncrement
-    assertEquals 'No date comment', column.remarks
-  }
-
-
-  @Test
-  void buildSimpleBooleanColumn() {
-    def columns = buildColumns {
-      column(name: 'column-name',
-             type: 'bit',
-             valueBoolean: true,
-             defaultValueBoolean: true,
-             autoIncrement: false,
-             remarks: 'No boolean comment')
-    }
-
-    assertNotNull columns
-    assertEquals 1, columns.size()
-    def column = columns[0]
-    assertTrue column instanceof ColumnConfig
-
-    assertEquals 'column-name', column.name
-    assertEquals 'bit', column.type
-    assertTrue column.valueBoolean
-    assertTrue column.defaultValueBoolean
-    assertFalse column.autoIncrement
-    assertEquals 'No boolean comment', column.remarks
-  }
-
-
-  @Test
-  void buildStringColumnWithConstraintsInMap() {
-    def columns = buildColumns {
-      column(name: 'column-name',
-             type: 'varchar',
-             value: 'value',
-             defaultValue: 'default-string-value',
-             autoIncrement: true,
-             remarks: 'No comment') {
-        constraints(nullable: false, unique: true)
-      }
-    }
-
-    assertNotNull columns
-    assertEquals 1, columns.size()
-    def column = columns[0]
-    assertTrue column instanceof ColumnConfig
-
-    assertEquals 'column-name', column.name
-    assertEquals 'varchar', column.type
-    assertEquals 'value', column.value
-    assertEquals 'default-string-value', column.defaultValue
-    assertTrue column.autoIncrement
-    assertEquals 'No comment', column.remarks
-
-    def constraints = column.constraints
-    assertNotNull constraints
-    assertTrue constraints instanceof ConstraintsConfig
-    assertTrue constraints.isUnique()
-    assertFalse constraints.isNullable()
-  }
-
-
-  @Test
-  void buildStringColumnWithConstraintsInClosure() {
-    def columns = buildColumns {
-      column(name: 'column-name',
-             type: 'varchar',
-             value: 'value',
-             defaultValue: 'default-string-value',
-             autoIncrement: true,
-             remarks: 'No comment') {
-        constraints {
-          nullable(false)
-          unique(true)
-        }
-      }
-    }
-
-    assertNotNull columns
-    assertEquals 1, columns.size()
-    def column = columns[0]
-    assertTrue column instanceof ColumnConfig
-
-    assertEquals 'column-name', column.name
-    assertEquals 'varchar', column.type
-    assertEquals 'value', column.value
-    assertEquals 'default-string-value', column.defaultValue
-    assertTrue column.autoIncrement
-    assertEquals 'No comment', column.remarks
-
-    def constraints = column.constraints
-    assertNotNull constraints
-    assertTrue constraints instanceof ConstraintsConfig
-    assertTrue constraints.isUnique()
-    assertFalse constraints.isNullable()
-  }
-
-
-  @Test
-  void buildMultipleColumns() {
-    def columns = buildColumns {
-      column(name: 'column-1', type: 'varchar', value: 'value')
-      column(name: 'column-2', type: 'integer', valueNumeric: 42)
-      column(name: 'column-3', type: 'boolean', valueBoolean: true)
-    }
-
-    assertNotNull columns
-    assertEquals 3, columns.size()
-    assertTrue columns[0] instanceof ColumnConfig
-    assertTrue columns[1] instanceof ColumnConfig
-    assertTrue columns[2] instanceof ColumnConfig
-
-    assertEquals 'column-1', columns[0].name
-    assertEquals 'varchar', columns[0].type
-    assertEquals 'value', columns[0].value
-    assertEquals 'column-2', columns[1].name
-    assertEquals 'integer', columns[1].type
-    assertEquals 42, columns[1].valueNumeric
-    assertEquals 'column-3', columns[2].name
-    assertEquals 'boolean', columns[2].type
-    assertTrue columns[2].valueBoolean
-  }
-
-
-  @Test
-  void buildloadDataColumnConfigColumnWithHeaders() {
-    def columns = buildColumns(columnConfigClass: LoadDataColumnConfig) {
-      column(header: 'header-name',
-             name: 'database-column-name',
-             type: 'STRING')
-    }
-
-    assertNotNull columns
-    assertEquals 1, columns.size()
-    def column = columns[0]
-    assertTrue column instanceof LoadDataColumnConfig
-
-    assertEquals 'database-column-name', column.name
-    assertEquals 'header-name', column.header
-    assertEquals 'STRING', column.type
-  }
-
-
-  @Test
-  void columnClosureCanContainWhereClause() {
-    def columnDelegate = buildColumnDelegate([:]) {
-      column(name: 'monkey', type: 'VARCHAR(50)')
-      where "emotion='angry'"
-    }
-    
-    def columns = columnDelegate.columns
-
-    assertNotNull columns
-    assertEquals 1, columns.size()
-    def column = columns[0]
-    assertTrue column instanceof ColumnConfig
-    assertEquals "emotion='angry'", columnDelegate.whereClause
-  }
-
-
-  @Test
-  void buildloadDataColumnConfigColumnWithIndex() {
-    def columns = buildColumns(columnConfigClass: LoadDataColumnConfig) {
-      column(index: 3,
-             name: 'database-column-name',
-             type: 'STRING')
-    }
-
-    assertNotNull columns
-    assertEquals 1, columns.size()
-    def column = columns[0]
-    assertTrue column instanceof LoadDataColumnConfig
-
-    assertEquals 'database-column-name', column.name
-    assertEquals 3, column.index
-    assertEquals 'STRING', column.type
-  }
-  
-  def buildColumnDelegate(Map args, Closure closure) {
+	/**
+	 * helper method to build and execute a ColumnDelegate.
+	 * @param closure the closure to execute
+	 * @return the new delegate.
+	 */
+  def buildColumnDelegate(Class columnConfigClass, Closure closure) {
       def changelog = new DatabaseChangeLog()
       changelog.changeLogParameters = new ChangeLogParameters()
-      args.databaseChangeLog = changelog
-      
-      def columnDelegate = new ColumnDelegate(args)
+	    def columnDelegate = new ColumnDelegate(columnConfigClass: columnConfigClass,
+					                                    databaseChangeLog: changelog,
+					                                    changeSetId: 'test-change-set',
+					                                    changeName: 'create-table')
       closure.delegate = columnDelegate
       closure.resolveStrategy = Closure.DELEGATE_FIRST
       closure.call()
       
-      columnDelegate
-  }
-  
-  def buildColumns(Map args, Closure closure) {
-      buildColumnDelegate(args, closure).columns
-  }
-  
-  def buildColumns(Closure closure) {
-      buildColumns([:], closure)
+      return columnDelegate
   }
 
-
+	/**
+	 * Helper method to parse a string into a date.
+	 * @param dateTimeString the string to parse
+	 * @return the parsed string
+	 */
   private Timestamp parseSqlTimestamp(dateTimeString) {
     new Timestamp(sdf.parse(dateTimeString).time)
   }

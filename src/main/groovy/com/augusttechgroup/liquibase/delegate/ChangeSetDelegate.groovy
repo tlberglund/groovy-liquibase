@@ -79,156 +79,155 @@ import org.codehaus.groovy.runtime.typehandling.GroovyCastException
  * addColumn change without a closure.
  */
 class ChangeSetDelegate {
-  def changeSet
-  def databaseChangeLog
-  def resourceAccessor
-  def inRollback
+	def changeSet
+	def databaseChangeLog
+	def resourceAccessor
+	def inRollback
 
 
-  void comment(String text) {
-    changeSet.comments = expandExpressions(text)
-  }
-
-  
-  void modifySql(Map params = [:], Closure closure){
-	if(closure) {
-	  def delegate = new ModifySqlDelegate(params, changeSet)
-	  closure.delegate = delegate
-	  closure.call()
-	  
-	  delegate.sqlVisitors.each {
-	    changeSet.addSqlVisitor(it)
-      }
-    }
-  }
-  
-
-  void preConditions(Map params = [:], Closure closure) {
-    changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, params, closure)
-  }
+	void comment(String text) {
+		changeSet.comments = expandExpressions(text)
+	}
 
 
-  //TODO Verify that this works. Don't fully understand addValidCheckSum() yet...
-  void validCheckSum(String checksum) {
-    changeSet.addValidCheckSum(checksum)
-  }
+	void modifySql(Map params = [:], Closure closure) {
+		if ( closure ) {
+			def delegate = new ModifySqlDelegate(params, changeSet)
+			closure.delegate = delegate
+			closure.resolveStrategy = Closure.DELEGATE_FIRST
+			closure.call()
+
+			delegate.sqlVisitors.each {
+				changeSet.addSqlVisitor(it)
+			}
+		}
+	}
 
 
-  void rollback() {
-    // To support empty rollbacks (allowed by the spec)
-  }
+	void preConditions(Map params = [:], Closure closure) {
+		changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, params, closure)
+	}
 
-  
-  void rollback(String sql) {
-    changeSet.addRollBackSQL(expandExpressions(sql))
-  }
-
-
-  void rollback(Closure closure) {
-    def delegate = new ChangeSetDelegate(changeSet: changeSet,
-                                         databaseChangeLog: databaseChangeLog,
-                                         inRollback: true)
-    closure.delegate = delegate
-    closure.resolveStrategy = Closure.DELEGATE_FIRST
-    closure.call()
-
-    // The delegate should populate the ChangeSet's rollback change list, so there is nothing
-    // further to do.
-  }
+	//TODO Verify that this works. Don't fully understand addValidCheckSum() yet...
+	void validCheckSum(String checksum) {
+		changeSet.addValidCheckSum(checksum)
+	}
 
 
-  void rollback(Map params) {
-    def referencedChangeSet = databaseChangeLog.getChangeSet(databaseChangeLog.filePath, params.author, params.id)
-    if(referencedChangeSet) {
-      referencedChangeSet.changes.each { change ->
-        changeSet.addRollbackChange(change)
-      }
-    }
-    else {
-      throw new RollbackImpossibleException("Could not find changeSet to use for rollback: ${path}:${author}:${id}")
-    }
-  }
+	void rollback() {
+		// To support empty rollbacks (allowed by the spec)
+	}
 
 
-  void groovyChange(Closure closure) {
-    def delegate = new GroovyChangeDelegate(closure, changeSet, resourceAccessor)
-    delegate.changeSet = changeSet
-    delegate.resourceAccessor = resourceAccessor
-    closure.delegate = delegate
-    closure.resolveStrategy = Closure.DELEGATE_FIRST
-    closure.call()
-  }
+	void rollback(String sql) {
+		changeSet.addRollBackSQL(expandExpressions(sql))
+	}
 
 
-  void addColumn(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(AddColumnChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
-    addChange(change)
-  }
+	void rollback(Closure closure) {
+		def delegate = new ChangeSetDelegate(changeSet: changeSet,
+						databaseChangeLog: databaseChangeLog,
+						inRollback: true)
+		closure.delegate = delegate
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
+		closure.call()
+
+		// The delegate should populate the ChangeSet's rollback change list, so there is nothing
+		// further to do.
+	}
 
 
-  void renameColumn(Map params) {
-    addMapBasedChange(RenameColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'oldColumnName', 'newColumnName', 'columnDataType'])
-  }
+	void rollback(Map params) {
+		def referencedChangeSet = databaseChangeLog.getChangeSet(databaseChangeLog.filePath, params.author, params.id)
+		if ( referencedChangeSet ) {
+			referencedChangeSet.changes.each { change ->
+				changeSet.addRollbackChange(change)
+			}
+		} else {
+			throw new RollbackImpossibleException("Could not find changeSet to use for rollback: ${path}:${author}:${id}")
+		}
+	}
 
 
-  void modifyDataType(Map params) {
-    addMapBasedChange(ModifyDataTypeChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'newDataType'])
-  }
+	void groovyChange(Closure closure) {
+		def delegate = new GroovyChangeDelegate(closure, changeSet, resourceAccessor)
+		delegate.changeSet = changeSet
+		delegate.resourceAccessor = resourceAccessor
+		closure.delegate = delegate
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
+		closure.call()
+	}
 
 
-  void dropColumn(Map params) {
-    addMapBasedChange(DropColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName'])
-  }
+	void addColumn(Map params, Closure closure) {
+		def change = makeColumnarChangeFromMap('addColumn', AddColumnChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
+		addChange(change)
+	}
 
 
-  void alterSequence(Map params) {
-    addMapBasedChange(AlterSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered'])
-  }
+	void renameColumn(Map params) {
+		addMapBasedChange('renameColumn', RenameColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'oldColumnName', 'newColumnName', 'columnDataType'])
+	}
 
 
-  void createTable(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(CreateTableChange, closure, params, ['catalogName', 'schemaName', 'tablespace', 'tableName', 'remarks'])
-    addChange(change)
-  }
+	void modifyDataType(Map params) {
+		addMapBasedChange('modifyDataType', ModifyDataTypeChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'newDataType'])
+	}
 
 
-  void renameTable(Map params) {
-    addMapBasedChange(RenameTableChange, params, ['catalogName', 'schemaName', 'oldTableName', 'newTableName'])
-  }
+	void dropColumn(Map params) {
+		addMapBasedChange('dropColumn', DropColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName'])
+	}
 
 
-  void dropTable(Map params) {
-    addMapBasedChange(DropTableChange, params, ['catalogName', 'schemaName', 'tableName', 'cascadeConstraints'])
-  }
+	void alterSequence(Map params) {
+		addMapBasedChange('alterSequence', AlterSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered'])
+	}
 
 
- void createView(Map params, Closure closure) {
-    def change = makeChangeFromMap(CreateViewChange, params, ['catalogName', 'schemaName', 'viewName', 'replaceIfExists', 'selectQuery'])
-    change.selectQuery = expandExpressions(closure.call())
-    addChange(change)
-  }
+	void createTable(Map params, Closure closure) {
+		def change = makeColumnarChangeFromMap('createTable', CreateTableChange, closure, params, ['catalogName', 'schemaName', 'tablespace', 'tableName', 'remarks'])
+		addChange(change)
+	}
 
 
-  void renameView(Map params) {
-    addMapBasedChange(RenameViewChange, params, ['catalogName', 'schemaName', 'oldViewName', 'newViewName'])
-  }
+	void renameTable(Map params) {
+		addMapBasedChange('renameTable', RenameTableChange, params, ['catalogName', 'schemaName', 'oldTableName', 'newTableName'])
+	}
 
 
-  void dropView(Map params) {
-    addMapBasedChange(DropViewChange, params, ['catalogName', 'schemaName', 'viewName'])
-  }
+	void dropTable(Map params) {
+		addMapBasedChange('dropTable', DropTableChange, params, ['catalogName', 'schemaName', 'tableName', 'cascadeConstraints'])
+	}
 
 
-  void mergeColumns(Map params) {
-    addMapBasedChange(MergeColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'column1Name', 'column2Name', 'finalColumnName', 'finalColumnType', 'joinString'])
-  }
+	void createView(Map params, Closure closure) {
+		def change = makeChangeFromMap('createView', CreateViewChange, params, ['catalogName', 'schemaName', 'viewName', 'replaceIfExists', 'selectQuery'])
+		change.selectQuery = expandExpressions(closure.call())
+		addChange(change)
+	}
+
+
+	void renameView(Map params) {
+		addMapBasedChange('renameView', RenameViewChange, params, ['catalogName', 'schemaName', 'oldViewName', 'newViewName'])
+	}
+
+
+	void dropView(Map params) {
+		addMapBasedChange('dropView', DropViewChange, params, ['catalogName', 'schemaName', 'viewName'])
+	}
+
+
+	void mergeColumns(Map params) {
+		addMapBasedChange('mergeColumns', MergeColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'column1Name', 'column2Name', 'finalColumnName', 'finalColumnType', 'joinString'])
+	}
 
 	@Deprecated
 	void createStoredProcedure(Map params = [:], Closure closure) {
 		println "Warning: ChangeSet ${changeSet.id}: createStoredProcedure has been deprecated, and may be removed in a future release."
 		println "Consider using createProcedure instead."
 
-		def change = makeChangeFromMap(CreateProcedureChange, params, ['comments'])
+		def change = makeChangeFromMap('createStoredProcedure', CreateProcedureChange, params, ['comments'])
 		change.procedureBody = expandExpressions(closure.call())
 		addChange(change)
 	}
@@ -246,7 +245,7 @@ class ChangeSetDelegate {
 
 
 	void createProcedure(Map params = [:], Closure closure) {
-		def change = makeChangeFromMap(CreateProcedureChange, params, ['comments'])
+		def change = makeChangeFromMap('createProcedure', CreateProcedureChange, params, ['comments'])
 		change.procedureBody = expandExpressions(closure.call())
 		addChange(change)
 	}
@@ -259,134 +258,134 @@ class ChangeSetDelegate {
 	}
 
 	void addLookupTable(Map params) {
-    addMapBasedChange(AddLookupTableChange, params, ['existingTableName', 'existingTableCatalogName', 'existingTableSchemaName', 'existingColumnName', 'newTableName', 'newTableCatalogName', 'newTableSchemaName', 'newColumnName', 'newColumnDataType', 'constraintName'])
-  }
+		addMapBasedChange('addLookupTable', AddLookupTableChange, params, ['existingTableName', 'existingTableCatalogName', 'existingTableSchemaName', 'existingColumnName', 'newTableName', 'newTableCatalogName', 'newTableSchemaName', 'newColumnName', 'newColumnDataType', 'constraintName'])
+	}
 
 
-  void addNotNullConstraint(Map params) {
-    addMapBasedChange(AddNotNullConstraintChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'defaultNullValue', 'columnDataType'])
-  }
+	void addNotNullConstraint(Map params) {
+		addMapBasedChange('addNotNullConstraint', AddNotNullConstraintChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'defaultNullValue', 'columnDataType'])
+	}
 
 
-  void dropNotNullConstraint(Map params) {
-    addMapBasedChange(DropNotNullConstraintChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'columnDataType'])
-  }
+	void dropNotNullConstraint(Map params) {
+		addMapBasedChange('dropNotNullConstraint', DropNotNullConstraintChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'columnDataType'])
+	}
 
 
-  void addUniqueConstraint(Map params) {
-    addMapBasedChange(AddUniqueConstraintChange, params, ['tablespace', 'catalogName', 'schemaName', 'tableName', 'columnNames', 'constraintName', 'deferrable', 'initiallyDeferred', 'disabled'])
-  }
+	void addUniqueConstraint(Map params) {
+		addMapBasedChange('addUniqueConstraint', AddUniqueConstraintChange, params, ['tablespace', 'catalogName', 'schemaName', 'tableName', 'columnNames', 'constraintName', 'deferrable', 'initiallyDeferred', 'disabled'])
+	}
 
 
-  void dropUniqueConstraint(Map params) {
-    addMapBasedChange(DropUniqueConstraintChange, params, ['tableName', 'catalogName', 'schemaName', 'constraintName', 'uniqueColumns'])
-  }
+	void dropUniqueConstraint(Map params) {
+		addMapBasedChange('dropUniqueConstraint', DropUniqueConstraintChange, params, ['tableName', 'catalogName', 'schemaName', 'constraintName', 'uniqueColumns'])
+	}
 
 
-  void createSequence(Map params) {
-    addMapBasedChange(CreateSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered', 'startValue', 'cycle'])
-  }
+	void createSequence(Map params) {
+		addMapBasedChange('createSequence', CreateSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered', 'startValue', 'cycle'])
+	}
 
 
-  void dropSequence(Map params) {
-    addMapBasedChange(DropSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName'])
-  }
+	void dropSequence(Map params) {
+		addMapBasedChange('dropSequence', DropSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName'])
+	}
 
 
-  void addAutoIncrement(Map params) {
-    addMapBasedChange(AddAutoIncrementChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType', 'startWith', 'incrementBy'])
-  }
+	void addAutoIncrement(Map params) {
+		addMapBasedChange('addAutoIncrement', AddAutoIncrementChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType', 'startWith', 'incrementBy'])
+	}
 
 
-  void addDefaultValue(Map params) {
-    addMapBasedChange(AddDefaultValueChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType', 'defaultValue', 'defaultValueNumeric', 'defaultValueBoolean', 'defaultValueDate', 'defaultValueComputed', 'defaultValueSequenceNext'])
-  }
+	void addDefaultValue(Map params) {
+		addMapBasedChange('addDefaultValue', AddDefaultValueChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType', 'defaultValue', 'defaultValueNumeric', 'defaultValueBoolean', 'defaultValueDate', 'defaultValueComputed', 'defaultValueSequenceNext'])
+	}
 
 
-  void dropDefaultValue(Map params) {
-    addMapBasedChange(DropDefaultValueChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType'])
-  }
+	void dropDefaultValue(Map params) {
+		addMapBasedChange('dropDefaultValue', DropDefaultValueChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType'])
+	}
 
 	/**
 	 * process an addForeignKeyConstraint change.  This change has 2 deprecated
 	 * properties for which we need a warning.
 	 * @param params the properties to set on the new changes.
 	 */
-  void addForeignKeyConstraint(Map params) {
-    if ( params['deleteCascade'] != null ) {
-	    println "Warning: ChangeSet ${changeSet.id}: addForeignKeyConstraint's deleteCascade parameter has been deprecated, and may be removed in a future release."
-	    println "Consider using \"onDelete='CASCADE'\" instead."
-    }
-	  if ( params['referencesUniqueColumn'] != null ) {
-		  println "Warning: ChangeSet \${changeSet.id}: addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated, and may be removed in a future release."
-		  println "Consider removing it, as Liquibase ignores it anyway."
-	  }
-    addMapBasedChange(AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableCatalogName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])
-  }
-
-
-  void dropAllForeignKeyConstraints(Map params) {
-    addMapBasedChange(DropAllForeignKeyConstraintsChange, params, ['baseTableName', 'baseTableCatalogName', 'baseTableSchemaName'])
-  }
-
-
-  void dropForeignKeyConstraint(Map params) {
-		addMapBasedChange(DropForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName'])
+	void addForeignKeyConstraint(Map params) {
+		if ( params['deleteCascade'] != null ) {
+			println "Warning: ChangeSet ${changeSet.id}: addForeignKeyConstraint's deleteCascade parameter has been deprecated, and may be removed in a future release."
+			println "Consider using \"onDelete='CASCADE'\" instead."
+		}
+		if ( params['referencesUniqueColumn'] != null ) {
+			println "Warning: ChangeSet ${changeSet.id}: addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated, and may be removed in a future release."
+			println "Consider removing it, as Liquibase ignores it anyway."
+		}
+		addMapBasedChange('addForeignKeyConstraint', AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableCatalogName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])
 	}
 
 
-  void addPrimaryKey(Map params) {
-    addMapBasedChange(AddPrimaryKeyChange, params, ['tableName', 'catalogName', 'schemaName', 'columnNames', 'constraintName', 'tablespace'])
-  }
-
-  void dropPrimaryKey(Map params) {
-    addMapBasedChange(DropPrimaryKeyChange, params, ['tableName', 'catalogName', 'schemaName', 'constraintName'])
-  }
-
-  void insert(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(InsertDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'dbms'])
-    addChange(change)
-  }
-
-  void loadData(Map params, Closure closure) {
-    if(params.file instanceof File) {
-	    println "Warning: ChangeSet \${changeSet.id}: using a File object for loadData's 'file' attribute has been deprecated, and may be removed in a future release."
-	    println "Consider using the path to the file instead."
-	    params.file = params.file.canonicalPath
-    }
-
-    def change = makeLoadDataColumnarChangeFromMap(LoadDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar'])
-    change.resourceAccessor = resourceAccessor
-    addChange(change)
-  }
+	void dropAllForeignKeyConstraints(Map params) {
+		addMapBasedChange('dropAllForeignKeyConstraints', DropAllForeignKeyConstraintsChange, params, ['baseTableName', 'baseTableCatalogName', 'baseTableSchemaName'])
+	}
 
 
-  void loadUpdateData(Map params, Closure closure) {
-    if(params.file instanceof File) {
-	    println "Warning: ChangeSet \${changeSet.id}: using a File object for loadUpdateData's 'file' attribute has been deprecated, and may be removed in a future release."
-	    println "Consider using the path to the file instead."
-      params.file = params.file.canonicalPath
-    }
-
-    def change = makeLoadDataColumnarChangeFromMap(LoadUpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar', 'primaryKey'])
-	  change.resourceAccessor = resourceAccessor
-    addChange(change)
-  }
+	void dropForeignKeyConstraint(Map params) {
+		addMapBasedChange('dropForeignKeyConstraint', DropForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName'])
+	}
 
 
-  void update(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(UpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
-    addChange(change)
-  }
+	void addPrimaryKey(Map params) {
+		addMapBasedChange('addPrimaryKey', AddPrimaryKeyChange, params, ['tableName', 'catalogName', 'schemaName', 'columnNames', 'constraintName', 'tablespace'])
+	}
+
+	void dropPrimaryKey(Map params) {
+		addMapBasedChange('dropPrimaryKey', DropPrimaryKeyChange, params, ['tableName', 'catalogName', 'schemaName', 'constraintName'])
+	}
+
+	void insert(Map params, Closure closure) {
+		def change = makeColumnarChangeFromMap('insert', InsertDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'dbms'])
+		addChange(change)
+	}
+
+	void loadData(Map params, Closure closure) {
+		if ( params.file instanceof File ) {
+			println "Warning: ChangeSet ${changeSet.id}: using a File object for loadData's 'file' attribute has been deprecated, and may be removed in a future release."
+			println "Consider using the path to the file instead."
+			params.file = params.file.canonicalPath
+		}
+
+		def change = makeLoadDataColumnarChangeFromMap('loadData', LoadDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar'])
+		change.resourceAccessor = resourceAccessor
+		addChange(change)
+	}
 
 
-  void delete(Map params, Closure closure) {
-	  def change = makeColumnarChangeFromMap(DeleteDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
-	  addChange(change)
-  }
+	void loadUpdateData(Map params, Closure closure) {
+		if ( params.file instanceof File ) {
+			println "Warning: ChangeSet ${changeSet.id}: using a File object for loadUpdateData's 'file' attribute has been deprecated, and may be removed in a future release."
+			println "Consider using the path to the file instead."
+			params.file = params.file.canonicalPath
+		}
+
+		def change = makeLoadDataColumnarChangeFromMap('loadUpdateData', LoadUpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar', 'primaryKey'])
+		change.resourceAccessor = resourceAccessor
+		addChange(change)
+	}
+
+
+	void update(Map params, Closure closure) {
+		def change = makeColumnarChangeFromMap('update', UpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
+		addChange(change)
+	}
+
+
+	void delete(Map params, Closure closure) {
+		def change = makeColumnarChangeFromMap('delete', DeleteDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
+		addChange(change)
+	}
 
 	void delete(Map params) {
-		addMapBasedChange(DeleteDataChange, params, ['catalogName', 'schemaName', 'tableName'])
+		addMapBasedChange('delete', DeleteDataChange, params, ['catalogName', 'schemaName', 'tableName'])
 	}
 
 	/**
@@ -394,9 +393,9 @@ class ChangeSetDelegate {
 	 * by taking a 'tag' parameter.
 	 * @param params params the parameter map
 	 */
-  void tagDatabase(Map params) {
-    addMapBasedChange(TagDatabaseChange, params, ['tag'])
-  }
+	void tagDatabase(Map params) {
+		addMapBasedChange('tagDatabase', TagDatabaseChange, params, ['tag'])
+	}
 
 	/**
 	 * Parse a tagDatabase change.  This version of the method is syntactic sugar
@@ -415,9 +414,9 @@ class ChangeSetDelegate {
 	 * a 'message' parameter
 	 * @param params the parameter map
 	 */
-  void stop(Map params) {
-	  addMapBasedChange(StopChange, params, ['message'])
-  }
+	void stop(Map params) {
+		addMapBasedChange('stop', StopChange, params, ['message'])
+	}
 
 	/**
 	 * Parse a stop change.  This version of the method is syntactic sugar that
@@ -431,129 +430,170 @@ class ChangeSetDelegate {
 		addChange(change)
 	}
 
-  void createIndex(Map params, Closure closure) {
-    def change = makeColumnarChangeFromMap(CreateIndexChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'tablespace', 'indexName', 'unique', 'associatedWith'])
-    addChange(change)
-  }
+	void createIndex(Map params, Closure closure) {
+		def change = makeColumnarChangeFromMap('createIndex', CreateIndexChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'tablespace', 'indexName', 'unique', 'associatedWith'])
+		addChange(change)
+	}
 
 
-  void dropIndex(Map params) {
-    addMapBasedChange(DropIndexChange, params, ['tableName', 'catalogName', 'schemaName', 'indexName', 'associatedWith'])
-  }
+	void dropIndex(Map params) {
+		addMapBasedChange('dropIndex', DropIndexChange, params, ['tableName', 'catalogName', 'schemaName', 'indexName', 'associatedWith'])
+	}
 
 
-  void sql(Map params = [:], Closure closure) {
-    def change = makeChangeFromMap(RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter', 'dbms'])
-	  def delegate = new CommentDelegate()
-	  closure.delegate = delegate
-	  closure.resolveStrategy = Closure.DELEGATE_FIRST
-	  change.sql = expandExpressions(closure.call())
-	  change.comment = (expandExpressions(delegate.comment))
-	  addChange(change)
-  }
+	void sql(Map params = [:], Closure closure) {
+		def change = makeChangeFromMap('sql', RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter', 'dbms'])
+		def delegate = new CommentDelegate()
+		closure.delegate = delegate
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
+		change.sql = expandExpressions(closure.call())
+		change.comment = (expandExpressions(delegate.comment))
+		addChange(change)
+	}
 
 
-  void sql(String sql) {
-    def change = new RawSQLChange()
-    change.sql = expandExpressions(sql)
-    addChange(change)
-  }
+	void sql(String sql) {
+		def change = new RawSQLChange()
+		change.sql = expandExpressions(sql)
+		addChange(change)
+	}
 
 
-  void sqlFile(Map params) {
-    def change = makeChangeFromMap(SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter', 'relativeToChangelogFile', 'dbms'])
-    change.resourceAccessor = resourceAccessor
-	  // Before we add the change, work around the Liquibase bug where sqlFile
-	  // change sets don't load the SQL until it is too late to calculate
-	  // checksums properly after a clearChecksum command.  See
-	  // https://liquibase.jira.com/browse/CORE-1293
-	  change.finishInitialization()
+	void sqlFile(Map params) {
+		def change = makeChangeFromMap('sqlFile', SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter', 'relativeToChangelogFile', 'dbms'])
+		change.resourceAccessor = resourceAccessor
+		// Before we add the change, work around the Liquibase bug where sqlFile
+		// change sets don't load the SQL until it is too late to calculate
+		// checksums properly after a clearChecksum command.  See
+		// https://liquibase.jira.com/browse/CORE-1293
+		change.finishInitialization()
 
-	  addChange(change)
-  }
-
-
-  void customChange(Map params, Closure closure = null) {
-    def change = new CustomChangeWrapper()
-    change.classLoader = this.class.classLoader
-    change.className = params['class']
-
-    if(closure) {
-      def delegate = new KeyValueDelegate()
-      closure.delegate = delegate
-      closure.call()
-      delegate.map.each { key, value ->
-        change.setParam(key, expandExpressions(value))
-      }
-    }
-
-    addChange(change)
-  }
+		addChange(change)
+	}
 
 
-  /**
-   * A Groovy-specific extension that allows a closure to be provided,
-   * implementing the change. The closure is passed the instance of
-   * Database.
-   */
-  void customChange(Closure closure) {
-    //TODO Figure out how to implement closure-based custom changes
-    // It's not easy, since the closure would probably need the Database object to be
-    // interesting, and that's not available at parse time. Perhaps we could keep this closure
-    // around somewhere to run later when the Database is alive.
-  }
+	void customChange(Map params, Closure closure = null) {
+		def change = new CustomChangeWrapper()
+		change.classLoader = this.class.classLoader
+		change.className = params['class']
+
+		if ( closure ) {
+			def delegate = new KeyValueDelegate()
+			closure.delegate = delegate
+			closure.resolveStrategy = Closure.DELEGATE_FIRST
+			closure.call()
+			delegate.map.each { key, value ->
+				change.setParam(key, expandExpressions(value))
+			}
+		}
+
+		addChange(change)
+	}
+
+	/**
+	 * A Groovy-specific extension that allows a closure to be provided,
+	 * implementing the change. The closure is passed the instance of
+	 * Database.
+	 */
+	void customChange(Closure closure) {
+		//TODO Figure out how to implement closure-based custom changes
+		// It's not easy, since the closure would probably need the Database object to be
+		// interesting, and that's not available at parse time. Perhaps we could keep this closure
+		// around somewhere to run later when the Database is alive.
+	}
 
 
-  void executeCommand(Map params) {
-    addMapBasedChange(ExecuteShellCommandChange, params, ['executable', 'os'])
-  }
+	void executeCommand(Map params) {
+		addMapBasedChange('executeCommand', ExecuteShellCommandChange, params, ['executable', 'os'])
+	}
 
 
-  void executeCommand(Map params, Closure closure) {
-    def change = makeChangeFromMap(ExecuteShellCommandChange, params, ['executable', 'os'])
-    def delegate = new ArgumentDelegate()
-    closure.delegate = delegate
-    closure.call()
-    delegate.args.each { arg ->
-      change.addArg(expandExpressions(arg))
-    }
+	void executeCommand(Map params, Closure closure) {
+		def change = makeChangeFromMap('executeCommand', ExecuteShellCommandChange, params, ['executable', 'os'])
+		def delegate = new ArgumentDelegate(changeSetId: changeSet.id,
+		                                    changeName: 'executeCommand')
+		closure.delegate = delegate
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
+		closure.call()
+		delegate.args.each { arg ->
+			change.addArg(expandExpressions(arg))
+		}
 
-    addChange(change)
-  }
+		addChange(change)
+	}
 
+	/**
+	 * Helper method to make a Liquibase change that takes columns of the type
+	 * used by the {@code loadData} change.
+	 * @param name the name of the change, used for improved error messages.
+	 * @param klass the Liquibase class to create
+	 * @param closure the closure containing columns.
+	 * @param params a map containing the attributes to set on the newly created
+	 *        change
+	 * @param paramNames a list of valid parameter names.
+	 * @return the newly created change.
+	 */
+	private def makeLoadDataColumnarChangeFromMap(String name, Class klass, Closure closure, Map params, List paramNames) {
+		def change = makeChangeFromMap(name, klass, params, paramNames)
 
-  private def makeLoadDataColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
-    def change = makeChangeFromMap(klass, params, paramNames)
+		def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig, databaseChangeLog: databaseChangeLog)
+		closure.delegate = columnDelegate
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
+		closure.call()
 
-    def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig, databaseChangeLog: databaseChangeLog)
-    closure.delegate = columnDelegate
-    closure.call()
+		// We use the same columnDelegate for LoadData columns as regular ones, but
+		// a where clause is not legal for a load change.  Rather than silently
+		// eating a where clause, let the user know.
+		if ( columnDelegate.whereClause != null ) {
+			throw new IllegalArgumentException("changeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
+		}
 
-    columnDelegate.columns.each { column ->
-      change.addColumn(column)
-    }
+		columnDelegate.columns.each { column ->
+			change.addColumn(column)
+		}
 
-    return change
-  }
+		return change
+	}
 
+	/**
+	 * Create a Liquibase change for the types of changes that can have a nested
+	 * closure of columns and where clauses.
+	 * @param name the name of the change to make, used for improved error messages.
+	 * @param klass the Liquibase class to create.
+	 * @param closure the closure with column information
+	 * @param params a map containing attributes of the new change
+	 * @param paramNames a list of valid properties for the new change
+	 * @return the newly created change
+	 */
+	private def makeColumnarChangeFromMap(String name, Class klass, Closure closure, Map params, List paramNames) {
+		def change = makeChangeFromMap(name, klass, params, paramNames)
 
-  private def makeColumnarChangeFromMap(Class klass, Closure closure, Map params, List paramNames) {
-    def change = makeChangeFromMap(klass, params, paramNames)
+		def columnDelegate = new ColumnDelegate(databaseChangeLog: databaseChangeLog,
+						                                changeSetId: changeSet.id,
+						                                changeName: name)
+		closure.delegate = columnDelegate
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
+		closure.call()
 
-    def columnDelegate = new ColumnDelegate(databaseChangeLog: databaseChangeLog)
-    closure.delegate = columnDelegate
-    closure.call()
+		columnDelegate.columns.each { column ->
+			try {
+			change.addColumn(column)
+			} catch (MissingMethodException e) {
+				throw new IllegalArgumentException("changeSet '${changeSet.id}': columns are not allowed in '${name}' changes.")
+			}
+		}
 
-    columnDelegate.columns.each { column ->
-      change.addColumn(column)
-    }
+		if ( columnDelegate.whereClause != null ) {
+			try {
+				ObjectUtil.setProperty(change, 'where', columnDelegate.whereClause)
+			} catch (RuntimeException e) {
+				throw new IllegalArgumentException("changeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
+			}
 
-	  if ( columnDelegate.whereClause != null ) {
-		  change.where = columnDelegate.whereClause
-	  }
+		}
 
-    return change
-  }
+		return change
+	}
 
 	/**
 	 * Create a new Liquibase change and set its properties from the given
@@ -565,53 +605,58 @@ class ChangeSetDelegate {
 	 * @throws IllegalArgumentException if the source map contains any keys that
 	 * are not in the list of valid paramNames.
 	 */
-  private def makeChangeFromMap(Class klass, Map sourceMap, List paramNames) {
-    def change = klass.newInstance()
+	private def makeChangeFromMap(String name, Class klass, Map sourceMap, List paramNames) {
+		def change = klass.newInstance()
 
-		sourceMap.each { name, value ->
-			if ( paramNames.contains(name) && value != null ) {
+		// Todo: if we get rid of paramNames, just loop through the source map
+		// and set properties.  The else block with the error message goes away.
+		sourceMap.each { key, value ->
+			if ( paramNames.contains(key) && value != null ) {
 				try {
-					ObjectUtil.setProperty(change, name, expandExpressions(sourceMap[name]))
+					ObjectUtil.setProperty(change, key, expandExpressions(sourceMap[key]))
 				}
-				catch(NumberFormatException ex) {
-					change[name] = sourceMap[name].toBigInteger()
+				catch (NumberFormatException ex) {
+					change[key] = sourceMap[key].toBigInteger()
 				}
 			} else {
-				// To help the user find the error.  We could pass in the change name,
-				// but that has some large ripple effects, and we can take advantage of
-				// the fact that our refactorings almost match the liquibase class names.
-				// This works as long as that is true, and all changes end with "Change"
-				// in Liquibase.
-				String changeName = klass.simpleName
-				changeName = changeName.subSequence(0, changeName.indexOf("Change"))
-				changeName = changeName[0].toLowerCase() + changeName.substring(1)
-				throw new IllegalArgumentException("changeSet '${changeSet.id}' has a ${changeName} change with the invalid property '${name}'.")
+				throw new IllegalArgumentException("changeSet '${changeSet.id}': '${key}' is an invalid property for '${name}' changes.")
 			}
 
 		}
-    return change
-  }
+		return change
+	}
 
+	/**
+	 * Helper method used by changes that don't have closures, just attributes
+	 * that get set from the parameter map.  This method will add the newly
+	 * created change to the current change set.
+	 * @param name the name of the change.  Used for improved error messages.
+	 * @param klass the Liquibase class to make for the change.
+	 * @param sourceMap the map of attributes to set on the Liquibase change.
+	 * @param paramNames a list of valid attribute names.
+	 */
+	private def addMapBasedChange(String name, Class klass, Map sourceMap, List paramNames) {
+		addChange(makeChangeFromMap(name, klass, sourceMap, paramNames))
+	}
 
-  private def addMapBasedChange(Class klass, Map sourceMap, List paramNames) {
-    addChange(makeChangeFromMap(klass, sourceMap, paramNames))
-  }
+	/**
+	 * Helper method to add a change to the current change set.
+	 * @param change the change to add
+	 * @return the modified change set.
+	 */
+	private def addChange(change) {
+		if ( inRollback ) {
+			changeSet.addRollbackChange(change)
+		} else {
+			changeSet.addChange(change)
+		}
+		return changeSet
+	}
 
-
-  private def addChange(change) {
-    if(inRollback) {
-      changeSet.addRollbackChange(change)
-    }
-    else {
-      changeSet.addChange(change)
-    }
-    return changeSet
-  }
-  
-  private def expandExpressions(expression) {
-	  // Don't expand a null into "null"
-	  if ( expression != null ) {
-      databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
-	  }
-  }
+	private def expandExpressions(expression) {
+		// Don't expand a null into "null"
+		if ( expression != null ) {
+			databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
+		}
+	}
 }

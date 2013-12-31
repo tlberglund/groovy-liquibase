@@ -22,6 +22,8 @@ package com.augusttechgroup.liquibase.delegate
  */
 class ArgumentDelegate {
 	def args = []
+	def changeSetId = '<unknown>' // used for error messages
+	def changeName = '<unknown>' // used for error messages
 
 	/**
 	 * Process an argument where the argument is simply a string.  This is not
@@ -38,6 +40,25 @@ class ArgumentDelegate {
 	 * @param valueMap the map containing the argument.
 	 */
 	def arg(Map valueMap) {
-		args << valueMap.value
+		// we want a helpful message if the value map has anything other than a
+		// "value" key.
+		valueMap.each { key, value ->
+			if ( key == "value") {
+				args << valueMap.value
+			} else {
+				throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key} is not a valid argument atrribute of ${changeName} changes")
+			}
+		}
 	}
+
+	/**
+	 * Groovy calls methodMissing when it can't find a matching method to call.
+	 * We use it to tell the user which changeSet had the invalid element.
+	 * @param name the name of the method Groovy wanted to call.
+	 * @param args the original arguments to that method.
+	 */
+	def methodMissing(String name, args) {
+		throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${name} is not a valid child element of ${changeName} changes")
+	}
+
 }

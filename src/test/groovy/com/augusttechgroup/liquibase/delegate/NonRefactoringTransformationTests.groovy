@@ -37,6 +37,41 @@ import liquibase.change.core.DeleteDataChange
  * about validating the change itself (making sure required attributes are
  * present for example), that is done by Liquibase itself.
  */
+/**
+ * This is one of several classes that test the creation of refactoring changes
+ * for ChangeSets. This particular class tests changes that deal with data, such as
+ * {@code insert} and {@code delete}.
+ * <p>
+ * Since the Groovy DSL parser is meant to act as a pass-through for Liquibase
+ * itself, it doesn't do much in the way of error checking.  For example, we
+ * aren't concerned with whether or not required attributes are present - we
+ * leave that to Liquibase itself.  In general, each change will have 3 kinds
+ * of tests:<br>
+ * <ol>
+ * <li>A test with an empty parameter map, and if supported, an empty closure.
+ * This kind of test will make sure that the Groovy parser doesn't introduce
+ * any unintended attribute defaults for a change.</li>
+ * <li>A test that sets all the attributes known to be supported by Liquibase
+ * at this time.  This makes sure that the Groovy parser will send any given
+ * groovy attribute to the correct place in Liquibase.  For changes that allow
+ * a child closure, this test will include just enough in the closure to make
+ * sure it gets processed, and that the right kind of closure is called.</li>
+ * <li>Some tests take columns or a where clause in a child closure.  The same
+ * closure handles both, but should reject one or the other based on how the
+ * closure gets called. These changes will have an additional test with an
+ * invalid closure to make sure it sets up the closure properly</li>
+ * </ol>
+ * <p>
+ * Some changes require a little more testing, such as the {@code sql} change
+ * that can receive sql as a string, or as a closure, or the {@code delete}
+ * change, which is valid both with and without a child closure.
+ * <p>
+ * We don't worry about testing combinations that don't make sense, such as
+ * allowing a createIndex change a closure, but no attributes, since it doesn't
+ * make sense to have this kind of change without both a table name and at
+ * least one column.  If a user tries it, they will get errors from Liquibase
+ * itself.
+ */
 class NonRefactoringTransformationTests extends ChangeSetTests {
 
 	/**
@@ -102,6 +137,22 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'active', columns[3].name
 		assertTrue columns[3].valueBoolean
 		assertNoOutput()
+	}
+
+	/**
+	 * The insert change allows columns, but not a where clause.  Try an insert
+	 * with a where clause to make sure it is properly rejected.
+	 */
+	@Test(expected = IllegalArgumentException)
+	void insertWithWhereClause() {
+		buildChangeSet {
+			insert(catalogName: 'catalog',
+							schemaName: 'schema',
+							tableName: 'monkey',
+							dbms: 'oracle, db2') {
+				where "invalid"
+			}
+		}
 	}
 
 	/**
@@ -223,6 +274,27 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	}
 
 	/**
+	 * LoadData changes allow columns but not a where clause, so try one that
+	 * has a where clause to make sure it is properly rejected.
+	 */
+	@Test(expected = IllegalArgumentException)
+	void loadDataWithWhereClause() {
+		resourceAccessor = new FileSystemResourceAccessor()
+
+		buildChangeSet {
+			loadData(catalogName: 'catalog',
+							schemaName: 'schema',
+							tableName: 'monkey',
+							file: 'data.csv',
+							encoding: 'UTF-8',
+							separator: ';',
+							quotchar: "'") {
+				where "invalid"
+			}
+		}
+	}
+
+	/**
 	 * Test parsing a loadData change when the attribute map and column closure
 	 * are both empty.  We don't need to worry about the map or the closure
 	 * being missing because that kind of change doesn't make sense.  In this
@@ -341,6 +413,26 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	}
 
 	/**
+	 * LoadUpdateData changes allow columns but not a where clause, so try one that
+	 * has a where clause to make sure it is properly rejected.
+	 */
+	@Test(expected = IllegalArgumentException)
+	void loadUpdateDataWithWhereClause() {
+		resourceAccessor = new FileSystemResourceAccessor()
+
+		buildChangeSet {
+			loadUpdateData(catalogName: 'catalog',
+							schemaName: 'schema',
+							tableName: 'monkey',
+							file: 'data.csv',
+							encoding: 'UTF-8',
+							separator: ';',
+							quotchar: "'") {
+				where "invalid"
+			}
+		}
+	}
+	/**
 	 * test parsing an updateData change with no attributes and no closure to
 	 * make sure the DSL is not adding any unintended defaults.
 	 */
@@ -368,7 +460,8 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	/**
 	 * Test parsing an updateData change when we have all supported attributes,
 	 * and a couple of columns, but no where clause.  This should not cause an
-	 * issue. As always, we don't care about the contents of the columns.
+	 * issue, since it is legal to update all rows in a table. As always, we don't
+	 * care about the contents of the columns.
 	 */
 	@Test
 	void updateDataNoWhere() {
@@ -402,7 +495,8 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 
 	/**
 	 * Test parsing an updateData change when we have attributes, columns and
-	 * a where clause.
+	 * a where clause.  We won't test a where and no columns because that change
+	 * doesn't make sense, and will be rejected by Liquibase itself.
 	 */
 	@Test
 	void updateDataFull() {
@@ -497,6 +591,19 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'monkey', changes[0].tableName
 		assertNull changes[0].whereClause
 		assertNoOutput()
+	}
+
+	/**
+	 * Test parsing a delete change when we have columns in the closure.  This is
+	 * not allowed and should be caught by the parser.
+	 */
+	@Test(expected = IllegalArgumentException)
+	void deleteDataWithColumns() {
+		buildChangeSet {
+			delete(catalogName: 'catalog', schemaName: 'schema', tableName: 'monkey') {
+				column(name: 'emotion')
+			}
+		}
 	}
 
 	/**

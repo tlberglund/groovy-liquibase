@@ -23,20 +23,44 @@ import liquibase.change.core.CreateIndexChange
 import liquibase.change.core.DropIndexChange
 
 /**
- * This class tests ChangeSet refactoring changes that deal with indexes.
- * The tests make sure the DSL can parse each change correctly and handle all
- * options supported by Liquibase.  It does not worry about validating the
- * change itself (making sure required attributes are present for example),
- * that is done by Liquibase itself.
+ * This is one of several classes that test the creation of refactoring changes
+ * for ChangeSets. This particular class tests changes that deal with indexes.
+ * <p>
+ * Since the Groovy DSL parser is meant to act as a pass-through for Liquibase
+ * itself, it doesn't do much in the way of error checking.  For example, we
+ * aren't concerned with whether or not required attributes are present - we
+ * leave that to Liquibase itself.  In general, each change will have 3 kinds
+ * of tests:<br>
+ * <ol>
+ * <li>A test with an empty parameter map, and if supported, an empty closure.
+ * This kind of test will make sure that the Groovy parser doesn't introduce
+ * any unintended attribute defaults for a change.</li>
+ * <li>A test that sets all the attributes known to be supported by Liquibase
+ * at this time.  This makes sure that the Groovy parser will send any given
+ * groovy attribute to the correct place in Liquibase.  For changes that allow
+ * a child closure, this test will include just enough in the closure to make
+ * sure it gets processed, and that the right kind of closure is called.</li>
+ * <li>Some tests take columns or a where clause in a child closure.  The same
+ * closure handles both, but should reject one or the other based on how the
+ * closure gets called. These changes will have an additional test with an
+ * invalid closure to make sure it sets up the closure properly</li>
+ * </ol>
+ * <p>
+ * Some changes require a little more testing, such as the {@code sql} change
+ * that can receive sql as a string, or as a closure, or the {@code delete}
+ * change, which is valid both with and without a child closure.
+ * <p>
+ * We don't worry about testing combinations that don't make sense, such as
+ * allowing a createIndex change a closure, but no attributes, since it doesn't
+ * make sense to have this kind of change without both a table name and at
+ * least one column.  If a user tries it, they will get errors from Liquibase
+ * itself.
  */
 class ArchitecturalRefactoringTests extends ChangeSetTests {
 
 	/**
 	 * Test parsing a createIndex changeSet with no attributes and an empty
-	 * closure.  Because it makes no sense to have a createIndex without at
-	 * least a table name and one column (Liquibase won't let that continue),
-	 * we won't try to deal with missing closures or maps.  We should still get
-	 * a collection of columns, it should just be empty.
+	 * closure.
 	 */
 	@Test
 	void createIndexEmpty() {
@@ -136,6 +160,26 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertEquals 'species', columns[0].name
 		assertEquals 'name', columns[1].name
 		assertNoOutput()
+	}
+
+	/**
+	 * The createIndex change can take columns, but a where clause is not valid.
+	 * Test parsing a createIndex change with a where clause to make sure it gets
+	 * rejected.
+	 */
+	@Test(expected = IllegalArgumentException)
+	void createIndexWithWhereClause() {
+		buildChangeSet {
+			createIndex(catalogName: 'catalog',
+							schemaName: 'schema',
+							tableName: 'monkey',
+							tablespace: 'tablespace',
+							indexName: 'ndx_monkeys',
+							unique: true,
+							associatedWith: 'foreignKey') {
+				where "it doesn't matter"
+			}
+		}
 	}
 
 	/**
