@@ -16,22 +16,58 @@
 
 package com.augusttechgroup.liquibase.delegate
 
-
 /**
  * A general-purpose delgate class to provide key/value support in a builder.
- * 
+ * This delegate supports 2 ways of creating the key/value pairs.  We can
+ * pass them in a manner consistent with the XML, namely a series of
+ * {@code param ( name : ' someName ' , value : ' someValue ' ) ) elements.  The Groovy
+ * DSL parser also supports a simpler mechanism whereby any method in the
+ * closure is assumed to be the key and the method's arguments are assumed to
+ * be the value.  So the code snippet above becomes
+ *{@code someName ( ' someValue ' )}*
  * @author Tim Berglund
+ * @author Steven C. Saliman
  */
-class KeyValueDelegate
-{
-  def map = [:]
-  
-  void methodMissing(String name, args) {
-    if(args != null && args.size() == 1) {
-      map[name] = args[0]
-    }
-    else {
-      map[name] = args
-    }
-  }
+class KeyValueDelegate {
+	def map = [:]
+	def changeSetId = '<unknown>' // used for error messages
+
+	/**
+	 * This method supports the standard XML like method of passing a name/value
+	 * pair inside a {@code param} method
+	 * @param params
+	 */
+	void param(Map params) {
+		def mapKey = null
+		def mapValue = null
+		params.each { key, value ->
+			if ( key == "name" ) {
+				mapKey = value
+			} else if ( key == "value" ) {
+				mapValue = value
+			} else {
+				throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'customPrecondition' parameters.")
+			}
+		}
+
+		// we don't need a value, but we do need a key
+		if ( mapKey == null ) {
+			throw new IllegalArgumentException("ChangeSet '${changeSetId}': 'customPrecondition' parameters need at least a name.")
+		}
+		map[mapKey] = mapValue
+	}
+
+	/**
+	 * This method supports the Groovy DSL mechanism of passing a name/value pair
+	 * by using the method name as the key and the method arguments as the value.
+	 * @param name
+	 * @param args
+	 */
+	void methodMissing(String name, args) {
+		if ( args != null && args.size() == 1 ) {
+			map[name] = args[0]
+		} else {
+			map[name] = args
+		}
+	}
 }

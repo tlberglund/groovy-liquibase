@@ -55,6 +55,9 @@ import liquibase.change.core.DropIndexChange
  * make sense to have this kind of change without both a table name and at
  * least one column.  If a user tries it, they will get errors from Liquibase
  * itself.
+ *
+ * @author Tim Berglund
+ * @author Steven C. Saliman
  */
 class ArchitecturalRefactoringTests extends ChangeSetTests {
 

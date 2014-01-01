@@ -16,8 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
-import groovy.lang.Closure;
-
+import liquibase.precondition.core.NotPrecondition;
 import org.junit.Test
 import static org.junit.Assert.*
 import liquibase.changelog.ChangeLogParameters
@@ -38,245 +37,442 @@ import liquibase.precondition.core.OrPrecondition
 import liquibase.precondition.core.SqlPrecondition
 import liquibase.precondition.CustomPreconditionWrapper
 
+/**
+ * This class tests the creation of Liquibase ChangeSet Preconditions.  It is
+ * probably a bit of overkill since most preconditions are set by passing
+ * named preconditions to the Liquibase factory, but it does serve to make sure
+ * that ll the preconditions currently known will work as we would expect.
+ * <p>
+ * since we just pass through to Liquibase, we're not too concerned with
+ * validating attrubutes.
+ */
+class PreconditionDelegateTests {
 
-class PreconditionDelegateTests
-{
+	/**
+	 * Try creating a dbms precondition
+	 */
+	@Test
+	void dbmsPrecondition() {
+		def preconditions = buildPreconditions {
+			dbms(type: 'mysql')
+		}
 
-  @Test
-  void dbms() {
-    def preconditions = buildPreconditions {
-      dbms(type: 'mysql')
-    }
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof DBMSPrecondition
+		assertEquals 'mysql', preconditions[0].type
+	}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof DBMSPrecondition
-    assertEquals 'mysql', preconditions[0].type
-  }
+	/**
+	 * Try creating a runningAs precondition.
+	 */
+	@Test
+	void runningAsPrecondition() {
+		def preconditions = buildPreconditions {
+			runningAs(username: 'tlberglund')
+		}
 
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof RunningAsPrecondition
+		assertEquals 'tlberglund', preconditions[0].username
+	}
 
-  @Test
-  void runningAs() {
-    def preconditions = buildPreconditions {
-      runningAs(username: 'tlberglund')
-    }
+	/**
+	 * Try creating a changeSetExecuted precondition.
+	 */
+	@Test
+	void changeSetExecutedPrecondition() {
+		def preconditions = buildPreconditions {
+			changeSetExecuted(id: 'unleash-monkey', author: 'tlberglund', changeLogFile: 'changelog.xml')
+		}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof RunningAsPrecondition
-    assertEquals 'tlberglund', preconditions[0].username
-  }
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof ChangeSetExecutedPrecondition
+		assertEquals 'unleash-monkey', preconditions[0].id
+		assertEquals 'tlberglund', preconditions[0].author
+		assertEquals 'changelog.xml', preconditions[0].changeLogFile
+	}
 
+	/**
+	 * Try creating a columnExists precondition.
+	 */
+	@Test
+	void columnExistsPrecondition() {
+		def preconditions = buildPreconditions {
+			columnExists(schemaName: 'schema', tableName: 'monkey', columnName: 'emotion')
+		}
 
-  @Test
-  void changeSetExecuted() {
-    def preconditions = buildPreconditions {
-      changeSetExecuted(id: 'unleash-monkey', author: 'tlberglund', changeLogFile: 'changelog.xml')
-    }
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof ColumnExistsPrecondition
+		assertEquals 'schema', preconditions[0].schemaName
+		assertEquals 'monkey', preconditions[0].tableName
+		assertEquals 'emotion', preconditions[0].columnName
+	}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof ChangeSetExecutedPrecondition
-    assertEquals 'unleash-monkey', preconditions[0].id
-    assertEquals 'tlberglund', preconditions[0].author
-    assertEquals 'changelog.xml', preconditions[0].changeLogFile
-  }
+	/**
+	 * try creating a tableExists precondition.
+	 */
+	@Test
+	void tableExistsPrecondition() {
+		def preconditions = buildPreconditions {
+			tableExists(schemaName: 'schema', tableName: 'monkey')
+		}
 
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof TableExistsPrecondition
+		assertEquals 'schema', preconditions[0].schemaName
+		assertEquals 'monkey', preconditions[0].tableName
+	}
 
-  @Test
-  void columnExists() {
-    def preconditions = buildPreconditions {
-      columnExists(schemaName: 'schema', tableName: 'monkey', columnName: 'emotion')
-    }
+	/**
+	 * Try creating a vewExists precondition.
+	 */
+	@Test
+	void viewExistsPrecondition() {
+		def preconditions = buildPreconditions {
+			viewExists(schemaName: 'schema', viewName: 'monkey_view')
+		}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof ColumnExistsPrecondition
-    assertEquals 'schema', preconditions[0].schemaName
-    assertEquals 'monkey', preconditions[0].tableName
-    assertEquals 'emotion', preconditions[0].columnName
-  }
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof ViewExistsPrecondition
+		assertEquals 'schema', preconditions[0].schemaName
+		assertEquals 'monkey_view', preconditions[0].viewName
+	}
 
+	/**
+	 * Try creating a foreignKeyConstraintExists precondition
+	 */
+	@Test
+	void foreignKeyConstraintExistsPrecondition() {
+		def preconditions = buildPreconditions {
+			foreignKeyConstraintExists(schemaName: 'schema', foreignKeyName: 'fk_monkey_key')
+		}
 
-  @Test
-  void tableExists() {
-    def preconditions = buildPreconditions {
-      tableExists(schemaName: 'schema', tableName: 'monkey')
-    }
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof ForeignKeyExistsPrecondition
+		assertEquals 'schema', preconditions[0].schemaName
+		assertEquals 'fk_monkey_key', preconditions[0].foreignKeyName
+	}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof TableExistsPrecondition
-    assertEquals 'schema', preconditions[0].schemaName
-    assertEquals 'monkey', preconditions[0].tableName
-  }
+	/**
+	 * Try creating an indexExists precondition.
+	 */
+	@Test
+	void indexExistsPrecondition() {
+		def preconditions = buildPreconditions {
+			indexExists(schemaName: 'schema', indexName: 'index')
+		}
 
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof IndexExistsPrecondition
+		assertEquals 'schema', preconditions[0].schemaName
+		assertEquals 'index', preconditions[0].indexName
+	}
 
-  @Test
-  void viewExists() {
-    def preconditions = buildPreconditions {
-      viewExists(schemaName: 'schema', viewName: 'monkey_view')
-    }
+	/**
+	 * Try creating a sequenceExists precondition.
+	 */
+	@Test
+	void sequenceExistsPrecondition() {
+		def preconditions = buildPreconditions {
+			sequenceExists(schemaName: 'schema', sequenceName: 'seq_next_monkey')
+		}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof ViewExistsPrecondition
-    assertEquals 'schema', preconditions[0].schemaName
-    assertEquals 'monkey_view', preconditions[0].viewName
-  }
-  
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof SequenceExistsPrecondition
+		assertEquals 'schema', preconditions[0].schemaName
+		assertEquals 'seq_next_monkey', preconditions[0].sequenceName
+	}
 
-  @Test
-  void foreignKeyConstraintExists() {
-    def preconditions = buildPreconditions {
-      foreignKeyConstraintExists(schemaName: 'schema', foreignKeyName: 'fk_monkey_key')
-    }
+	/**
+	 * Try creating a primaryKeyExists precondition.
+	 */
+	@Test
+	void primaryKeyExistsPrecondition() {
+		def preconditions = buildPreconditions {
+			primaryKeyExists(schemaName: 'schema', primaryKeyName: 'pk_monkey')
+		}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof ForeignKeyExistsPrecondition
-    assertEquals 'schema', preconditions[0].schemaName
-    assertEquals 'fk_monkey_key', preconditions[0].foreignKeyName
-  }
+		assertNotNull preconditions
+		assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof PrimaryKeyExistsPrecondition
+		assertEquals 'schema', preconditions[0].schemaName
+		assertEquals 'pk_monkey', preconditions[0].primaryKeyName
+	}
 
+	/**
+	 * And clauses are handled a little differently. Make sure we can create it
+	 * correctly.
+	 */
+	@Test
+	void andClause() {
+		def preconditions = buildPreconditions {
+			and {
+				dbms(type: 'mysql')
+				runningAs(username: 'tlberglund')
+			}
+		}
 
-  @Test
-  void indexExists() {
-    def preconditions = buildPreconditions {
-      indexExists(schemaName: 'schema', indexName: 'index')
-    }
+		assertNotNull preconditions
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof AndPrecondition
+		def andedPreconditions = preconditions[0].nestedPreconditions
+		assertNotNull andedPreconditions
+		assertEquals 2, andedPreconditions.size()
+		assertTrue andedPreconditions[0] instanceof DBMSPrecondition
+		assertTrue andedPreconditions[1] instanceof RunningAsPrecondition
+	}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof IndexExistsPrecondition
-    assertEquals 'schema', preconditions[0].schemaName
-    assertEquals 'index', preconditions[0].indexName
-  }
+	/**
+	 * Or clauses are handled a little differently. Make sure we can create it
+	 * correctly.
+	 */
+	@Test
+	void orClause() {
+		def preconditions = buildPreconditions {
+			or {
+				dbms(type: 'mysql')
+				runningAs(username: 'tlberglund')
+			}
+		}
 
+		assertNotNull preconditions
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof OrPrecondition
+		def oredPreconditions = preconditions[0].nestedPreconditions
+		assertNotNull oredPreconditions
+		assertEquals 2, oredPreconditions.size()
+		assertTrue oredPreconditions[0] instanceof DBMSPrecondition
+		assertTrue oredPreconditions[1] instanceof RunningAsPrecondition
+	}
 
-  @Test
-  void sequenceExists() {
-    def preconditions = buildPreconditions {
-      sequenceExists(schemaName: 'schema', sequenceName: 'seq_next_monkey')
-    }
+	/**
+	 * Not clauses are handled a little differently. Make sure we can create it
+	 * correctly.
+	 */
+	@Test
+	void notClause() {
+		def preconditions = buildPreconditions {
+			not {
+				dbms(type: 'mysql')
+				runningAs(username: 'tlberglund')
+			}
+		}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof SequenceExistsPrecondition
-    assertEquals 'schema', preconditions[0].schemaName
-    assertEquals 'seq_next_monkey', preconditions[0].sequenceName
-  }
+		assertNotNull preconditions
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof NotPrecondition
+		def notedPreconditions = preconditions[0].nestedPreconditions
+		assertNotNull notedPreconditions
+		assertEquals 2, notedPreconditions.size()
+		assertTrue notedPreconditions[0] instanceof DBMSPrecondition
+		assertTrue notedPreconditions[1] instanceof RunningAsPrecondition
+	}
 
+	// sqlCheck empty
+	/**
+	 * SqlCheck preconditions are treated a little different than most. Try
+	 * creating one with no attributes and an empty closure to make sure we
+	 * get no side effects.
+	 */
+	@Test
+	void sqlCheckEmpty() {
+		def preconditions = buildPreconditions {
+			sqlCheck([:]) {	}
+		}
 
-  @Test
-  void primaryKeyExists() {
-    def preconditions = buildPreconditions {
-      primaryKeyExists(schemaName: 'schema', primaryKeyName: 'pk_monkey')
-    }
+		assertNotNull preconditions
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof SqlPrecondition
+		assertNull preconditions[0].expectedResult
+		assertNull preconditions[0].sql
+	}
 
-    assertNotNull preconditions
-    assertTrue preconditions.every { precondition -> precondition instanceof Precondition }
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof PrimaryKeyExistsPrecondition
-    assertEquals 'schema', preconditions[0].schemaName
-    assertEquals 'pk_monkey', preconditions[0].primaryKeyName
-  }
+	/**
+	 * Try creating a sqlCheck precondition with an invalid attribute
+	 */
+	@Test(expected = IllegalArgumentException)
+	void sqlCheckInvalidAttribute() {
+		buildPreconditions {
+			sqlCheck(expected: 'angry') {
+				"SELECT emotion FROM monkey WHERE id=2884"
+			}
+		}
+	}
 
+	/**
+	 * Try creating a sqlCheck precondition with all currently known attributes
+	 * and some SQL in the closure.
+	 */
+	@Test
+	void sqlCheckFull() {
+		def preconditions = buildPreconditions {
+			sqlCheck(expectedResult: 'angry') {
+				"SELECT emotion FROM monkey WHERE id=2884"
+			}
+		}
 
-  @Test
-  void andClause() {
-    def preconditions = buildPreconditions {
-      and {
-        dbms(type: 'mysql')
-        runningAs(username: 'tlberglund')
-      }
-    }
+		assertNotNull preconditions
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof SqlPrecondition
+		assertEquals 'angry', preconditions[0].expectedResult
+		assertEquals 'SELECT emotion FROM monkey WHERE id=2884', preconditions[0].sql
+	}
 
-    assertNotNull preconditions
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof AndPrecondition
-    def andedPreconditions = preconditions[0].nestedPreconditions
-    assertNotNull andedPreconditions
-    assertEquals 2, andedPreconditions.size()
-    assertTrue andedPreconditions[0] instanceof DBMSPrecondition
-    assertTrue andedPreconditions[1] instanceof RunningAsPrecondition
-  }
+	/**
+	 * customPrecondition preconditions are also handled a little differently, so
+	 * we need some more checks here. This first test sees what happens when a
+	 * custom precondition is made with an invalid attribute.
+	 */
+	@Test(expected = IllegalArgumentException)
+	void customPreconditionInvalidAttribute() {
+		buildPreconditions {
+			customPrecondition(class: 'org.liquibase.precondition.MonkeyFailPrecondition') {
+				param(paramName: 'emotion', value: 'angry')
+			}
+		}
+	}
 
+	/**
+	 * Try a custom precondition with a nested param that has an invalid attribute
+	 */
+	@Test(expected = IllegalArgumentException)
+	void customPreconditionInvalidParamAttribute() {
+		buildPreconditions {
+			customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
+				param(paramName: 'emotion')
+			}
+		}
+	}
 
-  @Test
-  void orClause() {
-    def preconditions = buildPreconditions {
-      or {
-        dbms(type: 'mysql')
-        runningAs(username: 'tlberglund')
-      }
-    }
+	/**
+	 * Try a custom precondition with a nested param that has an invalid attribute
+	 */
+	@Test(expected = IllegalArgumentException)
+	void customPreconditionMissingName() {
+		buildPreconditions {
+			customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
+				param(value: 'angry')
+			}
+		}
+	}
 
-    assertNotNull preconditions
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof OrPrecondition
-    def andedPreconditions = preconditions[0].nestedPreconditions
-    assertNotNull andedPreconditions
-    assertEquals 2, andedPreconditions.size()
-    assertTrue andedPreconditions[0] instanceof DBMSPrecondition
-    assertTrue andedPreconditions[1] instanceof RunningAsPrecondition
-  }
+	/**
+	 * Test creating a custom precondition with a parameter that has a name but
+	 * no value.  It is unusual, but legal.  When this happens, the missing
+	 * value will be converted by Liquibase to the word "null"
+	 */
+	@Test
+	void customPreconditionMissingValue() {
+		def preconditions = buildPreconditions {
+			customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
+				param(name: 'emotion')
+			}
+		}
 
+		assertNotNull preconditions
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof CustomPreconditionWrapper
+		def params = preconditions[0].paramValues
+		assertEquals 1, preconditions[0].paramValues.size()
+		assertEquals 'null', params.emotion
+	}
 
-  @Test
-  void sqlCheck() {
-    def preconditions = buildPreconditions {
-      sqlCheck(expectedResult: 'angry') {
-        "SELECT emotion FROM monkey WHERE id=2884"
-      }
-    }
+	/**
+	 * Try creating a custom precondition with 2 nested param elements.
+	 */
+	@Test
+	void customPreconditionTwoParamElements() {
+		def preconditions = buildPreconditions {
+			customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
+				param(name: 'emotion', value: 'angry')
+				param(name: 'rfid-tag', value: 28763)
+			}
+		}
 
-    assertNotNull preconditions
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof SqlPrecondition
-    assertEquals 'angry', preconditions[0].expectedResult
-    assertEquals 'SELECT emotion FROM monkey WHERE id=2884', preconditions[0].sql
-  }
+		assertNotNull preconditions
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof CustomPreconditionWrapper
+		def params = preconditions[0].paramValues
+		assertEquals 2, preconditions[0].paramValues.size()
+		assertEquals 'angry', params.emotion
+		assertEquals '28763', params['rfid-tag'] // Liquibase converts to string.
+	}
 
+	/**
+	 * Test creating a precondition using nested methods instead of 'param'
+	 * elements.
+	 */
+	@Test
+	void customPreconditionFails() {
+		def preconditions = buildPreconditions {
+			customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
+				emotion('angry')
+				'rfid-tag'(28763)
+			}
+		}
 
+		assertNotNull preconditions
+		assertEquals 1, preconditions.size()
+		assertTrue preconditions[0] instanceof CustomPreconditionWrapper
+		def params = preconditions[0].paramValues
+		assertEquals 2, preconditions[0].paramValues.size()
+		assertEquals 'angry', params.emotion
+		assertEquals '28763', params['rfid-tag'] // Liquibase converts to string.
+	}
 
-  @Test
-  void customPreconditionFails() {
-    def preconditions = buildPreconditions {
-      customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
-        emotion('angry')
-        'rfid-tag'(28763)
-      }
-    }
+	/**
+	 * Try creating an invalid precondition
+	 */
+	@Test(expected = IllegalArgumentException)
+	void invalidPrecondition() {
+		buildPreconditions {
+			linkExists(host: 'www.thewebsiteisdown.com')
+		}
+	}
 
-    assertNotNull preconditions
-    assertEquals 1, preconditions.size()
-    assertTrue preconditions[0] instanceof CustomPreconditionWrapper
-    // There is no way to examine these parameters once they are set in a CustomPreconditionWrapper
-    //assertEquals 'angry', preconditions[0].expectedResult
-    //assertEquals 'SELECT emotion FROM monkey WHERE id=2884', preconditions[0].sql
-  }
-  
-  
-  
-  def buildPreconditions(Closure closure) {
-      def changelog = new DatabaseChangeLog()
-      changelog.changeLogParameters = new ChangeLogParameters()
-      
-      def delegate = new PreconditionDelegate(databaseChangeLog: changelog)
-      closure.delegate = delegate
-      closure.resolveStrategy = Closure.DELEGATE_FIRST
-      closure.call()
-      
-      delegate.preconditions
-  }
+	/**
+	 * Try creating a valid precondition, but with an invalid attribute.
+	 */
+	@Test(expected = IllegalArgumentException)
+	void invalidPreconditionAttribute() {
+		buildPreconditions {
+			tableExists(name: 'monkey') // this is the wrong attribute on purpose
+		}
+	}
+
+	/**
+	 * Helper method to run the precondition closure and return the preconditions.
+	 * @param closure the closure to call
+	 * @return the preconditions that were created.
+	 */
+	private def buildPreconditions(Closure closure) {
+		def changelog = new DatabaseChangeLog()
+		changelog.changeLogParameters = new ChangeLogParameters()
+
+		def delegate = new PreconditionDelegate(databaseChangeLog: changelog)
+		closure.delegate = delegate
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
+		closure.call()
+
+		delegate.preconditions
+	}
 }

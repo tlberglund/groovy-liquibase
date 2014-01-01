@@ -27,7 +27,12 @@ import org.junit.Test
 import org.junit.Ignore
 import static org.junit.Assert.*
 
-
+/**
+ * This class tests the non-refactoring ChangeSet methods such as rollback.
+ *
+ * @author Tim Berglund
+ * @author Steven C. Saliman
+ */
 class ChangeSetMethodTests extends ChangeSetTests {
 	@Test
 	void testComments() {

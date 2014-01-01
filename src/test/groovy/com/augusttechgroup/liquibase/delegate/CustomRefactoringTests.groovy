@@ -58,14 +58,9 @@ import liquibase.resource.FileSystemResourceAccessor
  * make sense to have this kind of change without both a table name and at
  * least one column.  If a user tries it, they will get errors from Liquibase
  * itself.
- */
-
-/**
- * This class tests ChangeSet refactoring changes that deal with custom changes
- * such as sql and execute.  The tests make sure the DSL can parse each change
- * correctly and handle all options supported by Liquibase.  It does not worry
- * about validating the change itself (making sure required attributes are
- * present for example), that is done by Liquibase itself.
+ *
+ * @author Tim Berglund
+ * @author Steven C. Saliman
  */
 class CustomRefactoringTests extends ChangeSetTests {
 

@@ -68,10 +68,12 @@ import liquibase.change.core.CreateProcedureChange
  * make sense to have this kind of change without both a table name and at
  * least one column.  If a user tries it, they will get errors from Liquibase
  * itself.
+ *
+ * @author Tim Berglund
+ * @author Steven C. Saliman
  */
 class StructuralRefactoringTests extends ChangeSetTests {
 
-	// add with no column or attribute
 	/**
 	 * Try creating an addColumn change with no attributes and an empty closure.
 	 * Make sure the DSL doesn't try to make any assumptions.  It also validates

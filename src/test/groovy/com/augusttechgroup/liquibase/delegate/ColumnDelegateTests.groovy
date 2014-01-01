@@ -32,6 +32,9 @@ import java.text.SimpleDateFormat
  * Test class for the {@link ColumnDelegate}.  As usual, we're only verifying
  * that we can pass things to Liquibase correctly. We check all attributes that
  * are known at this time - note that several are undocumented.
+ *
+ * @author Tim Berglund
+ * @author Steven C. Saliman
  */
 class ColumnDelegateTests {
   def sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")

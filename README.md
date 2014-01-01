@@ -59,6 +59,7 @@ XML documentation.
 - stop 'message'  as well as xml stop(message: 'message')
 - column has some undocumented attributes that we should document here...
 - constraints have some undocumented attributes that we should document here...
+- customPrecondition can take param(name: 'x', value: 'y') or x('y')
 
 ## License
 This code is released under the Apache Public License 2.0, just like Liquibase 2.0.

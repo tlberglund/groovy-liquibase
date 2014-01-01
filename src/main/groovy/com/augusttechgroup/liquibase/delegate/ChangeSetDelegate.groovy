@@ -92,7 +92,7 @@ class ChangeSetDelegate {
 	}
 
 	void preConditions(Map params = [:], Closure closure) {
-		changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, params, closure)
+		changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, changeSet.id, params, closure)
 	}
 
 	//TODO Verify that this works. Don't fully understand addValidCheckSum() yet...
