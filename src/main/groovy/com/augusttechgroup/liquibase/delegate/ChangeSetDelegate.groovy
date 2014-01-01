@@ -84,11 +84,111 @@ class ChangeSetDelegate {
 	def resourceAccessor
 	def inRollback
 
+	// ------------------------------------------------------------------------
+	// Non refactoring elements.
 
 	void comment(String text) {
 		changeSet.comments = expandExpressions(text)
 	}
 
+	void preConditions(Map params = [:], Closure closure) {
+		changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, params, closure)
+	}
+
+	//TODO Verify that this works. Don't fully understand addValidCheckSum() yet...
+	void validCheckSum(String checksum) {
+		changeSet.addValidCheckSum(checksum)
+	}
+
+	/**
+	 * Process an empty rollback.  This doesn't actually do anything, but empty
+	 * rollbacks are allowed by the spec.
+	 */
+	void rollback() {
+		// To support empty rollbacks (allowed by the spec)
+	}
+
+
+	void rollback(String sql) {
+		changeSet.addRollBackSQL(expandExpressions(sql))
+	}
+
+	/**
+	 * Process a rollback when the rollback changes are passed in as a closure.
+	 * The closure can contain nested refactoring changes or raw sql statements.
+	 * I don't know what the XML parser will do, but if the closure contains
+	 * both refactorings and ends with SQL, the Groovy DSL parser will append the
+	 * SQL to list of rollback changes.
+	 * @param closure the closure to evaluate.
+	 */
+	void rollback(Closure closure) {
+		def delegate = new ChangeSetDelegate(changeSet: changeSet,
+						databaseChangeLog: databaseChangeLog,
+						inRollback: true)
+		closure.delegate = delegate
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
+		def sql = expandExpressions(closure.call())
+		if ( sql ) {
+			changeSet.addRollBackSQL(expandExpressions(sql))
+		}
+	}
+
+	/**
+	 * Process a rollback when we're doing an attribute based rollback.  The
+	 * Groovy DSL parser builds a little bit on the XML parser.  With the XML
+	 * parser, if some attributes are given as attributes, but not a changeSetId,
+	 * the parser would just skip attribute processing and look for nested tags.
+	 * With the Groovy DSL parser, you can't have both a parameter map and a
+	 * closure, and all supported attributes are meant to find a change set. What
+	 * This means is that if a map was specified, we need to at least have a
+	 * valid changeSetId in the map.
+	 * @param params
+	 */
+	void rollback(Map params) {
+		// Process map parameters in a way that will alert the user that we've got
+		// an invalid key.  This is a bit brute force, but we can clean it up later
+		def id = null
+		def author = null
+		def filePath = null
+		params.each { key, value ->
+			if ( key == "changeSetId" ) {
+				id = value
+			} else if ( key == "id") {
+				println "Warning: ChangeSet '${changeSet.id}': the id attribute of a rollback has been deprecated, and will be removed in a future release."
+				println "Consider using changeSetId instead."
+				id = value
+			} else if ( key == "changeSetAuthor" ) {
+				author = value
+			} else if ( key == "author" ) {
+				println "Warning: ChangeSet '${changeSet.id}': the author attribute of a rollback has been deprecated, and will be removed in a future release."
+				println "Consider using changeSetAuthor instead."
+				author = value
+ 			} else if ( key == "changeSetPath" ) {
+				filePath = value
+			} else {
+				throw new IllegalArgumentException("ChangeSet '${changeSet.id}': '${key}' is not a valid rollback attribute.")
+			}
+		}
+
+		// If we don't at least have an ID, we can't continue.
+		if ( id == null ) {
+			throw new RollbackImpossibleException("no changeSetId given for rollback in '${changeSet.id}'")
+		}
+
+		// If we weren't given a path, use the one from the databaseChangeLog
+		if ( filePath == null ) {
+			filePath = databaseChangeLog.filePath
+		}
+
+		def referencedChangeSet = databaseChangeLog.getChangeSet(filePath, author, id)
+		if ( referencedChangeSet ) {
+			referencedChangeSet.changes.each { change ->
+				changeSet.addRollbackChange(change)
+			}
+		} else {
+			throw new RollbackImpossibleException("Could not find changeSet to use for rollback: ${filePath}:${author}:${id}")
+		}
+	}
 
 	void modifySql(Map params = [:], Closure closure) {
 		if ( closure ) {
@@ -103,52 +203,6 @@ class ChangeSetDelegate {
 		}
 	}
 
-
-	void preConditions(Map params = [:], Closure closure) {
-		changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, params, closure)
-	}
-
-	//TODO Verify that this works. Don't fully understand addValidCheckSum() yet...
-	void validCheckSum(String checksum) {
-		changeSet.addValidCheckSum(checksum)
-	}
-
-
-	void rollback() {
-		// To support empty rollbacks (allowed by the spec)
-	}
-
-
-	void rollback(String sql) {
-		changeSet.addRollBackSQL(expandExpressions(sql))
-	}
-
-
-	void rollback(Closure closure) {
-		def delegate = new ChangeSetDelegate(changeSet: changeSet,
-						databaseChangeLog: databaseChangeLog,
-						inRollback: true)
-		closure.delegate = delegate
-		closure.resolveStrategy = Closure.DELEGATE_FIRST
-		closure.call()
-
-		// The delegate should populate the ChangeSet's rollback change list, so there is nothing
-		// further to do.
-	}
-
-
-	void rollback(Map params) {
-		def referencedChangeSet = databaseChangeLog.getChangeSet(databaseChangeLog.filePath, params.author, params.id)
-		if ( referencedChangeSet ) {
-			referencedChangeSet.changes.each { change ->
-				changeSet.addRollbackChange(change)
-			}
-		} else {
-			throw new RollbackImpossibleException("Could not find changeSet to use for rollback: ${path}:${author}:${id}")
-		}
-	}
-
-
 	void groovyChange(Closure closure) {
 		def delegate = new GroovyChangeDelegate(closure, changeSet, resourceAccessor)
 		delegate.changeSet = changeSet
@@ -158,7 +212,8 @@ class ChangeSetDelegate {
 		closure.call()
 	}
 
-
+  // -----------------------------------------------------------------------
+	// Refactoring changes
 	void addColumn(Map params, Closure closure) {
 		def change = makeColumnarChangeFromMap('addColumn', AddColumnChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
 		addChange(change)
@@ -224,7 +279,7 @@ class ChangeSetDelegate {
 
 	@Deprecated
 	void createStoredProcedure(Map params = [:], Closure closure) {
-		println "Warning: ChangeSet ${changeSet.id}: createStoredProcedure has been deprecated, and may be removed in a future release."
+		println "Warning: ChangeSet '${changeSet.id}': createStoredProcedure has been deprecated, and may be removed in a future release."
 		println "Consider using createProcedure instead."
 
 		def change = makeChangeFromMap('createStoredProcedure', CreateProcedureChange, params, ['comments'])
@@ -235,7 +290,7 @@ class ChangeSetDelegate {
 
 	@Deprecated
 	void createStoredProcedure(String storedProc) {
-		println "Warning: ChangeSet ${changeSet.id}: createStoredProcedure has been deprecated, and may be removed in a future release."
+		println "Warning: ChangeSet '${changeSet.id}': createStoredProcedure has been deprecated, and may be removed in a future release."
 		println "Consider using createProcedure instead."
 
 		def change = new CreateProcedureChange()
@@ -349,7 +404,7 @@ class ChangeSetDelegate {
 
 	void loadData(Map params, Closure closure) {
 		if ( params.file instanceof File ) {
-			println "Warning: ChangeSet ${changeSet.id}: using a File object for loadData's 'file' attribute has been deprecated, and may be removed in a future release."
+			println "Warning: ChangeSet '${changeSet.id}': using a File object for loadData's 'file' attribute has been deprecated, and may be removed in a future release."
 			println "Consider using the path to the file instead."
 			params.file = params.file.canonicalPath
 		}
@@ -362,7 +417,7 @@ class ChangeSetDelegate {
 
 	void loadUpdateData(Map params, Closure closure) {
 		if ( params.file instanceof File ) {
-			println "Warning: ChangeSet ${changeSet.id}: using a File object for loadUpdateData's 'file' attribute has been deprecated, and may be removed in a future release."
+			println "Warning: ChangeSet '${changeSet.id}': using a File object for loadUpdateData's 'file' attribute has been deprecated, and may be removed in a future release."
 			println "Consider using the path to the file instead."
 			params.file = params.file.canonicalPath
 		}
@@ -549,7 +604,7 @@ class ChangeSetDelegate {
 		// a where clause is not legal for a load change.  Rather than silently
 		// eating a where clause, let the user know.
 		if ( columnDelegate.whereClause != null ) {
-			throw new IllegalArgumentException("changeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
+			throw new IllegalArgumentException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
 		}
 
 		columnDelegate.columns.each { column ->
@@ -583,7 +638,7 @@ class ChangeSetDelegate {
 			try {
 			change.addColumn(column)
 			} catch (MissingMethodException e) {
-				throw new IllegalArgumentException("changeSet '${changeSet.id}': columns are not allowed in '${name}' changes.")
+				throw new IllegalArgumentException("ChangeSet '${changeSet.id}': columns are not allowed in '${name}' changes.")
 			}
 		}
 
@@ -591,7 +646,7 @@ class ChangeSetDelegate {
 			try {
 				ObjectUtil.setProperty(change, 'where', columnDelegate.whereClause)
 			} catch (RuntimeException e) {
-				throw new IllegalArgumentException("changeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
+				throw new IllegalArgumentException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
 			}
 
 		}
@@ -623,7 +678,7 @@ class ChangeSetDelegate {
 					change[key] = sourceMap[key].toBigInteger()
 				}
 			} else {
-				throw new IllegalArgumentException("changeSet '${changeSet.id}': '${key}' is an invalid property for '${name}' changes.")
+				throw new IllegalArgumentException("ChangeSet '${changeSet.id}': '${key}' is an invalid property for '${name}' changes.")
 			}
 
 		}

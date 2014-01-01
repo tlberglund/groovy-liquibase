@@ -84,6 +84,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			addColumn([:]) {}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -110,6 +111,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -138,6 +140,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -176,6 +179,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			renameColumn([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -203,6 +207,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 							     columnDataType: 'varchar(9001)')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -226,6 +231,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			dropColumn([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -249,6 +255,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 							   columnName: 'emotion')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -272,6 +279,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			createTable([:]) {}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -305,6 +313,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -350,6 +359,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			renameTable([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -394,6 +404,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			dropTable([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -417,6 +428,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 							  cascadeConstraints: true)
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -438,6 +450,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			createView([:]) {}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -466,6 +479,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -488,6 +502,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			renameView([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -511,6 +526,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 							   newViewName: 'win_view')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -532,6 +548,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			dropView([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -553,6 +570,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 							 viewName: 'fail_view')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -573,6 +591,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			mergeColumns([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -604,6 +623,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 							     joinString: ' ')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -629,6 +649,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			modifyDataType([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -654,6 +675,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 							newDataType: 'varchar(99)')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -676,6 +698,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			createProcedure ([:]) {}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -701,6 +724,7 @@ END;"""
 			createProcedure { sql }
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -727,6 +751,7 @@ END;"""
 			createProcedure sql
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -752,6 +777,7 @@ END;"""
 			createProcedure(comments: 'someComments') { sql }
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -772,6 +798,7 @@ END;"""
 			createStoredProcedure ([:]) {}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -798,6 +825,7 @@ END;"""
 			createStoredProcedure { sql }
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -825,6 +853,7 @@ END;"""
 			createStoredProcedure sql
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -850,6 +879,7 @@ END;"""
 			createStoredProcedure(comments: 'someComments') { sql }
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()

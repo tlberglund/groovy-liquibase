@@ -33,6 +33,9 @@ import static org.junit.Assert.assertTrue
  * contains utility methods to help with testing.
  */
 class ChangeSetTests {
+	def CHANGESET_ID = 'generic-changeset-id'
+	def CHANGESET_AUTHOR = 'tlberglund'
+	def CHANGESET_FILEPATH = '/filePath'
 	def sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 	def changeSet
 	def resourceAccessor
@@ -47,15 +50,15 @@ class ChangeSetTests {
 	@Before
 	void createChangeSet() {
 		changeSet = new ChangeSet(
-						'generic-changeset-id',
-						'tlberglund',
+						CHANGESET_ID,
+						CHANGESET_AUTHOR,
 						false,
 						false,
-						'/filePath',
+						CHANGESET_FILEPATH,
 						'context',
 						'mysql',
 						true,
-						new DatabaseChangeLog())
+						new DatabaseChangeLog(CHANGESET_FILEPATH))
 
 		// Capture stdout to confirm the presence of a deprecation warning.
 		System.out = new PrintStream(bufStr)
@@ -84,8 +87,10 @@ class ChangeSetTests {
 	 * @return the changeSet, with parsed changes from the closure added.
 	 */
 	def buildChangeSet(Closure closure) {
-		def changelog = new DatabaseChangeLog()
+		def changelog = new DatabaseChangeLog(CHANGESET_FILEPATH)
+		changelog.addChangeSet(changeSet)
 		changelog.changeLogParameters = new ChangeLogParameters()
+		changelog.changeLogParameters.set('database.typeName', 'mysql')
 
 		closure.delegate = new ChangeSetDelegate(changeSet: changeSet,
 						resourceAccessor: resourceAccessor,

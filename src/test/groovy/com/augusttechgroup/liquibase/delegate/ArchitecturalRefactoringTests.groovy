@@ -68,6 +68,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 			createIndex([:]) { }
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -104,6 +105,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 			}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -142,6 +144,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 			}
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -192,6 +195,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 			dropIndex([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -216,6 +220,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 			          associatedWith: 'foreignKey')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()

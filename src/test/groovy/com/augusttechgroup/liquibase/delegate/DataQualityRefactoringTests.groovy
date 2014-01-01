@@ -79,6 +79,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			addLookupTable([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -115,6 +116,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			)
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -142,6 +144,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			addNotNullConstraint([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -169,6 +172,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							             columnDataType: 'varchar(75)')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -192,6 +196,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			dropNotNullConstraint([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -217,6 +222,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							              columnDataType: 'varchar(75)')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -239,6 +245,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			addUniqueConstraint([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -274,6 +281,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							disabled: false)
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -309,6 +317,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							disabled: false)
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -344,6 +353,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							disabled: true)
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -370,6 +380,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			dropUniqueConstraint([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -395,6 +406,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			                     uniqueColumns: 'unique_column')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -417,6 +429,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			createSequence([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -451,6 +464,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							       cycle: false)
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -477,6 +491,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			alterSequence([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -507,6 +522,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							ordered: true)
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -531,6 +547,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			dropSequence([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -552,6 +569,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							     sequenceName: 'sequence')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -572,6 +590,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			addAutoIncrement([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -601,6 +620,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							         incrementBy: 5)
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -625,6 +645,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			addDefaultValue([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -665,6 +686,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							        defaultValueSequenceNext: 'sequence')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -693,6 +715,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 			dropDefaultValue([:])
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()
@@ -718,6 +741,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							         columnDataType: 'varchar')
 		}
 
+		assertEquals 0, changeSet.getRollBackChanges().length
 		def changes = changeSet.changes
 		assertNotNull changes
 		assertEquals 1, changes.size()

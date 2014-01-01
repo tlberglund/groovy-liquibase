@@ -647,20 +647,6 @@ class ConstraintDelegateTests {
 	}
 
 
-	def buildConstraint(Closure closure) {
-		def changelog = new DatabaseChangeLog()
-		changelog.changeLogParameters = new ChangeLogParameters()
-
-		def delegate = new ConstraintDelegate(databaseChangeLog: changelog,
-		                                      changeSetId: 'test-change-set',
-		                                      changeName: 'test-change')
-		closure.delegate = delegate
-		closure.resolveStrategy = Closure.DELEGATE_FIRST
-		closure.call()
-
-		delegate.constraint
-	}
-
 	/**
 	 * Make sure the given message is present in the standard output.  This can
 	 * be used to verify that we got expected deprecation warnings.  This method
@@ -681,6 +667,26 @@ class ConstraintDelegateTests {
 		String testOutput = bufStr.toString()
 		assertTrue "Did not expect to have output, but got:\n '${testOutput}",
 						testOutput.length() < 1
+	}
+
+	/**
+	 * Helper method to execute a constraint closure and return the constraint
+	 * created from it.
+	 * @param closure the closure to execute
+	 * @return the closure object built.
+	 */
+	private def buildConstraint(Closure closure) {
+		def changelog = new DatabaseChangeLog()
+		changelog.changeLogParameters = new ChangeLogParameters()
+
+		def delegate = new ConstraintDelegate(databaseChangeLog: changelog,
+						changeSetId: 'test-change-set',
+						changeName: 'test-change')
+		closure.delegate = delegate
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
+		closure.call()
+
+		delegate.constraint
 	}
 
 }
