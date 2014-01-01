@@ -313,11 +313,11 @@ class ChangeSetDelegate {
 	 */
 	void addForeignKeyConstraint(Map params) {
 		if ( params['deleteCascade'] != null ) {
-			println "Warning: ChangeSet ${changeSet.id}: addForeignKeyConstraint's deleteCascade parameter has been deprecated, and may be removed in a future release."
+			println "Warning: ChangeSet '${changeSet.id}': addForeignKeyConstraint's deleteCascade parameter has been deprecated, and may be removed in a future release."
 			println "Consider using \"onDelete='CASCADE'\" instead."
 		}
 		if ( params['referencesUniqueColumn'] != null ) {
-			println "Warning: ChangeSet ${changeSet.id}: addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated, and may be removed in a future release."
+			println "Warning: ChangeSet '${changeSet.id}': addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated, and may be removed in a future release."
 			println "Consider removing it, as Liquibase ignores it anyway."
 		}
 		addMapBasedChange('addForeignKeyConstraint', AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableCatalogName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])
@@ -443,7 +443,8 @@ class ChangeSetDelegate {
 
 	void sql(Map params = [:], Closure closure) {
 		def change = makeChangeFromMap('sql', RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter', 'dbms'])
-		def delegate = new CommentDelegate()
+		def delegate = new CommentDelegate(changeSetId: changeSet.id,
+		                                   changeName: 'sql')
 		closure.delegate = delegate
 		closure.resolveStrategy = Closure.DELEGATE_FIRST
 		change.sql = expandExpressions(closure.call())
@@ -536,7 +537,10 @@ class ChangeSetDelegate {
 	private def makeLoadDataColumnarChangeFromMap(String name, Class klass, Closure closure, Map params, List paramNames) {
 		def change = makeChangeFromMap(name, klass, params, paramNames)
 
-		def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig, databaseChangeLog: databaseChangeLog)
+		def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig,
+						                                databaseChangeLog: databaseChangeLog,
+		                                        changeSetId: changeSet.id,
+		                                        changeName: name)
 		closure.delegate = columnDelegate
 		closure.resolveStrategy = Closure.DELEGATE_FIRST
 		closure.call()

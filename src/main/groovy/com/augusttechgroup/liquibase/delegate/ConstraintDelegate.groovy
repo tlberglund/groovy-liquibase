@@ -23,34 +23,33 @@ import liquibase.util.ObjectUtil;
 class ConstraintDelegate {
   def constraint
   def databaseChangeLog
+	def changeSetId = '<unknown>' // used for error messages
+	def changeName = '<unknown>' // used for error messages
 
 
   ConstraintDelegate() {
-    constraint = new ConstraintsConfig(primaryKey: false,
-                                       primaryKeyName: null,
-                                       primaryKeyTablespace: null,
-                                       foreignKeyName: null,
-                                       references: null,
-				                               referencedTableName: null,
-				                               referencedColumnNames: null,
-                                       checkConstraint: null,
-                                       unique: false,
-                                       uniqueConstraintName: null,
-                                       deleteCascade: false,
-                                       initiallyDeferred: false,
-                                       deferrable: false,
-                                       nullable: true)
+    constraint = new ConstraintsConfig()
   }
 
 
   def constraints(Map params = [:]) {
     params.each { key, value ->
-      ObjectUtil.setProperty(constraint, key, expandExpressions(value))
+      try {
+	      ObjectUtil.setProperty(constraint, key, expandExpressions(value))
+      } catch(RuntimeException e) {
+	      // Rethrow as an IllegalArgumentException with a more helpful message
+	      // than you'll get from the Liquibase helper.
+	      throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is not a valid constraint attribute for '${changeName}' changes.")
+      }
     }
   }
 
 
+	@Deprecated
   def constraints(Closure closure) {
+		// this is not how the XML works, and don't do this anywhere else so
+		// deprecate it.
+		println "Warning: ChangeSet '${changeSetId}', ${changeName} change: Setting constraint attributes in nested closures has been deprecated, and may be removed in a future release."
     closure.delegate = this
     closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()
@@ -58,8 +57,10 @@ class ConstraintDelegate {
   
 
   def methodMissing(String name, params) {
-    if(constraint.hasProperty(name)) {
+    if ( constraint.hasProperty(name) ) {
       ObjectUtil.setProperty(constraint, name, expandExpressions(params[0]))
+    } else {
+	    throw new IllegalArgumentException("ChangeSet '${changeSetId}': ${name} is not a valid child element of constraint closures in ${changeName} changes")
     }
   }
   

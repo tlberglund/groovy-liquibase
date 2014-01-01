@@ -56,12 +56,13 @@ class ColumnDelegate {
 				// Rethrow as an IllegalArgumentException with a more helpful message
 				// than you'll get from the Liquibase helper.
 				throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is not a valid column attribute for '${changeName}' changes.")
-
 			}
 		}
 
 		if ( closure ) {
-			def constraintDelegate = new ConstraintDelegate(databaseChangeLog: databaseChangeLog)
+			def constraintDelegate = new ConstraintDelegate(databaseChangeLog: databaseChangeLog,
+			                                                changeSetId: changeSetId,
+			                                                changeName: changeName)
 			closure.delegate = constraintDelegate
 			closure.resolveStrategy = Closure.DELEGATE_FIRST
 			closure.call()

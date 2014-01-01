@@ -16,7 +16,8 @@ Before upgrading, we strongly recommend the following procedure for upgrading:
     default value to a boolean column in MySql using ```defaultValue: "0"```
     worked fine in Liquibase 2, but in Liquibase 3, it generates invalid SQL.
     ```defaultValueNumeric: 0``` needs to be used instead.  This is also a good
-    time to look for and fix any deprecation warnings.
+    time to look for and fix any deprecation warnings.  A tip: redirect stdout.
+    most of what Liquibase tells you is on stderr, but not deprecation warnings.
  3. When you are sure all the change sets are correct for Liquibase 3, clear
     all checksums calculated by Liquibase 2 by using the ```clearChecksums```
     command in all databases.
@@ -56,6 +57,8 @@ XML documentation.
 - sqlFile says you can set the sql attribute, but it doesn't make sense, so
     we don't do it.
 - stop 'message'  as well as xml stop(message: 'message')
+- column has some undocumented attributes that we should document here...
+- constraints have some undocumented attributes that we should document here...
 
 ## License
 This code is released under the Apache Public License 2.0, just like Liquibase 2.0.
