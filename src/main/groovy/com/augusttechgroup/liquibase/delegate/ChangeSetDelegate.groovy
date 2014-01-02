@@ -95,7 +95,6 @@ class ChangeSetDelegate {
 		changeSet.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, changeSet.id, params, closure)
 	}
 
-	//TODO Verify that this works. Don't fully understand addValidCheckSum() yet...
 	void validCheckSum(String checksum) {
 		changeSet.addValidCheckSum(checksum)
 	}

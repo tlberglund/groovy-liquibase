@@ -28,14 +28,15 @@ import org.junit.Ignore
 import static org.junit.Assert.*
 
 /**
- * This class tests the non-refactoring ChangeSet methods such as rollback.
+ * This class tests the methods of a change set that are neither preconditions,
+ * nor refactorings.  This includes things like {@code rollback}
  *
  * @author Tim Berglund
  * @author Steven C. Saliman
  */
 class ChangeSetMethodTests extends ChangeSetTests {
 	@Test
-	void testComments() {
+	void comments() {
 		buildChangeSet {
 			comment "This is a comment"
 		}
@@ -43,15 +44,29 @@ class ChangeSetMethodTests extends ChangeSetTests {
 		assertNoOutput()
 	}
 
-
-	@Ignore
+	/**
+	 * Test the validChecksuum functionality.  This test needs some explanation.
+	 * Liquibase's {@code isChecksumValid()} method compares the change set's
+	 * current checksum to the hash given to the method. If they don't match, it
+	 * will check the current checksum against checksums that are stored with the
+	 * validChecksum element.  So to test this, we do the following:<br>
+	 * <ol>
+	 * <li>Call isChecksumValid with a bogus checksum.  Because the bogus checksum
+	 * does not match the current checksum, we expect it to return false.</li>
+	 * <li>apply the validCheckSum method with the current, valid, checksum for
+	 * the changeSet.</li>
+	 * <li>Call isChecksumValid with the same bogus checksum as before. It still
+	 * won't match the current calculated checksum, but since that checksum has
+	 * been marked as valid, we should now get a true result.
+	 */
 	@Test
-	void testValidChecksum() {
+	void validChecksumTest() {
 		def checksum = 'd0763edaa9d9bd2a9516280e9044d885'
 		def liquibaseChecksum = CheckSum.parse(checksum)
+		def goodChecksum = changeSet.generateCheckSum().toString()
 		assertFalse "Arbitrary checksum should not be valid before being added", changeSet.isCheckSumValid(liquibaseChecksum)
 		buildChangeSet {
-			validCheckSum checksum
+			validCheckSum goodChecksum
 		}
 		assertTrue "Arbitrary checksum should be valid after being added", changeSet.isCheckSumValid(liquibaseChecksum)
 		assertNoOutput()
@@ -283,8 +298,8 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
 	}
 
 	/**
-	 * Test a map based rollback with the deprecated "id" and "author" attributes
-	 * to make sure we get the deprecation warnings.
+	 * Test a map based rollback with the deprecated "id" and "author" attribute to make sure
+	 * we get the deprecation warning.
 	 */
 	@Test
 	void rollbackWithDeprecatedAttributes() {

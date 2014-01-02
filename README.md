@@ -60,6 +60,11 @@ XML documentation.
 - column has some undocumented attributes that we should document here...
 - constraints have some undocumented attributes that we should document here...
 - customPrecondition can take param(name: 'x', value: 'y') or x('y')
+- validChecksum is not well documented.  What it means is that if the changeSet's
+  current checksum does not match what is in the database, consider the contents
+  of the validChecksum element valid.  This is used if you, for example, want
+  to reformat a changeSet to add white space.  It doesn't change the functionality,
+  but it will cause it to generate new checksums.
 
 ## License
 This code is released under the Apache Public License 2.0, just like Liquibase 2.0.
