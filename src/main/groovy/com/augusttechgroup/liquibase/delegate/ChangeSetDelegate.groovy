@@ -196,6 +196,7 @@ class ChangeSetDelegate {
 			closure.resolveStrategy = Closure.DELEGATE_FIRST
 			closure.call()
 
+			// No need to expand expressions, the ModifySqlDelegate will do it.
 			delegate.sqlVisitors.each {
 				changeSet.addSqlVisitor(it)
 			}

@@ -52,6 +52,8 @@ class ChangeSetTests {
 	 */
 	@Before
 	void createChangeSet() {
+		def changeLog = new DatabaseChangeLog(CHANGESET_FILEPATH)
+		changeLog.changeLogParameters = new ChangeLogParameters()
 		changeSet = new ChangeSet(
 						CHANGESET_ID,
 						CHANGESET_AUTHOR,
@@ -61,7 +63,7 @@ class ChangeSetTests {
 						'context',
 						'mysql',
 						true,
-						new DatabaseChangeLog(CHANGESET_FILEPATH))
+						changeLog)
 
 		// Capture stdout to confirm the presence of a deprecation warning.
 		System.out = new PrintStream(bufStr)

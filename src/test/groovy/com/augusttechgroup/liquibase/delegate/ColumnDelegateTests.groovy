@@ -378,15 +378,12 @@ class ColumnDelegateTests {
 		}
 	}
 
-
-	// Test invalid
-
 	/**
 	 * helper method to build and execute a ColumnDelegate.
 	 * @param closure the closure to execute
 	 * @return the new delegate.
 	 */
-  def buildColumnDelegate(Class columnConfigClass, Closure closure) {
+  private def buildColumnDelegate(Class columnConfigClass, Closure closure) {
       def changelog = new DatabaseChangeLog()
       changelog.changeLogParameters = new ChangeLogParameters()
 	    def columnDelegate = new ColumnDelegate(columnConfigClass: columnConfigClass,

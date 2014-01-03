@@ -417,7 +417,9 @@ databaseChangeLog {
 	 */
 	@Test
 	void includeAllValid() {
-		def includedChangeLogFile = createFileFrom(TMP_INCLUDE_DIR, '-1.groovy', """
+		// The two included change logs need to be created with prefixes that
+		// guarantee that the first file will be alphabetically first.
+		def includedChangeLogFile = createFileFrom(TMP_INCLUDE_DIR, 'first', '.groovy', """
 databaseChangeLog {
   preConditions {
     runningAs(username: 'tlberglund')
@@ -429,7 +431,7 @@ databaseChangeLog {
 }
 """)
 
-		includedChangeLogFile = createFileFrom(TMP_INCLUDE_DIR, '-2.groovy', """
+		includedChangeLogFile = createFileFrom(TMP_INCLUDE_DIR, 'second', '-2.groovy', """
 databaseChangeLog {
   changeSet(author: 'tlberglund', id: 'included-change-set-2') {
     addColumn(tableName: 'monkey') {
@@ -684,10 +686,12 @@ emotion=angry
 	}
 
 	private File createFileFrom(directory, suffix, text) {
-		def file = File.createTempFile('liquibase-', suffix, directory)
-//    file.deleteOnExit()
-		file << text
+		createFileFrom(directory, 'liquibase-', suffix, text)
 	}
 
+	private File createFileFrom(directory, prefix, suffix, text) {
+		def file = File.createTempFile(prefix, suffix, directory)
+		file << text
+	}
 }
 

@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.sql.visitor.PrependSqlVisitor
 import org.junit.Test
 import static org.junit.Assert.*
 import liquibase.change.core.RawSQLChange
@@ -466,5 +467,34 @@ class CustomRefactoringTests extends ChangeSetTests {
 		assertEquals 'angry', args.emotion
 		assertEquals '28763', args.'rfid-tag'
 		assertNoOutput()
+	}
+
+	/**
+	 * Make sure modifySql works.  Most of the tests for this are in
+	 * {@link ModifySqlDelegateTests}, this just needs to make sure that the
+	 * SqlVisitors that the delegate returns are added to the changeSet.  This
+	 * one also tests that we can have a modifySql with no attributes of its own.
+	 */
+	@Test
+	void modifySqlValid() {
+		buildChangeSet {
+			modifySql {
+				prepend(value: 'engine INNODB')
+			}
+		}
+
+		assertEquals 0, changeSet.getRollBackChanges().length
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 0, changes.size()
+		assertEquals 1, changeSet.sqlVisitors.size()
+		assertTrue changeSet.sqlVisitors[0] instanceof PrependSqlVisitor
+		assertEquals 'engine INNODB', changeSet.sqlVisitors[0].value
+		assertNull changeSet.sqlVisitors[0].applicableDbms
+		assertNull changeSet.sqlVisitors[0].contexts
+		assertFalse changeSet.sqlVisitors[0].applyToRollback
+		assertNoOutput()
+
+
 	}
 }
