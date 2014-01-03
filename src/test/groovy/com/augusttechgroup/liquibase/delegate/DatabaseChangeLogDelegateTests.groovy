@@ -138,6 +138,7 @@ databaseChangeLog()
 		}
 
 		def databaseChangeLog = new DatabaseChangeLog('changelog.xml')
+	  databaseChangeLog.changeLogParameters = new ChangeLogParameters()
 		def delegate = new DatabaseChangeLogDelegate(databaseChangeLog)
 		closure.delegate = delegate
 		closure.call()

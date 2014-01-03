@@ -397,7 +397,7 @@ class PreconditionDelegateTests {
 		assertTrue preconditions[0] instanceof CustomPreconditionWrapper
 		def params = preconditions[0].paramValues
 		assertEquals 1, preconditions[0].paramValues.size()
-		assertEquals 'null', params.emotion
+		assertNull params.emotion
 	}
 
 	/**

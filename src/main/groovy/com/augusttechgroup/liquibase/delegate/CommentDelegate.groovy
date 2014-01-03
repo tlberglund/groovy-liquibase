@@ -22,6 +22,9 @@ import liquibase.exception.ChangeLogParseException
  * This class processes the closure that can be present in a {@code sql} change.
  * the closure will either contain just SQL, or a comment and some SQL.
  * For now, we only support the SQL coming after the comment.
+ * <p>
+ * This delegate will not expand expressions to make changeLog property
+ * substitutions.  That is up to the caller.
  */
 class CommentDelegate {
 	String comment = null

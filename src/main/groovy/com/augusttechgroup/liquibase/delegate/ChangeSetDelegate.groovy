@@ -61,7 +61,6 @@ import liquibase.exception.RollbackImpossibleException
 import liquibase.util.ObjectUtil;
 import liquibase.change.core.ModifyDataTypeChange
 import liquibase.change.core.DeleteDataChange
-import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 
 /**
  * This class is the closure delegate for a ChangeSet.  It processes all the
@@ -89,7 +88,7 @@ class ChangeSetDelegate {
 	// Non refactoring elements.
 
 	void comment(String text) {
-		changeSet.comments = expandExpressions(text)
+		changeSet.comments = DelegateUtil.expandExpressions(text, databaseChangeLog)
 	}
 
 	void preConditions(Map params = [:], Closure closure) {
@@ -110,7 +109,7 @@ class ChangeSetDelegate {
 
 
 	void rollback(String sql) {
-		changeSet.addRollBackSQL(expandExpressions(sql))
+		changeSet.addRollBackSQL(DelegateUtil.expandExpressions(sql, databaseChangeLog))
 	}
 
 	/**
@@ -127,9 +126,9 @@ class ChangeSetDelegate {
 						inRollback: true)
 		closure.delegate = delegate
 		closure.resolveStrategy = Closure.DELEGATE_FIRST
-		def sql = expandExpressions(closure.call())
+		def sql = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 		if ( sql ) {
-			changeSet.addRollBackSQL(expandExpressions(sql))
+			changeSet.addRollBackSQL(sql)
 		}
 	}
 
@@ -152,19 +151,19 @@ class ChangeSetDelegate {
 		def filePath = null
 		params.each { key, value ->
 			if ( key == "changeSetId" ) {
-				id = value
+				id = DelegateUtil.expandExpressions(value, databaseChangeLog)
 			} else if ( key == "id") {
 				println "Warning: ChangeSet '${changeSet.id}': the id attribute of a rollback has been deprecated, and will be removed in a future release."
 				println "Consider using changeSetId instead."
-				id = value
+				id = DelegateUtil.expandExpressions(value, databaseChangeLog)
 			} else if ( key == "changeSetAuthor" ) {
-				author = value
+				author = DelegateUtil.expandExpressions(value, databaseChangeLog)
 			} else if ( key == "author" ) {
 				println "Warning: ChangeSet '${changeSet.id}': the author attribute of a rollback has been deprecated, and will be removed in a future release."
 				println "Consider using changeSetAuthor instead."
-				author = value
+				author = DelegateUtil.expandExpressions(value, databaseChangeLog)
  			} else if ( key == "changeSetPath" ) {
-				filePath = value
+				filePath = DelegateUtil.expandExpressions(value, databaseChangeLog)
 			} else {
 				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': '${key}' is not a valid rollback attribute.")
 			}
@@ -258,7 +257,7 @@ class ChangeSetDelegate {
 
 	void createView(Map params, Closure closure) {
 		def change = makeChangeFromMap('createView', CreateViewChange, params, ['catalogName', 'schemaName', 'viewName', 'replaceIfExists', 'selectQuery'])
-		change.selectQuery = expandExpressions(closure.call())
+		change.selectQuery = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 		addChange(change)
 	}
 
@@ -283,7 +282,7 @@ class ChangeSetDelegate {
 		println "Consider using createProcedure instead."
 
 		def change = makeChangeFromMap('createStoredProcedure', CreateProcedureChange, params, ['comments'])
-		change.procedureBody = expandExpressions(closure.call())
+		change.procedureBody = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 		addChange(change)
 	}
 
@@ -294,21 +293,21 @@ class ChangeSetDelegate {
 		println "Consider using createProcedure instead."
 
 		def change = new CreateProcedureChange()
-		change.procedureBody = expandExpressions(storedProc)
+		change.procedureBody = DelegateUtil.expandExpressions(storedProc, databaseChangeLog)
 		addChange(change)
 	}
 
 
 	void createProcedure(Map params = [:], Closure closure) {
 		def change = makeChangeFromMap('createProcedure', CreateProcedureChange, params, ['comments'])
-		change.procedureBody = expandExpressions(closure.call())
+		change.procedureBody = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 		addChange(change)
 	}
 
 
 	void createProcedure(String storedProc) {
 		def change = new CreateProcedureChange()
-		change.procedureBody = expandExpressions(storedProc)
+		change.procedureBody = DelegateUtil.expandExpressions(storedProc, databaseChangeLog)
 		addChange(change)
 	}
 
@@ -460,7 +459,7 @@ class ChangeSetDelegate {
 	 */
 	void tagDatabase(String tagName) {
 		def change = new TagDatabaseChange()
-		change.tag = tagName
+		change.tag = DelegateUtil.expandExpressions(tagName, databaseChangeLog)
 		addChange(change)
 	}
 
@@ -481,7 +480,7 @@ class ChangeSetDelegate {
 	 */
 	void stop(String message) {
 		def change = new StopChange()
-		change.message = message
+		change.message = DelegateUtil.expandExpressions(message, databaseChangeLog)
 		addChange(change)
 	}
 
@@ -502,15 +501,16 @@ class ChangeSetDelegate {
 		                                   changeName: 'sql')
 		closure.delegate = delegate
 		closure.resolveStrategy = Closure.DELEGATE_FIRST
-		change.sql = expandExpressions(closure.call())
-		change.comment = (expandExpressions(delegate.comment))
+		// expand expressions because the comment delegate won't...
+		change.sql = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
+		change.comment = (DelegateUtil.expandExpressions(delegate.comment, databaseChangeLog))
 		addChange(change)
 	}
 
 
 	void sql(String sql) {
 		def change = new RawSQLChange()
-		change.sql = expandExpressions(sql)
+		change.sql = DelegateUtil.expandExpressions(sql, databaseChangeLog)
 		addChange(change)
 	}
 
@@ -527,11 +527,10 @@ class ChangeSetDelegate {
 		addChange(change)
 	}
 
-
 	void customChange(Map params, Closure closure = null) {
 		def change = new CustomChangeWrapper()
 		change.classLoader = this.class.classLoader
-		change.className = params['class']
+		change.className = DelegateUtil.expandExpressions(params['class'], databaseChangeLog)
 
 		if ( closure ) {
 			def delegate = new KeyValueDelegate()
@@ -539,7 +538,8 @@ class ChangeSetDelegate {
 			closure.resolveStrategy = Closure.DELEGATE_FIRST
 			closure.call()
 			delegate.map.each { key, value ->
-				change.setParam(key, expandExpressions(value))
+				// expandExpressions because the delegate won't
+				change.setParam(key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 			}
 		}
 
@@ -572,7 +572,8 @@ class ChangeSetDelegate {
 		closure.resolveStrategy = Closure.DELEGATE_FIRST
 		closure.call()
 		delegate.args.each { arg ->
-			change.addArg(expandExpressions(arg))
+			// expand expressions because the argument delegate won't...
+			change.addArg(DelegateUtil.expandExpressions(arg, databaseChangeLog))
 		}
 
 		addChange(change)
@@ -645,9 +646,13 @@ class ChangeSetDelegate {
 		closure.resolveStrategy = Closure.DELEGATE_FIRST
 		closure.call()
 
+		// Try to add the columns to the change.  If we're dealing with something
+		// like a "delete" change, we'll get an exception, which we'll rethrow as
+		// a parse exception to tell the user that columns are not allowed in that
+		// change.
 		columnDelegate.columns.each { column ->
 			try {
-			change.addColumn(column)
+			  change.addColumn(column)
 			} catch (MissingMethodException e) {
 				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': columns are not allowed in '${name}' changes.")
 			}
@@ -655,6 +660,7 @@ class ChangeSetDelegate {
 
 		if ( columnDelegate.whereClause != null ) {
 			try {
+				// The columnDelegate DOES take care of expansion.
 				ObjectUtil.setProperty(change, 'where', columnDelegate.whereClause)
 			} catch (RuntimeException e) {
 				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
@@ -683,7 +689,7 @@ class ChangeSetDelegate {
 		sourceMap.each { key, value ->
 			if ( paramNames.contains(key) && value != null ) {
 				try {
-					ObjectUtil.setProperty(change, key, expandExpressions(value))
+					ObjectUtil.setProperty(change, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 				}
 				catch (NumberFormatException ex) {
 					change[key] = value.toBigInteger()
@@ -721,12 +727,5 @@ class ChangeSetDelegate {
 			changeSet.addChange(change)
 		}
 		return changeSet
-	}
-
-	private def expandExpressions(expression) {
-		// Don't expand a null into "null"
-		if ( expression != null ) {
-			databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
-		}
 	}
 }

@@ -33,6 +33,9 @@ import liquibase.util.ObjectUtil;
  * with the overall purpose of the class, but it is much better than having to
  * duplicate the column processing logic since the {@code update} change uses
  * columns and a where clause.
+ * <p>
+ * This delegate will expand expressions to make databaseChangeLog property
+ * substitutions.  It is important that the caller does not do it again.
  */
 class ColumnDelegate {
 	def columns = []
@@ -43,7 +46,7 @@ class ColumnDelegate {
 	def changeName = '<unknown>' // used for error messages
 
 	/**
-	 * Parse a single column entry ina clpsure.
+	 * Parse a single column entry ina closure.
 	 * @param params the attributes to set.
 	 * @param closure a child closure to call, such as a constraint clause
 	 */
@@ -52,7 +55,7 @@ class ColumnDelegate {
 
 		params.each { key, value ->
 			try {
-			  ObjectUtil.setProperty(column, key, expandExpressions(value))
+				ObjectUtil.setProperty(column, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 			} catch(RuntimeException e) {
 				// Rethrow as an ChangeLogParseException with a more helpful message
 				// than you'll get from the Liquibase helper.
@@ -78,7 +81,7 @@ class ColumnDelegate {
 	 * @param whereClause the where clause to use.
 	 */
 	def where(String whereClause) {
-		this.whereClause = expandExpressions(whereClause)
+		this.whereClause = DelegateUtil.expandExpressions(whereClause, databaseChangeLog)
 	}
 
 	/**
@@ -90,9 +93,4 @@ class ColumnDelegate {
 	def methodMissing(String name, args) {
 		throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of ${changeName} changes")
 	}
-
-	private def expandExpressions(expression) {
-		databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
-	}
-
 }

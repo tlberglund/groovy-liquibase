@@ -20,7 +20,11 @@ import liquibase.exception.ChangeLogParseException
 
 /**
  * This class processes the {@code arg} closure that can be present in an
- * {@code executeCommand} change.
+ * {@code executeCommand} change.  The arguments that are processed by this
+ * closure will not be expanded for databaseChangeLog property substitution.
+ * That is up to the caller.
+ *
+ * @author Steven C. Saliman
  */
 class ArgumentDelegate {
 	def args = []

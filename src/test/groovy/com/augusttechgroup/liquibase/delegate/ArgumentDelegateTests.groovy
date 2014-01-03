@@ -151,7 +151,7 @@ class ArgumentDelegateTests {
 	 */
 	def buildArguments(Closure closure) {
 		def delegate = new ArgumentDelegate(changeSetId: 'test-change-set',
-						changeName: 'executeCommand')
+						                            changeName: 'executeCommand')
 		closure.delegate = delegate
 		closure.resolveStrategy = Closure.DELEGATE_FIRST
 		closure.call()

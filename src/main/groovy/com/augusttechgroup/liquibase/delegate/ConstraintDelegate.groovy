@@ -36,7 +36,7 @@ class ConstraintDelegate {
   def constraints(Map params = [:]) {
     params.each { key, value ->
       try {
-	      ObjectUtil.setProperty(constraint, key, expandExpressions(value))
+	      ObjectUtil.setProperty(constraint, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
       } catch(RuntimeException e) {
 	      // Rethrow as an ChangeLogParseException with a more helpful message
 	      // than you'll get from the Liquibase helper.
@@ -48,7 +48,7 @@ class ConstraintDelegate {
 
 	@Deprecated
   def constraints(Closure closure) {
-		// this is not how the XML works, and don't do this anywhere else so
+		// this is not how the XML works, and we don't do this anywhere else so
 		// deprecate it.
 		println "Warning: ChangeSet '${changeSetId}', ${changeName} change: Setting constraint attributes in nested closures has been deprecated, and may be removed in a future release."
     closure.delegate = this
@@ -59,13 +59,10 @@ class ConstraintDelegate {
 
   def methodMissing(String name, params) {
     if ( constraint.hasProperty(name) ) {
-      ObjectUtil.setProperty(constraint, name, expandExpressions(params[0]))
+      ObjectUtil.setProperty(constraint, name, DelegateUtil.expandExpressions(params[0], databaseChangeLog))
     } else {
 	    throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of constraint closures in ${changeName} changes")
     }
   }
   
-  private def expandExpressions(expression) {
-    databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
-  }
 }

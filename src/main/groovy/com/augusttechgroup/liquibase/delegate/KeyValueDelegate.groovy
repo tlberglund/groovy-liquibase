@@ -27,6 +27,10 @@ import liquibase.exception.ChangeLogParseException
  * closure is assumed to be the key and the method's arguments are assumed to
  * be the value.  So the code snippet above becomes
  *{@code someName ( ' someValue ' )}*
+ * <p>
+ * The map created by this delegate will not do database changeLog property
+ * substitution, that will be up to the caller.
+ *
  * @author Tim Berglund
  * @author Steven C. Saliman
  */

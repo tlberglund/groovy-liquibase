@@ -26,6 +26,7 @@ import liquibase.parser.core.xml.XMLChangeLogSAXHandler;
  * is the starting point for parsing the Groovy DSL.
  *
  * @author Tim Berglund
+ * @author Steven C. Saliman
  */
 class DatabaseChangeLogDelegate {
   def databaseChangeLog
@@ -41,6 +42,8 @@ class DatabaseChangeLogDelegate {
   DatabaseChangeLogDelegate(Map params, databaseChangeLog) {
     this.params = params
     this.databaseChangeLog = databaseChangeLog
+	  // It doesn't make sense to expand expressions, since we haven't loaded
+	  // properties yet.
     params.each { key, value ->
       databaseChangeLog[key] = value
     }
@@ -78,6 +81,7 @@ class DatabaseChangeLogDelegate {
 		  runInTransaction = params.runInTransaction.toBoolean()
 	  }
 
+	  // Todo: We should probably support expanded expressions here...
 	  def changeSet = new ChangeSet(
       params.id,
       params.author,
@@ -116,6 +120,7 @@ class DatabaseChangeLogDelegate {
 	 * Process the include element to include a file with change sets.
 	 * @param params
 	 */
+	// Todo: We should probably support expanded expressions here...
   void include(Map params = [:]) {
 	  if ( params.containsKey('path') ) {
 		  println "Warning: the 'path' attribute of an include is deprecated, and will be removed in a future release."
@@ -148,6 +153,7 @@ class DatabaseChangeLogDelegate {
 	 * Process the includeAll element to include all groovy files in a directory.
 	 * @param params
 	 */
+	// Todo: We should probably support expanded expressions here...
 	void includeAll(Map params = [:]) {
 		// validate parameters.
 		def unsupportedKeys = params.keySet() - ['path', 'relativeToChangelogFile']

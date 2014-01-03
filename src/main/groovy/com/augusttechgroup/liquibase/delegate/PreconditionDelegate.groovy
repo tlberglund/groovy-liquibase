@@ -55,7 +55,7 @@ class PreconditionDelegate {
     if ( params != null && params instanceof Map ) {
       params.each { key, value ->
 	      try {
-          ObjectUtil.setProperty(precondition, key, expandExpressions(value))
+          ObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 	      } catch (RuntimeException e) {
 		      throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for '${name}' preconditions.")
 	      }
@@ -76,13 +76,13 @@ class PreconditionDelegate {
     def precondition = new SqlPrecondition()
 	  params.each { key, value ->
 		  try {
-			  ObjectUtil.setProperty(precondition, key, value)
+			  ObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 		  } catch (RuntimeException e) {
 			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'sqlCheck' preconditions.")
 		  }
 	  }
 
-	  def sql = expandExpressions(closure.call())
+	  def sql = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 	  if ( sql != null && sql != "null" ) {
 		  precondition.sql = sql
 	  }
@@ -109,14 +109,14 @@ class PreconditionDelegate {
     def precondition = new CustomPreconditionWrapper()
 	  params.each { key, value ->
 		  try {
-			  ObjectUtil.setProperty(precondition, key, value)
+			  ObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 		  } catch (RuntimeException e) {
 			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'customPrecondition' preconditions.")
 		  }
 	  }
     delegate.map.each { key, value ->
 	    // This is a key/value pair in the Liquibase object, so it won't fail.
-      precondition.setParam(key, expandExpressions(value))
+      precondition.setParam(key, DelegateUtil.expandExpressions(value, databaseChangeLog))
     }
 
     preconditions << precondition
@@ -153,16 +153,17 @@ class PreconditionDelegate {
 
 	  // Process parameters.  3 of them need a special case.
 	  params.each { key, value ->
+		  def paramValue = DelegateUtil.expandExpressions(value, databaseChangeLog)
 		  if ( key == "onFail" ) {
-			  preconditions.onFail = FailOption."${value}"
+			  preconditions.onFail = FailOption."${paramValue}"
 		  } else if ( key == "onError" ) {
-			  preconditions.onError = ErrorOption."${value}"
+			  preconditions.onError = ErrorOption."${paramValue}"
 		  } else if ( key == "onUpdateSQL" ) {
-			  preconditions.onSqlOutput = OnSqlOutputOption."${value}"
+			  preconditions.onSqlOutput = OnSqlOutputOption."${paramValue}"
 		  } else {
 			  // pass the reset to Liquibase
 			  try {
-				  ObjectUtil.setProperty(preconditions, key, value)
+				  ObjectUtil.setProperty(preconditions, key, paramValue)
 			  } catch (RuntimeException e) {
 				  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for preconditions.")
 			  }
@@ -198,9 +199,4 @@ class PreconditionDelegate {
 
     return nestedPrecondition
   }
-  
-  private def expandExpressions(expression) {
-    databaseChangeLog.changeLogParameters.expandExpressions(expression.toString())
-  }
-
 }
