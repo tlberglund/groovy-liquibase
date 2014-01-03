@@ -341,4 +341,10 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
 	}
 
 	// invalid method, such as createLink
+	@Test(expected = IllegalArgumentException)
+	void processInvalidChange() {
+		buildChangeSet {
+			createLink(name: 'myLink')
+		}
+	}
 }

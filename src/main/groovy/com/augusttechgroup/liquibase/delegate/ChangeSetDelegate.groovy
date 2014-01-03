@@ -578,6 +578,17 @@ class ChangeSetDelegate {
 	}
 
 	/**
+	 * Groovy calls methodMissing when it can't find a matching method to call.
+	 * We use it to tell the user which changeSet had the invalid element.
+	 * @param name the name of the method Groovy wanted to call.
+	 * @param args the original arguments to that method.
+	 */
+	def methodMissing(String name, args) {
+		throw new IllegalArgumentException("ChangeSet '${changeSet.id}': '${name}' is not a valid element of a ChangeSet")
+	}
+
+
+	/**
 	 * Helper method to make a Liquibase change that takes columns of the type
 	 * used by the {@code loadData} change.
 	 * @param name the name of the change, used for improved error messages.
@@ -671,10 +682,10 @@ class ChangeSetDelegate {
 		sourceMap.each { key, value ->
 			if ( paramNames.contains(key) && value != null ) {
 				try {
-					ObjectUtil.setProperty(change, key, expandExpressions(sourceMap[key]))
+					ObjectUtil.setProperty(change, key, expandExpressions(value))
 				}
 				catch (NumberFormatException ex) {
-					change[key] = sourceMap[key].toBigInteger()
+					change[key] = value.toBigInteger()
 				}
 			} else {
 				throw new IllegalArgumentException("ChangeSet '${changeSet.id}': '${key}' is an invalid property for '${name}' changes.")

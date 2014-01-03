@@ -60,7 +60,7 @@ class ConstraintDelegate {
     if ( constraint.hasProperty(name) ) {
       ObjectUtil.setProperty(constraint, name, expandExpressions(params[0]))
     } else {
-	    throw new IllegalArgumentException("ChangeSet '${changeSetId}': ${name} is not a valid child element of constraint closures in ${changeName} changes")
+	    throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of constraint closures in ${changeName} changes")
     }
   }
   

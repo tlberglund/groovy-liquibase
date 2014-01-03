@@ -65,6 +65,8 @@ XML documentation.
   of the validChecksum element valid.  This is used if you, for example, want
   to reformat a changeSet to add white space.  It doesn't change the functionality,
   but it will cause it to generate new checksums.
+- Liquibase has undocumented property(file: 'file') attribute.
+- includeAll only includes groovy files, and it does it in order.
 
 ## License
 This code is released under the Apache Public License 2.0, just like Liquibase 2.0.

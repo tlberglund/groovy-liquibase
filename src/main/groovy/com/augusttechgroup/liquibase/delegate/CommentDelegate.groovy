@@ -45,7 +45,7 @@ class CommentDelegate {
 	 * @param args the original arguments to that method.
 	 */
 	def methodMissing(String name, args) {
-		throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${name} is not a valid child element of ${changeName} changes")
+		throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of ${changeName} changes")
 	}
 
 }

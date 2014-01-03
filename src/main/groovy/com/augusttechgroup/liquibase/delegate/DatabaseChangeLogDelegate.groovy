@@ -21,7 +21,12 @@ import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParserFactory
 import liquibase.parser.core.xml.XMLChangeLogSAXHandler;
 
-
+/**
+ * This class is the delegate for the {@code databaseChangeLog} element.  It
+ * is the starting point for parsing the Groovy DSL.
+ *
+ * @author Tim Berglund
+ */
 class DatabaseChangeLogDelegate {
   def databaseChangeLog
   def params
@@ -40,25 +45,55 @@ class DatabaseChangeLogDelegate {
       databaseChangeLog[key] = value
     }
   }
-  
-  
+
+	/**
+	 * Parse a changeSet and add it to the change log.
+	 * @param params the attributes of the change set.
+	 * @param closure the closure containing, among other things, all the
+	 * refactoring changes the change set should make.
+	 */
   void changeSet(Map params, closure) {
-    def changeSet = new ChangeSet(
+	  // Most of the time, we just pass any parameters through to a newly created
+	  // Liquibase object, but we need to do things a little differently for a
+	  // ChangeSet because the Liquibase object does not have setters for its
+	  // properties. We'll need to figure it all out for the constructor.
+    // We want to warn people if they try to pass in something that is not
+	  // supported because we don't want to silently ignore things, so first get
+	  // a list of unsupported keys.
+		def unsupportedKeys = params.keySet() - ['id', 'author', 'dbms', 'runAlways', 'runOnChange', 'context', 'runInTransaction', 'failOnError', 'onValidationFail', 'alwaysRun']
+	  if ( unsupportedKeys.size() > 0 ) {
+		  throw new IllegalArgumentException("ChangeSet '${params.id}': ${unsupportedKeys.toArray()[0]} is not a supported ChangeSet attribute")
+	  }
+	  if ( params.containsKey('alwaysRun') ) {
+		  println "Warning: ChangeSet '${params.id}': the alwaysRun attribute of a changeSet is deprecated, and will be removed in a future release."
+		  println "Consider using runAlways"
+		  params.runAlways = params.alwaysRun
+	  }
+
+	  // Groovy's "elvis" operator doesn't work for runInTransaction because
+	  // it uses the default for a false value. This works fine when the default
+	  // is false, but we want this one to default to true.
+	  def runInTransaction = true
+	  if ( params.containsKey('runInTransaction') ) {
+		  runInTransaction = params.runInTransaction.toBoolean()
+	  }
+
+	  def changeSet = new ChangeSet(
       params.id,
       params.author,
-      params.alwaysRun?.toBoolean() ?: false,
-      params.runOnChange?.toBoolean() ?: false,
+      params.runAlways?.toBoolean() ?: false, // convert null to false
+      params.runOnChange?.toBoolean() ?: false, // convert null to false
       databaseChangeLog.filePath,
       params.context,
       params.dbms,
-      params.runInTransaction?.toBoolean() ?: true,
+      runInTransaction,
       databaseChangeLog)
 
-    if(params.failOnError) {
+    if ( params.containsKey('failOnError') ) {
       changeSet.failOnError = params.failOnError?.toBoolean()
     }
 
-    if(params.onValidationFail) {
+    if ( params.onValidationFail ) {
       changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(params.onValidationFail)
     }
 
@@ -77,37 +112,69 @@ class DatabaseChangeLogDelegate {
     databaseChangeLog.preconditions = PreconditionDelegate.buildPreconditionContainer(databaseChangeLog, '<none>', params, closure)
   }
 
-
+	/**
+	 * Process the include element to include a file with change sets.
+	 * @param params
+	 */
   void include(Map params = [:]) {
-    def physicalChangeLogLocation = databaseChangeLog.physicalFilePath.replace(System.getProperty("user.dir").toString() + "/", "")
+	  if ( params.containsKey('path') ) {
+		  println "Warning: the 'path' attribute of an include is deprecated, and will be removed in a future release."
+		  println "Consider using the includeAll element instead."
+		  includeAll(params)
+		  return
+	  }
+
+	  // validate parameters.
+	  def unsupportedKeys = params.keySet() - ['file', 'relativeToChangelogFile']
+	  if ( unsupportedKeys.size() > 0 ) {
+		  throw new IllegalArgumentException("DatabaseChangeLog:  '${unsupportedKeys.toArray()[0]}' is not a supported attribute of the 'include' element.")
+	  }
+
+	  def physicalChangeLogLocation = databaseChangeLog.physicalFilePath.replace(System.getProperty("user.dir").toString() + "/", "")
     def relativeToChangelogFile = false
     
-    if (params.relativeToChangelogFile){
+    if (params.relativeToChangelogFile) {
       relativeToChangelogFile = params.relativeToChangelogFile
     }
-    
-    if (params.file) {
-      if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
-        params.file = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.file
-      }
-      
-      includeChangeLog(params.file)
-    }
-    else if (params.path) {
-      if (relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\"))){
-        params.path = physicalChangeLogLocation.replaceFirst("/[^/]*\$","") + "/" + params.path
-      }
 
-      def files = []
-      new File(params.path).eachFileMatch(~/.*.groovy/) { file->
-        files << file.path
-      }
+	  if ( relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\")) ) {
+		  params.file = physicalChangeLogLocation.replaceFirst("/[^/]*\$", "") + "/" + params.file
+	  }
 
-      files.sort().each { filename ->
-        includeChangeLog(filename)
-      }
-    }
+	  includeChangeLog(params.file)
   }
+
+	/**
+	 * Process the includeAll element to include all groovy files in a directory.
+	 * @param params
+	 */
+	void includeAll(Map params = [:]) {
+		// validate parameters.
+		def unsupportedKeys = params.keySet() - ['path', 'relativeToChangelogFile']
+		if ( unsupportedKeys.size() > 0 ) {
+			throw new IllegalArgumentException("DatabaseChangeLog:  '${unsupportedKeys.toArray()[0]}' is not a supported attribute of the 'includeAll' element.")
+		}
+
+		def physicalChangeLogLocation = databaseChangeLog.physicalFilePath.replace(System.getProperty("user.dir").toString() + "/", "")
+		def relativeToChangelogFile = false
+
+		if (params.relativeToChangelogFile){
+			relativeToChangelogFile = params.relativeToChangelogFile
+		}
+
+		if ( relativeToChangelogFile && (physicalChangeLogLocation.contains("/") || physicalChangeLogLocation.contains("\\\\")) ) {
+			params.path = physicalChangeLogLocation.replaceFirst("/[^/]*\$", "") + "/" + params.path
+		}
+
+		def files = []
+		new File(params.path).eachFileMatch(~/.*.groovy/) { file ->
+			files << file.path
+		}
+
+		files.sort().each { filename ->
+			includeChangeLog(filename)
+		}
+	}
 
 
   private def includeChangeLog(filename) {
@@ -121,17 +188,27 @@ class DatabaseChangeLogDelegate {
     }
   }
 
-
+	/**
+	 * Process nested property elements in a database change log.
+	 * @param params the attributes of the property.
+	 */
   void property(Map params = [:]) {
-    def context = params['context'] ?: null
+	  // Start by validating input
+	  def unsupportedKeys = params.keySet() - ['name', 'value', 'context', 'dbms', 'file']
+	  if ( unsupportedKeys.size() > 0 ) {
+		  throw new IllegalArgumentException("DababaseChangeLog: ${unsupportedKeys.toArray()[0]} is not a supported property attribute")
+	  }
+
+	  def context = params['context'] ?: null
     def dbms = params['dbms'] ?: null
     def changeLogParameters = databaseChangeLog.changeLogParameters
     
     if (!params['file']) {
       changeLogParameters.set(params['name'], params['value'], context, dbms)
     } else {
+	    def propFile = params['file']
       def props = new Properties()
-      def propertiesStream = resourceAccessor.getResourceAsStream(params['file'])
+      def propertiesStream = resourceAccessor.getResourceAsStream(propFile)
       if (!propertiesStream) {
         throw new ChangeLogParseException("Unable to load file with properties: ${params['file']}")
       } else {
@@ -151,5 +228,16 @@ class DatabaseChangeLogDelegate {
       throw new MissingPropertyException(name, this.class)
     }
   }
+
+	/**
+	 * Groovy calls methodMissing when it can't find a matching method to call.
+	 * We use it to tell the user which changeSet had the invalid element.
+	 * @param name the name of the method Groovy wanted to call.
+	 * @param args the original arguments to that method.
+	 */
+	def methodMissing(String name, args) {
+		throw new IllegalArgumentException("DatabaseChangeLog: '${name}' is not a valid element of a DatabaseChangeLog")
+	}
+
 
 }

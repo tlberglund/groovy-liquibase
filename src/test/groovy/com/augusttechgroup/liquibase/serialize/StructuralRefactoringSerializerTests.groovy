@@ -173,25 +173,4 @@ createView(replaceIfExists: true, schemaName: 'schema', viewName: 'monkey_view')
 }"""
     assertEquals expectedText, serializedText
   }
-
-
-  @Ignore
-  @Test
-  void createStoredProcedure() {
-    def sql = """\
-CREATE OR REPLACE PROCEDURE testMonkey
-IS
-BEGIN
- -- do something with the monkey
-END;"""
-    buildChangeSet {
-      createStoredProcedure sql
-    }
-
-    def changes = changeSet.changes
-    assertNotNull changes
-    assertEquals 1, changes.size()
-    assertTrue changes[0] instanceof CreateProcedureChange
-    assertEquals sql, changes[0].procedureBody
-  }
 }
