@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.exception.ChangeLogParseException
 import org.junit.Test
 import static org.junit.Assert.*
 import liquibase.change.ColumnConfig
@@ -173,7 +174,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 	 * Test parsing a createIndex change with a where clause to make sure it gets
 	 * rejected.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void createIndexWithWhereClause() {
 		buildChangeSet {
 			createIndex(catalogName: 'catalog',

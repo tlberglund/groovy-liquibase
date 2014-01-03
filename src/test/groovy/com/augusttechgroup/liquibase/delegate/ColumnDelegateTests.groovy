@@ -17,6 +17,7 @@
 package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.ColumnConfig
+import liquibase.exception.ChangeLogParseException
 import liquibase.statement.DatabaseFunction
 import liquibase.statement.SequenceCurrentValueFunction
 import liquibase.statement.SequenceNextValueFunction
@@ -350,9 +351,9 @@ class ColumnDelegateTests {
 
 	/**
 	 * Try an invalid method in the closure to make sure we get our
-	 * IllegalArgumentException instead of the standard MissingMethodException.
+	 * ChangeLogParseException instead of the standard MissingMethodException.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void invalidMethodInClosure() {
 		def delegate = buildColumnDelegate(ColumnConfig.class) {
 			table(name: 'monkey')
@@ -366,11 +367,11 @@ class ColumnDelegateTests {
 
 	/**
 	 * Try building a column when it contains an invalid attribute.  Do we
-	 * get an IllegalArgumentException, which will have our pretty message?
+	 * get an ChangeLogParseException, which will have our pretty message?
 	 * We try to trick the system by using what is a valid "loadData" column
 	 * attribute on a normal ColumnConfig.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void columnWithInvalidAttribute() {
 		def delegate = buildColumnDelegate(ColumnConfig.class) {
 			column(header: 'invalid')

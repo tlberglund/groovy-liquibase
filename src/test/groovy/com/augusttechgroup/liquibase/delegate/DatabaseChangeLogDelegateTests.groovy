@@ -41,6 +41,7 @@ import static org.junit.Assert.*
 /**
  * Test class for the {@link DatabaseChangeLogDelegate}
  *
+ * @author Tim Berglund
  * @author Steven C. Saliman
  */
 class DatabaseChangeLogDelegateTests {
@@ -59,7 +60,8 @@ class DatabaseChangeLogDelegateTests {
 		resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
 		parserFactory = ChangeLogParserFactory.instance
 		ChangeLogParserFactory.getInstance().register(new GroovyLiquibaseChangeLogParser())
-		// make sure the temporary directories exist.
+		// make sure we start with clean temporary directories before each test
+		TMP_CHANGELOG_DIR.deleteDir()
 		TMP_INCLUDE_DIR.mkdirs()
 	}
 
@@ -245,7 +247,7 @@ databaseChangeLog()
 	/**
 	 * Test creating a changeSet with an unsupported attribute.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void changeSetInvalidAttribute() {
 		buildChangeLog {
 			changeSet(id: 'monkey-change',
@@ -288,7 +290,7 @@ databaseChangeLog()
 	/**
 	 * Test including a file when we have an unsupported attribute.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void includeInvalidAttribute() {
 		buildChangeLog {
 			include(changeFile: 'invalid')
@@ -399,7 +401,7 @@ databaseChangeLog {
 	/**
 	 * Test including a path when we have an unsupported attribute.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void includeAllInvalidAttribute() {
 		buildChangeLog {
 			includeAll(changePath: 'invalid')
@@ -522,7 +524,7 @@ databaseChangeLog {
 	/**
 	 * Try adding a property with an invalid attribute
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void propertyInvalidAttribute() {
 		buildChangeLog {
 			property(propertyName: 'invalid', propertyValue: 'invalid')

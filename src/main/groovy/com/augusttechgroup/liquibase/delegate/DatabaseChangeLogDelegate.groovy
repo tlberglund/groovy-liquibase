@@ -62,7 +62,7 @@ class DatabaseChangeLogDelegate {
 	  // a list of unsupported keys.
 		def unsupportedKeys = params.keySet() - ['id', 'author', 'dbms', 'runAlways', 'runOnChange', 'context', 'runInTransaction', 'failOnError', 'onValidationFail', 'alwaysRun']
 	  if ( unsupportedKeys.size() > 0 ) {
-		  throw new IllegalArgumentException("ChangeSet '${params.id}': ${unsupportedKeys.toArray()[0]} is not a supported ChangeSet attribute")
+		  throw new ChangeLogParseException("ChangeSet '${params.id}': ${unsupportedKeys.toArray()[0]} is not a supported ChangeSet attribute")
 	  }
 	  if ( params.containsKey('alwaysRun') ) {
 		  println "Warning: ChangeSet '${params.id}': the alwaysRun attribute of a changeSet is deprecated, and will be removed in a future release."
@@ -127,7 +127,7 @@ class DatabaseChangeLogDelegate {
 	  // validate parameters.
 	  def unsupportedKeys = params.keySet() - ['file', 'relativeToChangelogFile']
 	  if ( unsupportedKeys.size() > 0 ) {
-		  throw new IllegalArgumentException("DatabaseChangeLog:  '${unsupportedKeys.toArray()[0]}' is not a supported attribute of the 'include' element.")
+		  throw new ChangeLogParseException("DatabaseChangeLog:  '${unsupportedKeys.toArray()[0]}' is not a supported attribute of the 'include' element.")
 	  }
 
 	  def physicalChangeLogLocation = databaseChangeLog.physicalFilePath.replace(System.getProperty("user.dir").toString() + "/", "")
@@ -152,7 +152,7 @@ class DatabaseChangeLogDelegate {
 		// validate parameters.
 		def unsupportedKeys = params.keySet() - ['path', 'relativeToChangelogFile']
 		if ( unsupportedKeys.size() > 0 ) {
-			throw new IllegalArgumentException("DatabaseChangeLog:  '${unsupportedKeys.toArray()[0]}' is not a supported attribute of the 'includeAll' element.")
+			throw new ChangeLogParseException("DatabaseChangeLog:  '${unsupportedKeys.toArray()[0]}' is not a supported attribute of the 'includeAll' element.")
 		}
 
 		def physicalChangeLogLocation = databaseChangeLog.physicalFilePath.replace(System.getProperty("user.dir").toString() + "/", "")
@@ -196,7 +196,7 @@ class DatabaseChangeLogDelegate {
 	  // Start by validating input
 	  def unsupportedKeys = params.keySet() - ['name', 'value', 'context', 'dbms', 'file']
 	  if ( unsupportedKeys.size() > 0 ) {
-		  throw new IllegalArgumentException("DababaseChangeLog: ${unsupportedKeys.toArray()[0]} is not a supported property attribute")
+		  throw new ChangeLogParseException("DababaseChangeLog: ${unsupportedKeys.toArray()[0]} is not a supported property attribute")
 	  }
 
 	  def context = params['context'] ?: null
@@ -236,7 +236,7 @@ class DatabaseChangeLogDelegate {
 	 * @param args the original arguments to that method.
 	 */
 	def methodMissing(String name, args) {
-		throw new IllegalArgumentException("DatabaseChangeLog: '${name}' is not a valid element of a DatabaseChangeLog")
+		throw new ChangeLogParseException("DatabaseChangeLog: '${name}' is not a valid element of a DatabaseChangeLog")
 	}
 
 

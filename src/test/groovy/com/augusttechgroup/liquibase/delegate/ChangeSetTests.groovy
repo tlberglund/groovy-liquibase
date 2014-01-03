@@ -31,6 +31,9 @@ import static org.junit.Assert.assertTrue
 /**
  * This is the base class for all of the change set related tests.  It mostly
  * contains utility methods to help with testing.
+ *
+ * @author Tim Berglund
+ * @author Steven C. Saliman
  */
 class ChangeSetTests {
 	def CHANGESET_ID = 'generic-changeset-id'

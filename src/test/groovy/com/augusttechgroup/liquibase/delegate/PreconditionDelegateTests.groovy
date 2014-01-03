@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.exception.ChangeLogParseException
 import liquibase.precondition.core.NotPrecondition;
 import org.junit.Test
 import static org.junit.Assert.*
@@ -45,6 +46,9 @@ import liquibase.precondition.CustomPreconditionWrapper
  * <p>
  * since we just pass through to Liquibase, we're not too concerned with
  * validating attrubutes.
+ *
+ * @author Tim Berglund
+ * @author Steven C. Saliman
  */
 class PreconditionDelegateTests {
 
@@ -309,7 +313,7 @@ class PreconditionDelegateTests {
 	/**
 	 * Try creating a sqlCheck precondition with an invalid attribute
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void sqlCheckInvalidAttribute() {
 		buildPreconditions {
 			sqlCheck(expected: 'angry') {
@@ -342,7 +346,7 @@ class PreconditionDelegateTests {
 	 * we need some more checks here. This first test sees what happens when a
 	 * custom precondition is made with an invalid attribute.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void customPreconditionInvalidAttribute() {
 		buildPreconditions {
 			customPrecondition(class: 'org.liquibase.precondition.MonkeyFailPrecondition') {
@@ -354,7 +358,7 @@ class PreconditionDelegateTests {
 	/**
 	 * Try a custom precondition with a nested param that has an invalid attribute
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void customPreconditionInvalidParamAttribute() {
 		buildPreconditions {
 			customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
@@ -366,7 +370,7 @@ class PreconditionDelegateTests {
 	/**
 	 * Try a custom precondition with a nested param that has an invalid attribute
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void customPreconditionMissingName() {
 		buildPreconditions {
 			customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
@@ -442,7 +446,7 @@ class PreconditionDelegateTests {
 	/**
 	 * Try creating an invalid precondition
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void invalidPrecondition() {
 		buildPreconditions {
 			linkExists(host: 'www.thewebsiteisdown.com')
@@ -452,7 +456,7 @@ class PreconditionDelegateTests {
 	/**
 	 * Try creating a valid precondition, but with an invalid attribute.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void invalidPreconditionAttribute() {
 		buildPreconditions {
 			tableExists(name: 'monkey') // this is the wrong attribute on purpose

@@ -16,6 +16,8 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.exception.ChangeLogParseException
+
 /**
  * This class processes the closure that can be present in a {@code sql} change.
  * the closure will either contain just SQL, or a comment and some SQL.
@@ -45,7 +47,7 @@ class CommentDelegate {
 	 * @param args the original arguments to that method.
 	 */
 	def methodMissing(String name, args) {
-		throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of ${changeName} changes")
+		throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of ${changeName} changes")
 	}
 
 }

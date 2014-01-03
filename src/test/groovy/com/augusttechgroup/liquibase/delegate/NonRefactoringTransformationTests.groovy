@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.exception.ChangeLogParseException
 import org.junit.Test
 import static org.junit.Assert.*
 
@@ -146,7 +147,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	 * The insert change allows columns, but not a where clause.  Try an insert
 	 * with a where clause to make sure it is properly rejected.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void insertWithWhereClause() {
 		buildChangeSet {
 			insert(catalogName: 'catalog',
@@ -282,7 +283,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	 * LoadData changes allow columns but not a where clause, so try one that
 	 * has a where clause to make sure it is properly rejected.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void loadDataWithWhereClause() {
 		resourceAccessor = new FileSystemResourceAccessor()
 
@@ -424,7 +425,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	 * LoadUpdateData changes allow columns but not a where clause, so try one that
 	 * has a where clause to make sure it is properly rejected.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void loadUpdateDataWithWhereClause() {
 		resourceAccessor = new FileSystemResourceAccessor()
 
@@ -612,7 +613,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 	 * Test parsing a delete change when we have columns in the closure.  This is
 	 * not allowed and should be caught by the parser.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void deleteDataWithColumns() {
 		buildChangeSet {
 			delete(catalogName: 'catalog', schemaName: 'schema', tableName: 'monkey') {

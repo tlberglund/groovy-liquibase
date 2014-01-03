@@ -22,6 +22,7 @@ import liquibase.change.core.DeleteDataChange
 import liquibase.change.core.DropColumnChange
 import liquibase.change.core.RawSQLChange
 import liquibase.change.core.UpdateDataChange
+import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
 import org.junit.Test
 import org.junit.Ignore
@@ -330,7 +331,7 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
 	 * set the cascadeToConstraints attribute instead of cascadeConstraints.  This
 	 * should result in an exception being thrown.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void processChangeWithInvalidAttribute() {
 		buildChangeSet {
 			dropTable(catalogName: 'catalog',
@@ -341,7 +342,7 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
 	}
 
 	// invalid method, such as createLink
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void processInvalidChange() {
 		buildChangeSet {
 			createLink(name: 'myLink')

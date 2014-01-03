@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.exception.ChangeLogParseException
 import liquibase.precondition.core.AndPrecondition
 import liquibase.precondition.core.OrPrecondition
 import liquibase.precondition.core.SqlPrecondition
@@ -47,7 +48,7 @@ class PreconditionDelegate {
 	  try {
       precondition = preconditionFactory.create(name)
 	  } catch (RuntimeException e) {
-		  throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${name}' is an invalid precondition.")
+		  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is an invalid precondition.")
 	  }
     def params = args[0]
 
@@ -56,7 +57,7 @@ class PreconditionDelegate {
 	      try {
           ObjectUtil.setProperty(precondition, key, expandExpressions(value))
 	      } catch (RuntimeException e) {
-		      throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is an invalid property for '${name}' preconditions.")
+		      throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for '${name}' preconditions.")
 	      }
       }
     }
@@ -77,7 +78,7 @@ class PreconditionDelegate {
 		  try {
 			  ObjectUtil.setProperty(precondition, key, value)
 		  } catch (RuntimeException e) {
-			  throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'sqlCheck' preconditions.")
+			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'sqlCheck' preconditions.")
 		  }
 	  }
 
@@ -110,7 +111,7 @@ class PreconditionDelegate {
 		  try {
 			  ObjectUtil.setProperty(precondition, key, value)
 		  } catch (RuntimeException e) {
-			  throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'customPrecondition' preconditions.")
+			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'customPrecondition' preconditions.")
 		  }
 	  }
     delegate.map.each { key, value ->
@@ -163,7 +164,7 @@ class PreconditionDelegate {
 			  try {
 				  ObjectUtil.setProperty(preconditions, key, value)
 			  } catch (RuntimeException e) {
-				  throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is an invalid property for preconditions.")
+				  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for preconditions.")
 			  }
 		  }
 	  }

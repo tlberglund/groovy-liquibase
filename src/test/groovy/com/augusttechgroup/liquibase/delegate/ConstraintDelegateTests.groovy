@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.exception.ChangeLogParseException
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -622,10 +623,10 @@ class ConstraintDelegateTests {
 
 	/**
 	 * Try calling a constraints closure with an invalid attribute in the map.
-	 * Expect our IllegalArgumentException with a good message instead of
+	 * Expect our ChangeLogParseException with a good message instead of
 	 * Liquibase's RuntimeException
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void constraintHasInvalidAttribute() {
 		def constraint = buildConstraint {
 			constraints(someAttr: 'someValue')
@@ -634,10 +635,10 @@ class ConstraintDelegateTests {
 
 	/**
 	 * Try calling a constraints closure with an invalid method in the nested
-	 * closure. Expect our IllegalArgumentException with a good message instead of
+	 * closure. Expect our ChangeLogParseException with a good message instead of
 	 * Liquibase's RuntimeException
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void constraintHasInvalidMethod() {
 		def constraint = buildConstraint {
 			constraints{

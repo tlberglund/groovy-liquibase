@@ -56,6 +56,7 @@ import liquibase.change.core.RawSQLChange
 import liquibase.change.core.SQLFileChange
 import liquibase.change.core.ExecuteShellCommandChange
 import liquibase.change.custom.CustomChangeWrapper
+import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
 import liquibase.util.ObjectUtil;
 import liquibase.change.core.ModifyDataTypeChange
@@ -165,7 +166,7 @@ class ChangeSetDelegate {
  			} else if ( key == "changeSetPath" ) {
 				filePath = value
 			} else {
-				throw new IllegalArgumentException("ChangeSet '${changeSet.id}': '${key}' is not a valid rollback attribute.")
+				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': '${key}' is not a valid rollback attribute.")
 			}
 		}
 
@@ -584,7 +585,7 @@ class ChangeSetDelegate {
 	 * @param args the original arguments to that method.
 	 */
 	def methodMissing(String name, args) {
-		throw new IllegalArgumentException("ChangeSet '${changeSet.id}': '${name}' is not a valid element of a ChangeSet")
+		throw new ChangeLogParseException("ChangeSet '${changeSet.id}': '${name}' is not a valid element of a ChangeSet")
 	}
 
 
@@ -614,7 +615,7 @@ class ChangeSetDelegate {
 		// a where clause is not legal for a load change.  Rather than silently
 		// eating a where clause, let the user know.
 		if ( columnDelegate.whereClause != null ) {
-			throw new IllegalArgumentException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
+			throw new ChangeLogParseException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
 		}
 
 		columnDelegate.columns.each { column ->
@@ -648,7 +649,7 @@ class ChangeSetDelegate {
 			try {
 			change.addColumn(column)
 			} catch (MissingMethodException e) {
-				throw new IllegalArgumentException("ChangeSet '${changeSet.id}': columns are not allowed in '${name}' changes.")
+				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': columns are not allowed in '${name}' changes.")
 			}
 		}
 
@@ -656,7 +657,7 @@ class ChangeSetDelegate {
 			try {
 				ObjectUtil.setProperty(change, 'where', columnDelegate.whereClause)
 			} catch (RuntimeException e) {
-				throw new IllegalArgumentException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
+				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
 			}
 
 		}
@@ -671,7 +672,7 @@ class ChangeSetDelegate {
 	 * @param sourceMap a map of parameter names and values for the new change
 	 * @param paramNames a list of valid parameter names.
 	 * @return the newly create change, with the appropriate properties set.
-	 * @throws IllegalArgumentException if the source map contains any keys that
+	 * @throws ChangeLogParseException if the source map contains any keys that
 	 * are not in the list of valid paramNames.
 	 */
 	private def makeChangeFromMap(String name, Class klass, Map sourceMap, List paramNames) {
@@ -688,7 +689,7 @@ class ChangeSetDelegate {
 					change[key] = value.toBigInteger()
 				}
 			} else {
-				throw new IllegalArgumentException("ChangeSet '${changeSet.id}': '${key}' is an invalid property for '${name}' changes.")
+				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': '${key}' is an invalid property for '${name}' changes.")
 			}
 
 		}

@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.exception.ChangeLogParseException
 import liquibase.sql.visitor.SqlVisitor;
 import liquibase.sql.visitor.SqlVisitorFactory;
 import liquibase.changelog.ChangeSet
@@ -69,7 +70,7 @@ class ModifySqlDelegate {
 	  if (params.value) {
 		sqlVisitor.setValue(params.value)
 	  } else {
-		throw new IllegalArgumentException(changeSet.toString() + "  modifySql: Parameter 'value' not found")
+		throw new ChangeLogParseException(changeSet.toString() + "  modifySql: Parameter 'value' not found")
 	  }
 	} 
 	else {
@@ -77,7 +78,7 @@ class ModifySqlDelegate {
 	    sqlVisitor.setReplace(params.replace)
 	    sqlVisitor.setWith(params.with)
       } else {
-	    throw new IllegalArgumentException(changeSet.toString() + "  modifySql: Parameters 'with' and/or 'replace' not found")
+	    throw new ChangeLogParseException(changeSet.toString() + "  modifySql: Parameters 'with' and/or 'replace' not found")
 	  }
 	}
 	

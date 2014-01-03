@@ -18,6 +18,7 @@ package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.core.AddColumnChange
 import liquibase.change.core.ModifyDataTypeChange
+import liquibase.exception.ChangeLogParseException
 import org.junit.Test
 import static org.junit.Assert.*
 
@@ -162,7 +163,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 	 * A where clause is not valid for addColumn, so try one and make sure it
 	 * gets rejected.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void addColumnWithWhereClause() {
 		buildChangeSet {
 			addColumn(catalogName: 'zoo', schemaName: 'animal', tableName: 'monkey') {
@@ -342,7 +343,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 	 * A where clause is not valid for createTable, so try one and make sure it
 	 * gets rejected.
 	 */
-	@Test(expected = IllegalArgumentException)
+	@Test(expected = ChangeLogParseException)
 	void createTableWithWhereClause() {
 		buildChangeSet {
 			createTable(catalogName: 'zoo', schemaName: 'animal', tableName: 'monkey') {

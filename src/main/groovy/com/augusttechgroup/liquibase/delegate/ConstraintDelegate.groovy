@@ -17,6 +17,7 @@
 package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.ConstraintsConfig
+import liquibase.exception.ChangeLogParseException
 import liquibase.util.ObjectUtil;
 
 
@@ -37,9 +38,9 @@ class ConstraintDelegate {
       try {
 	      ObjectUtil.setProperty(constraint, key, expandExpressions(value))
       } catch(RuntimeException e) {
-	      // Rethrow as an IllegalArgumentException with a more helpful message
+	      // Rethrow as an ChangeLogParseException with a more helpful message
 	      // than you'll get from the Liquibase helper.
-	      throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is not a valid constraint attribute for '${changeName}' changes.")
+	      throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is not a valid constraint attribute for '${changeName}' changes.")
       }
     }
   }
@@ -60,7 +61,7 @@ class ConstraintDelegate {
     if ( constraint.hasProperty(name) ) {
       ObjectUtil.setProperty(constraint, name, expandExpressions(params[0]))
     } else {
-	    throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of constraint closures in ${changeName} changes")
+	    throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of constraint closures in ${changeName} changes")
     }
   }
   

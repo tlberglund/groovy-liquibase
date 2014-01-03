@@ -16,6 +16,8 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.exception.ChangeLogParseException
+
 /**
  * A general-purpose delgate class to provide key/value support in a builder.
  * This delegate supports 2 ways of creating the key/value pairs.  We can
@@ -46,13 +48,13 @@ class KeyValueDelegate {
 			} else if ( key == "value" ) {
 				mapValue = value
 			} else {
-				throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'customPrecondition' parameters.")
+				throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'customPrecondition' parameters.")
 			}
 		}
 
 		// we don't need a value, but we do need a key
 		if ( mapKey == null ) {
-			throw new IllegalArgumentException("ChangeSet '${changeSetId}': 'customPrecondition' parameters need at least a name.")
+			throw new ChangeLogParseException("ChangeSet '${changeSetId}': 'customPrecondition' parameters need at least a name.")
 		}
 		map[mapKey] = mapValue
 	}

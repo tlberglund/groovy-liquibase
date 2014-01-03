@@ -17,6 +17,7 @@
 package com.augusttechgroup.liquibase.delegate
 
 import liquibase.change.ColumnConfig
+import liquibase.exception.ChangeLogParseException
 import liquibase.util.ObjectUtil;
 
 /**
@@ -53,9 +54,9 @@ class ColumnDelegate {
 			try {
 			  ObjectUtil.setProperty(column, key, expandExpressions(value))
 			} catch(RuntimeException e) {
-				// Rethrow as an IllegalArgumentException with a more helpful message
+				// Rethrow as an ChangeLogParseException with a more helpful message
 				// than you'll get from the Liquibase helper.
-				throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${key}' is not a valid column attribute for '${changeName}' changes.")
+				throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is not a valid column attribute for '${changeName}' changes.")
 			}
 		}
 
@@ -87,7 +88,7 @@ class ColumnDelegate {
 	 * @param args the original arguments to that method.
 	 */
 	def methodMissing(String name, args) {
-		throw new IllegalArgumentException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of ${changeName} changes")
+		throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of ${changeName} changes")
 	}
 
 	private def expandExpressions(expression) {
