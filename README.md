@@ -43,8 +43,7 @@ documented separately from the Liquibase XML format.  We will, however let you k
 
 ##### Additions to the XML format:
 * The Groovy DSL supports a simplified means of passing arguments to the
-  ```exececuteCommand change```.  Instead of
-```groovy
+  ```exececuteCommand change```.  Instead of```groovy
 execute {
   arg(value: 'somevalue')
 }
