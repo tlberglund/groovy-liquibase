@@ -49,7 +49,8 @@ documented separately from the Liquibase XML format.  We will, however let you k
 execute {
   arg(value: 'somevalue')
 }
-```, you can use  the simpler
+```
+You can use  the simpler
 ```groovy
 execute {
   arg 'somevalue'
