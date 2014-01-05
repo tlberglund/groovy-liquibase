@@ -4,11 +4,17 @@ creation of changelogs in a Groovy DSL, rather than hurtful XML. If this DSL
 isn't reason enough to adopt Liquibase, then there is no hope for you.
 
 ## News
+Version 1.0.0 is under development, and we hope to have a release by the end of
+January.  Until then, use caution when building and using a 1.0.0 snapshot
+because there are still a few things that need to be changed, and there could be
+some breaking changes.
 **IMPORTANT NOTE FOR USERS UPGRADING FROM A PRE 1.0.0 RELEASE OF THE GROOVY DSL:**
 
 Version 1.0.0 of the Groovy Liquibase DSL uses Liquibase 3, instead of Liquibase
 2, and several things have been deprecated from the Groovy DSL to maintain
-compatibility with Liquibase XML. A list of deprecated items can be found in the *Usage* section.  To upgrade to version 1.0.0, we strongly recommend the following procedure:
+compatibility with Liquibase XML. A list of deprecated items can be found in the
+*Usage* section.  To upgrade to version 1.0.0, we strongly recommend the
+following procedure:
 
 1. Make sure all of your Liquibase managed databases are up to date by running
    an update on them *before upgrading the Groovy DSL*.
@@ -16,12 +22,17 @@ compatibility with Liquibase XML. A list of deprecated items can be found in the
 2. Create a new, throw away database and test your Liquibase change sets by
    running an update on this new database with the latest version of the Groovy
    DSL.  This is important because of the deprecated items in the Groovy DSL,
-   and because there are some subtle differences in the ways the Liquibase versions generate SQL.  For example, adding a default value to a boolean column in MySql using ```defaultValue: "0"``` worked fine in Liquibase 2, but in Liquibase 3, it generates SQL that doesn't work for MySql;
-    ```defaultValueNumeric: 0``` needs to be used instead.  Here is a tip to help find deprecation warnings: redirect stderr to a file.  Most of what Liquibase tells you is on stderr, but not deprecation warnings.
+   and because there are some subtle differences in the ways the different
+   Liquibase versions generate SQL.  For example, adding a default value to a
+   boolean column in MySql using ```defaultValue: "0"``` worked fine in
+   Liquibase 2, but in Liquibase 3, it generates SQL that doesn't work for
+   MySql; ```defaultValueNumeric: 0``` needs to be used instead.  Here is a tip
+   to help find deprecation warnings: redirect stderr to a file.  Most of what
+   Liquibase tells you is on stderr, but not deprecation warnings.
 
-3. Once you are sure all of your change sets work with the latest Groovy DSL and Liquibase 3, clear
-    all checksums that were calculated by Liquibase 2 by using the ```clearChecksums```
-    command in all databases.
+3. Once you are sure all of your change sets work with the latest Groovy DSL and
+   Liquibase 3, clear all checksums that were calculated by Liquibase 2 by using
+   the ```clearChecksums``` command in all databases.
 
 4. Finally, run a ```changeLogSync``` on all databases to calculate new
     checksums.
