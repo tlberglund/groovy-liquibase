@@ -517,6 +517,7 @@ class ChangeSetDelegate {
 
 
 	void sqlFile(Map params) {
+		// Todo: If we remove the map, we should still look for and block the 'sql' attribute.
 		def change = makeChangeFromMap('sqlFile', SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter', 'relativeToChangelogFile', 'dbms'])
 		change.resourceAccessor = resourceAccessor
 		// Before we add the change, work around the Liquibase bug where sqlFile
