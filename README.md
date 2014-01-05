@@ -43,24 +43,27 @@ documented separately from the Liquibase XML format.  We will, however let you k
 
 ##### Additions to the XML format:
 * The Groovy DSL supports a simplified means of passing arguments to the
-  ```exececuteCommand change```.  Instead of
+  ```exececuteCommand change```.  Instead of:
 
   ```groovy
 execute {
   arg(value: 'somevalue')
 }
 ```
-You can use  the simpler
+  You can use  the simpler
 ```groovy
 execute {
   arg 'somevalue'
 }
-``` syntax.
+```
+  syntax.
 * The ```sql``` change does not require a closure for the actual SQL.  You can
   just pass the string like this: ```sql 'select some_stuff from some_table'```
   If you want to use the ```comments``` element of a ```sql``` change, you need
   to use the closure form, and the comment must be in the closure BEFORE the
-  SQL, like this:```
+  SQL, like this:
+
+  ```
 sql {
   comment('we should not have deleted this...')
   'delete from my_table'
@@ -94,6 +97,7 @@ sql {
   numbers in mind, Liquibase will apply changes in the correct order.
 * Remember, the Groovy DSL is basically just Groovy closures, so you can use
   groovy code to do things you could never do in XML, such as this:
+  
 ```groovy
 sql { """
   insert into some_table(data_column, date_inserted)
