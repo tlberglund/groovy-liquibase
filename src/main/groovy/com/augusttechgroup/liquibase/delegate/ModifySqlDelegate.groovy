@@ -96,7 +96,7 @@ class ModifySqlDelegate {
 			} catch (RuntimeException e) {
 				// Rethrow as an ChangeLogParseException with a more helpful message
 				// than you'll get from the Liquibase helper.
-				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': '${key}' is not a valid attribute for '${type}' motifySql elements.")
+				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': '${key}' is not a valid attribute for '${type}' motifySql elements.", e)
 			}
 		}
 

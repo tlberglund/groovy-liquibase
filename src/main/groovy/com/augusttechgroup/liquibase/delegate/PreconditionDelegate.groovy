@@ -48,7 +48,7 @@ class PreconditionDelegate {
 	  try {
       precondition = preconditionFactory.create(name)
 	  } catch (RuntimeException e) {
-		  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is an invalid precondition.")
+		  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is an invalid precondition.", e)
 	  }
     def params = args[0]
 
@@ -57,7 +57,7 @@ class PreconditionDelegate {
 	      try {
           ObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 	      } catch (RuntimeException e) {
-		      throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for '${name}' preconditions.")
+		      throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for '${name}' preconditions.", e)
 	      }
       }
     }
@@ -78,7 +78,7 @@ class PreconditionDelegate {
 		  try {
 			  ObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 		  } catch (RuntimeException e) {
-			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'sqlCheck' preconditions.")
+			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'sqlCheck' preconditions.", e)
 		  }
 	  }
 
@@ -111,7 +111,7 @@ class PreconditionDelegate {
 		  try {
 			  ObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 		  } catch (RuntimeException e) {
-			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'customPrecondition' preconditions.")
+			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'customPrecondition' preconditions.", e)
 		  }
 	  }
     delegate.map.each { key, value ->
@@ -165,7 +165,7 @@ class PreconditionDelegate {
 			  try {
 				  ObjectUtil.setProperty(preconditions, key, paramValue)
 			  } catch (RuntimeException e) {
-				  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for preconditions.")
+				  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for preconditions.", e)
 			  }
 		  }
 	  }

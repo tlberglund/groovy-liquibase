@@ -656,7 +656,7 @@ class ChangeSetDelegate {
 			try {
 			  change.addColumn(column)
 			} catch (MissingMethodException e) {
-				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': columns are not allowed in '${name}' changes.")
+				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': columns are not allowed in '${name}' changes.", e)
 			}
 		}
 
@@ -665,7 +665,7 @@ class ChangeSetDelegate {
 				// The columnDelegate DOES take care of expansion.
 				ObjectUtil.setProperty(change, 'where', columnDelegate.whereClause)
 			} catch (RuntimeException e) {
-				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
+				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.", e)
 			}
 
 		}

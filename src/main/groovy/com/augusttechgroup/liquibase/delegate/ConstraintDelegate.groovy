@@ -40,7 +40,7 @@ class ConstraintDelegate {
       } catch(RuntimeException e) {
 	      // Rethrow as an ChangeLogParseException with a more helpful message
 	      // than you'll get from the Liquibase helper.
-	      throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is not a valid constraint attribute for '${changeName}' changes.")
+	      throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is not a valid constraint attribute for '${changeName}' changes.", e)
       }
     }
   }
