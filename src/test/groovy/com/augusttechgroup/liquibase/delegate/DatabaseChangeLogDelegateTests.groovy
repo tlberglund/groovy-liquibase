@@ -211,41 +211,6 @@ databaseChangeLog()
 	}
 
 	/**
-	 * Test creating a changeSet with all attributes, but this time, use the
-	 * deprecated "alwaysRun" property.  We'll also set all booleans to the
-	 * opposite of the last test.
-	 */
-	@Test
-	void changeSetAlwaysRun() {
-		def changeLog = buildChangeLog {
-			changeSet(id: 'monkey-change',
-							author: 'stevesaliman',
-							dbms: 'mysql',
-							alwaysRun: true,
-							runOnChange: false,
-							context: 'testing',
-							runInTransaction: true,
-							failOnError: false,
-							onValidationFail: "MARK_RAN") {
-				dropTable(tableName: 'monkey')
-			}
-		}
-
-		assertNotNull changeLog.changeSets
-		assertEquals 1, changeLog.changeSets.size()
-		assertEquals 'monkey-change', changeLog.changeSets[0].id
-		assertEquals 'stevesaliman', changeLog.changeSets[0].author
-		assertTrue changeLog.changeSets[0].alwaysRun // the property doesn't match xml or docs.
-		assertFalse changeLog.changeSets[0].runOnChange
-		assertEquals FILE_PATH, changeLog.changeSets[0].filePath
-		assertEquals 'testing', changeLog.changeSets[0].contexts.toArray()[0]
-		assertEquals 'mysql', changeLog.changeSets[0].dbmsSet.toArray()[0]
-		assertTrue changeLog.changeSets[0].runInTransaction
-		assertFalse changeLog.changeSets[0].failOnError
-		assertEquals "MARK_RAN", changeLog.changeSets[0].onValidationFail.toString()
-	}
-
-	/**
 	 * Test creating a changeSet with an unsupported attribute.
 	 */
 	@Test(expected = ChangeLogParseException)

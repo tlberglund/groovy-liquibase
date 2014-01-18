@@ -50,7 +50,20 @@ documented separately from the Liquibase XML format.  We will, however let you k
 * The documentation mentions a ```referencesUniqueColumn``` attribute of the
   ```addForeignKeyConstraint``` change, but what it doesn't tell you is that it
   is ignored.  In the code, Liquibase has marked this item as being deprecated,
-  so we've deprecated it as well.
+  so we've deprecated it as well, and we let you know about it.
+* If you were using the DSL prior to version 1.0.0, a changeSet could have an
+  ```alwaysRun``` property.  This is inconsistent with Liquibase and has been
+  replaced in 1.0.0 with ```runAlways```
+* Prior to 1.0.0, the DSL allowed a ```path``` attribute in an ```include```.
+  This is no longer allowed.  ```includeAll``` should be used instead.
+* Prior to 1.0.0, the DSL allowed ```createStoredProcedure``` changes.  This has
+  been replaced with ```createProcedure```.
+* Prior to 1.0.0, the DSL allowed a File object to be passed as an attribute to
+  ```loadData``` and ```loadUpdateData``` changes.  This is no longer supported,
+  the path to the file should be used instead.
+* Prior to 1.0.0, the DSL allowed constraint attributes to be set as methods
+  in a constraint closure.  This is inconsistent with the rest of the DSL and
+  has been removed.
 
 ##### Additions to the XML format:
 * The Groovy DSL supports a simplified means of passing arguments to the

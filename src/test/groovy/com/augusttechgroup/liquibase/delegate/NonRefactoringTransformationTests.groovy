@@ -239,11 +239,11 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 
 	/**
 	 * Test parsing a loadData change when the file name is actually a File
-	 * object.  Again, we're not validating the columns, just that they are
-	 * present.  Using a File object has been deprecated, so look for a warning
-	 * in standard out.
+	 * object.  This was deprecated, so make sure we get the expected error.
+	 * This test can be removed when we stop explicitly checking this condition
+	 * in the delegate.
 	 */
-	@Test
+	@Test(expected = ChangeLogParseException)
 	void loadDataFullWithFile() {
 		buildChangeSet {
 			loadData(catalogName: 'catalog',
@@ -257,26 +257,6 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 				column(name: 'emotion')
 			}
 		}
-
-		assertEquals 0, changeSet.getRollBackChanges().length
-		def changes = changeSet.changes
-		assertNotNull changes
-		assertEquals 1, changes.size()
-		assertTrue changes[0] instanceof LoadDataChange
-		assertEquals 'catalog', changes[0].catalogName
-		assertEquals 'schema', changes[0].schemaName
-		assertEquals 'monkey', changes[0].tableName
-		assertEquals new File('data.csv').canonicalPath, changes[0].file
-		assertEquals 'UTF-8', changes[0].encoding
-		assertEquals ';', changes[0].separator
-		assertEquals '"', changes[0].quotchar
-		def columns = changes[0].columns
-		assertNotNull columns
-		assertTrue columns.every { column -> column instanceof LoadDataColumnConfig }
-		assertEquals 2, columns.size()
-		assertEquals 'id', columns[0].name
-		assertEquals 'emotion', columns[1].name
-		assertPrinted "using a File object for loadData's 'file' attribute has been deprecated"
 	}
 
 	/**
@@ -381,11 +361,11 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 
 	/**
 	 * Test parsing a loadData change when the file name is actually a File
-	 * object.  Again, we're not validating the columns, just that they are
-	 * present. Using a File object has been deprecated, so look for a warning
-	 * in standard out.
+	 * object.  This was removed from the delegate, so make sure we get the
+	 * expected exception.  This test can be removed when we stop looking for
+	 * this condition in the delegate.
 	 */
-	@Test
+	@Test(expected = ChangeLogParseException)
 	void loadUpdateDataFullWithFile() {
 		buildChangeSet {
 			loadUpdateData(catalogName: 'catalog',
@@ -399,26 +379,6 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 				column(name: 'emotion')
 			}
 		}
-
-		assertEquals 0, changeSet.getRollBackChanges().length
-		def changes = changeSet.changes
-		assertNotNull changes
-		assertEquals 1, changes.size()
-		assertTrue changes[0] instanceof LoadUpdateDataChange
-		assertEquals 'catalog', changes[0].catalogName
-		assertEquals 'schema', changes[0].schemaName
-		assertEquals 'monkey', changes[0].tableName
-		assertEquals new File('data.csv').canonicalPath, changes[0].file
-		assertEquals 'UTF-8', changes[0].encoding
-		assertEquals ';', changes[0].separator
-		assertEquals '"', changes[0].quotchar
-		def columns = changes[0].columns
-		assertNotNull columns
-		assertTrue columns.every { column -> column instanceof LoadDataColumnConfig }
-		assertEquals 2, columns.size()
-		assertEquals 'id', columns[0].name
-		assertEquals 'emotion', columns[1].name
-		assertPrinted "using a File object for loadUpdateData's 'file' attribute has been deprecated"
 	}
 
 	/**

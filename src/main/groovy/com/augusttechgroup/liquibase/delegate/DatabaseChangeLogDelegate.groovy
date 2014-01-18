@@ -63,14 +63,13 @@ class DatabaseChangeLogDelegate {
     // We want to warn people if they try to pass in something that is not
 	  // supported because we don't want to silently ignore things, so first get
 	  // a list of unsupported keys.
-		def unsupportedKeys = params.keySet() - ['id', 'author', 'dbms', 'runAlways', 'runOnChange', 'context', 'runInTransaction', 'failOnError', 'onValidationFail', 'alwaysRun']
+	  if ( params.containsKey('alwaysRun') ) {
+		  throw new ChangeLogParseException("Error: ChangeSet '${params.id}': the alwaysRun attribute of a changeSet has been removed.  Please use 'runAlways' instead.")
+	  }
+
+	  def unsupportedKeys = params.keySet() - ['id', 'author', 'dbms', 'runAlways', 'runOnChange', 'context', 'runInTransaction', 'failOnError', 'onValidationFail']
 	  if ( unsupportedKeys.size() > 0 ) {
 		  throw new ChangeLogParseException("ChangeSet '${params.id}': ${unsupportedKeys.toArray()[0]} is not a supported ChangeSet attribute")
-	  }
-	  if ( params.containsKey('alwaysRun') ) {
-		  println "Warning: ChangeSet '${params.id}': the alwaysRun attribute of a changeSet is deprecated, and will be removed in a future release."
-		  println "Consider using runAlways"
-		  params.runAlways = params.alwaysRun
 	  }
 
 	  // Groovy's "elvis" operator doesn't work for runInTransaction because
@@ -123,10 +122,7 @@ class DatabaseChangeLogDelegate {
 	// Todo: We should probably support expanded expressions here...
   void include(Map params = [:]) {
 	  if ( params.containsKey('path') ) {
-		  println "Warning: the 'path' attribute of an include is deprecated, and will be removed in a future release."
-		  println "Consider using the includeAll element instead."
-		  includeAll(params)
-		  return
+		  throw new ChangeLogParseException("Error: the 'include' element no longer supports the 'path' attribute.  Please use the 'includeAll' element instead.")
 	  }
 
 	  // validate parameters.

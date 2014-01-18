@@ -792,31 +792,23 @@ END;"""
 
 	/**
 	 * Test parsing a createStoredProcedure change when we have an empty map and
-	 * closure to make sure the DSL doesn't try to set any defaults.  This is
-	 * deprecated, so expect a warning.
+	 * closure. This has been de-supported, so expect an error.  This test can be
+	 * removed when we remove the custom error message in the delegate.
 	 */
-	@Test
+	@Test(expected = ChangeLogParseException)
 	void createStoredProcedureEmpty() {
 		buildChangeSet {
 			createStoredProcedure ([:]) {}
 		}
-
-		assertEquals 0, changeSet.getRollBackChanges().length
-		def changes = changeSet.changes
-		assertNotNull changes
-		assertEquals 1, changes.size()
-		assertNull changes[0].comments
-		assertNull changes[0].procedureBody
-		assertPrinted("createStoredProcedure has been deprecated")
 	}
 
 	/**
 	 * test parsing a createStoredProcedure change when we have no attributes
-	 * just the body in a closure.  Since the only supported attribute is for
-	 * comments, this will be common.  This has been deprecated, so expect a
-	 * warning.
+	 * just the body in a closure.  This has been de-supported, so expect an
+	 * error.  This test can be removed when we remove the custom error message
+	 * in the delegate.
 	 */
-	@Test
+	@Test(expected = ChangeLogParseException)
 	void createStoredProcedureClosureOnly() {
 		def sql = """\
 CREATE OR REPLACE PROCEDURE testMonkey
@@ -827,24 +819,15 @@ END;"""
 		buildChangeSet {
 			createStoredProcedure { sql }
 		}
-
-		assertEquals 0, changeSet.getRollBackChanges().length
-		def changes = changeSet.changes
-		assertNotNull changes
-		assertEquals 1, changes.size()
-		assertTrue changes[0] instanceof CreateProcedureChange
-		assertNull changes[0].comments
-		assertEquals sql, changes[0].procedureBody
-		assertPrinted("createStoredProcedure has been deprecated")
 	}
 
 	/**
 	 * Test parsing a createStoredProcedure change when we have no attributes,
-	 * just the procedure body as a string.  Since the only supported attribute
-	 * is for comments, this will be common.  This has been deprecated, so expect
-	 * a warning.
+	 * just the procedure body as a string.  This has been de-supported, so expect
+	 * an error.  This test can be removed when we remove the custom error message
+	 * in the delegate.
 	 */
-	@Test
+	@Test(expected = ChangeLogParseException)
 	void createStoredProcedureSqlOnlyAsString() {
 		def sql = """\
 CREATE OR REPLACE PROCEDURE testMonkey
@@ -855,22 +838,14 @@ END;"""
 		buildChangeSet {
 			createStoredProcedure sql
 		}
-
-		assertEquals 0, changeSet.getRollBackChanges().length
-		def changes = changeSet.changes
-		assertNotNull changes
-		assertEquals 1, changes.size()
-		assertTrue changes[0] instanceof CreateProcedureChange
-		assertNull changes[0].comments
-		assertEquals sql, changes[0].procedureBody
-		assertPrinted("createStoredProcedure has been deprecated")
 	}
 
 	/**
 	 * Test parsing a createStoredProcedure change when we have both comments
-	 * and SQL. This has been deprecated, so expect a warning.
+	 * and SQL. This has been de-supported, so expect an error.  This test can be
+	 * removed when we remove the custom error message in the delegate.
 	 */
-	@Test
+	@Test(expected = ChangeLogParseException)
 	void createStoredProcedureFull() {
 		def sql = """\
 CREATE OR REPLACE PROCEDURE testMonkey
@@ -881,14 +856,5 @@ END;"""
 		buildChangeSet {
 			createStoredProcedure(comments: 'someComments') { sql }
 		}
-
-		assertEquals 0, changeSet.getRollBackChanges().length
-		def changes = changeSet.changes
-		assertNotNull changes
-		assertEquals 1, changes.size()
-		assertTrue changes[0] instanceof CreateProcedureChange
-		assertEquals 'someComments', changes[0].comments
-		assertEquals sql, changes[0].procedureBody
-		assertPrinted("createStoredProcedure has been deprecated")
 	}
 }

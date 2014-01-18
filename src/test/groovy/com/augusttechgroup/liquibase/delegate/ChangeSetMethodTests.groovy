@@ -299,28 +299,46 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
 	}
 
 	/**
-	 * Test a map based rollback with the deprecated "id" and "author" attribute to make sure
-	 * we get the deprecation warning.
+	 * Test a map based rollback with the deprecated "id" attribute to make sure
+	 * we get a parse exception.
 	 */
-	@Test
-	void rollbackWithDeprecatedAttributes() {
+	@Test(expected = ChangeLogParseException)
+	void rollbackWithDeprecatedId() {
 		buildChangeSet {
 			addColumn(tableName: 'monkey') {
 				column(name: 'diet', type: 'varchar(30)')
 			}
-			rollback(id: CHANGESET_ID, author: CHANGESET_AUTHOR)
+			rollback(id: CHANGESET_ID, changeSetAuthor: CHANGESET_AUTHOR)
 		}
 
-		// in this case, we expect the addColumn change to also be the change
-		// inside the rollback.
-		assertEquals 1, changeSet.changes.size()
-		def changes = changeSet.getRollBackChanges()
-		assertNotNull changes
-		assertEquals 1, changes.size()
-		assertTrue changes[0] instanceof AddColumnChange
-		assertEquals 'monkey', changes[0].tableName
-		assertPrinted "the id attribute of a rollback has been deprecated"
-		assertPrinted "the author attribute of a rollback has been deprecated"
+	}
+
+	/**
+	 * Test a map based rollback with the deprecated "id" attribute to make sure
+	 * we get a parse exception.
+	 */
+	@Test(expected = ChangeLogParseException)
+	void rollbackWithDeprecatedAuthor() {
+		buildChangeSet {
+			addColumn(tableName: 'monkey') {
+				column(name: 'diet', type: 'varchar(30)')
+			}
+			rollback(changeSetId: CHANGESET_ID, author: CHANGESET_AUTHOR)
+		}
+
+	}
+	/**
+	 * Test a map based rollback with the deprecated "id" attribute to make sure
+	 * we get a parse exception.
+	 */
+	@Test(expected = ChangeLogParseException)
+	void rollbackWithInvalidAttribute() {
+		buildChangeSet {
+			addColumn(tableName: 'monkey') {
+				column(name: 'diet', type: 'varchar(30)')
+			}
+			rollback(rollbackId: CHANGESET_ID, changeSetAuthor: CHANGESET_AUTHOR)
+		}
 
 	}
 

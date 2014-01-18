@@ -45,15 +45,16 @@ class ConstraintDelegate {
     }
   }
 
-
+	/**
+	 * This method is only here to provide a sane error message during a
+	 * transition period, and will be removed in a future release.
+	 * @param closure
+	 */
 	@Deprecated
   def constraints(Closure closure) {
 		// this is not how the XML works, and we don't do this anywhere else so
 		// deprecate it.
-		println "Warning: ChangeSet '${changeSetId}', ${changeName} change: Setting constraint attributes in nested closures has been deprecated, and may be removed in a future release."
-    closure.delegate = this
-    closure.resolveStrategy = Closure.DELEGATE_FIRST
-    closure.call()
+		throw new ChangeLogParseException("Error: ChangeSet '${changeSetId}', ${changeName} change: Setting constraint attributes in nested closures is no longer supported. Use an attribute map instead.")
   }
   
 

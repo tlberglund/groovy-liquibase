@@ -149,18 +149,16 @@ class ChangeSetDelegate {
 		def id = null
 		def author = null
 		def filePath = null
+		if ( params.containsKey('id') ) {
+			throw new ChangeLogParseException("Error: ChangeSet '${changeSet.id}': the 'id' attribute of a rollback has been removed. Use 'changeSetId' instead.")
+		}
+		if ( params.containsKey('author') ) {
+			throw new ChangeLogParseException("Error: ChangeSet '${changeSet.id}': the 'author' attribute of a rollback has been removed. Use 'changeSetAuthor' instead.")
+		}
 		params.each { key, value ->
 			if ( key == "changeSetId" ) {
 				id = DelegateUtil.expandExpressions(value, databaseChangeLog)
-			} else if ( key == "id") {
-				println "Warning: ChangeSet '${changeSet.id}': the id attribute of a rollback has been deprecated, and will be removed in a future release."
-				println "Consider using changeSetId instead."
-				id = DelegateUtil.expandExpressions(value, databaseChangeLog)
 			} else if ( key == "changeSetAuthor" ) {
-				author = DelegateUtil.expandExpressions(value, databaseChangeLog)
-			} else if ( key == "author" ) {
-				println "Warning: ChangeSet '${changeSet.id}': the author attribute of a rollback has been deprecated, and will be removed in a future release."
-				println "Consider using changeSetAuthor instead."
 				author = DelegateUtil.expandExpressions(value, databaseChangeLog)
  			} else if ( key == "changeSetPath" ) {
 				filePath = DelegateUtil.expandExpressions(value, databaseChangeLog)
@@ -277,25 +275,19 @@ class ChangeSetDelegate {
 		addMapBasedChange('mergeColumns', MergeColumnChange, params)
 	}
 
+	/**
+	 * This method only remains to let users know the correct name for this
+	 * change.
+	 */
 	@Deprecated
 	void createStoredProcedure(Map params = [:], Closure closure) {
-		println "Warning: ChangeSet '${changeSet.id}': createStoredProcedure has been deprecated, and may be removed in a future release."
-		println "Consider using createProcedure instead."
-
-		def change = makeChangeFromMap('createStoredProcedure', CreateProcedureChange, params)
-		change.procedureBody = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
-		addChange(change)
+		throw new ChangeLogParseException("Error: ChangeSet '${changeSet.id}': 'createStoredProcedure' changes have been removed. Use 'createProcedure' instead.")
 	}
 
 
 	@Deprecated
 	void createStoredProcedure(String storedProc) {
-		println "Warning: ChangeSet '${changeSet.id}': createStoredProcedure has been deprecated, and may be removed in a future release."
-		println "Consider using createProcedure instead."
-
-		def change = new CreateProcedureChange()
-		change.procedureBody = DelegateUtil.expandExpressions(storedProc, databaseChangeLog)
-		addChange(change)
+		throw new ChangeLogParseException("Error: ChangeSet '${changeSet.id}': 'createStoredProcedure' changes have been removed. Use 'createProcedure' instead.")
 	}
 
 
@@ -400,9 +392,7 @@ class ChangeSetDelegate {
 
 	void loadData(Map params, Closure closure) {
 		if ( params.file instanceof File ) {
-			println "Warning: ChangeSet '${changeSet.id}': using a File object for loadData's 'file' attribute has been deprecated, and may be removed in a future release."
-			println "Consider using the path to the file instead."
-			params.file = params.file.canonicalPath
+			throw new ChangeLogParseException("Warning: ChangeSet '${changeSet.id}': using a File object for loadData's 'file' attribute is no longer supported.  Use the path to the file instead.")
 		}
 
 		def change = makeLoadDataColumnarChangeFromMap('loadData', LoadDataChange, params, closure)
@@ -413,9 +403,7 @@ class ChangeSetDelegate {
 
 	void loadUpdateData(Map params, Closure closure) {
 		if ( params.file instanceof File ) {
-			println "Warning: ChangeSet '${changeSet.id}': using a File object for loadUpdateData's 'file' attribute has been deprecated, and may be removed in a future release."
-			println "Consider using the path to the file instead."
-			params.file = params.file.canonicalPath
+			throw new ChangeLogParseException("Warning: ChangeSet '${changeSet.id}': using a File object for loadUpdateData's 'file' attribute is no longer supported.  Use the path to the file instead.")
 		}
 
 		def change = makeLoadDataColumnarChangeFromMap('loadUpdateData', LoadUpdateDataChange, params, closure)
