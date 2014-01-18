@@ -215,66 +215,66 @@ class ChangeSetDelegate {
   // -----------------------------------------------------------------------
 	// Refactoring changes
 	void addColumn(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('addColumn', AddColumnChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
+		def change = makeColumnarChangeFromMap('addColumn', AddColumnChange, params, closure)
 		addChange(change)
 	}
 
 
 	void renameColumn(Map params) {
-		addMapBasedChange('renameColumn', RenameColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'oldColumnName', 'newColumnName', 'columnDataType'])
+		addMapBasedChange('renameColumn', RenameColumnChange, params)
 	}
 
 
 	void modifyDataType(Map params) {
-		addMapBasedChange('modifyDataType', ModifyDataTypeChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'newDataType'])
+		addMapBasedChange('modifyDataType', ModifyDataTypeChange, params)
 	}
 
 
 	void dropColumn(Map params) {
-		addMapBasedChange('dropColumn', DropColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName'])
+		addMapBasedChange('dropColumn', DropColumnChange, params)
 	}
 
 
 	void alterSequence(Map params) {
-		addMapBasedChange('alterSequence', AlterSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered'])
+		addMapBasedChange('alterSequence', AlterSequenceChange, params)
 	}
 
 
 	void createTable(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('createTable', CreateTableChange, closure, params, ['catalogName', 'schemaName', 'tablespace', 'tableName', 'remarks'])
+		def change = makeColumnarChangeFromMap('createTable', CreateTableChange, params, closure)
 		addChange(change)
 	}
 
 
 	void renameTable(Map params) {
-		addMapBasedChange('renameTable', RenameTableChange, params, ['catalogName', 'schemaName', 'oldTableName', 'newTableName'])
+		addMapBasedChange('renameTable', RenameTableChange, params)
 	}
 
 
 	void dropTable(Map params) {
-		addMapBasedChange('dropTable', DropTableChange, params, ['catalogName', 'schemaName', 'tableName', 'cascadeConstraints'])
+		addMapBasedChange('dropTable', DropTableChange, params)
 	}
 
 
 	void createView(Map params, Closure closure) {
-		def change = makeChangeFromMap('createView', CreateViewChange, params, ['catalogName', 'schemaName', 'viewName', 'replaceIfExists', 'selectQuery'])
+		def change = makeChangeFromMap('createView', CreateViewChange, params)
 		change.selectQuery = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 		addChange(change)
 	}
 
 
 	void renameView(Map params) {
-		addMapBasedChange('renameView', RenameViewChange, params, ['catalogName', 'schemaName', 'oldViewName', 'newViewName'])
+		addMapBasedChange('renameView', RenameViewChange, params)
 	}
 
 
 	void dropView(Map params) {
-		addMapBasedChange('dropView', DropViewChange, params, ['catalogName', 'schemaName', 'viewName'])
+		addMapBasedChange('dropView', DropViewChange, params)
 	}
 
 
 	void mergeColumns(Map params) {
-		addMapBasedChange('mergeColumns', MergeColumnChange, params, ['catalogName', 'schemaName', 'tableName', 'column1Name', 'column2Name', 'finalColumnName', 'finalColumnType', 'joinString'])
+		addMapBasedChange('mergeColumns', MergeColumnChange, params)
 	}
 
 	@Deprecated
@@ -282,7 +282,7 @@ class ChangeSetDelegate {
 		println "Warning: ChangeSet '${changeSet.id}': createStoredProcedure has been deprecated, and may be removed in a future release."
 		println "Consider using createProcedure instead."
 
-		def change = makeChangeFromMap('createStoredProcedure', CreateProcedureChange, params, ['comments'])
+		def change = makeChangeFromMap('createStoredProcedure', CreateProcedureChange, params)
 		change.procedureBody = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 		addChange(change)
 	}
@@ -300,7 +300,7 @@ class ChangeSetDelegate {
 
 
 	void createProcedure(Map params = [:], Closure closure) {
-		def change = makeChangeFromMap('createProcedure', CreateProcedureChange, params, ['comments'])
+		def change = makeChangeFromMap('createProcedure', CreateProcedureChange, params)
 		change.procedureBody = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 		addChange(change)
 	}
@@ -313,92 +313,88 @@ class ChangeSetDelegate {
 	}
 
 	void addLookupTable(Map params) {
-		addMapBasedChange('addLookupTable', AddLookupTableChange, params, ['existingTableName', 'existingTableCatalogName', 'existingTableSchemaName', 'existingColumnName', 'newTableName', 'newTableCatalogName', 'newTableSchemaName', 'newColumnName', 'newColumnDataType', 'constraintName'])
+		addMapBasedChange('addLookupTable', AddLookupTableChange, params)
 	}
 
 
 	void addNotNullConstraint(Map params) {
-		addMapBasedChange('addNotNullConstraint', AddNotNullConstraintChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'defaultNullValue', 'columnDataType'])
+		addMapBasedChange('addNotNullConstraint', AddNotNullConstraintChange, params)
 	}
 
 
 	void dropNotNullConstraint(Map params) {
-		addMapBasedChange('dropNotNullConstraint', DropNotNullConstraintChange, params, ['catalogName', 'schemaName', 'tableName', 'columnName', 'columnDataType'])
+		addMapBasedChange('dropNotNullConstraint', DropNotNullConstraintChange, params)
 	}
 
 
 	void addUniqueConstraint(Map params) {
-		addMapBasedChange('addUniqueConstraint', AddUniqueConstraintChange, params, ['tablespace', 'catalogName', 'schemaName', 'tableName', 'columnNames', 'constraintName', 'deferrable', 'initiallyDeferred', 'disabled'])
+		addMapBasedChange('addUniqueConstraint', AddUniqueConstraintChange, params)
 	}
 
 
 	void dropUniqueConstraint(Map params) {
-		addMapBasedChange('dropUniqueConstraint', DropUniqueConstraintChange, params, ['tableName', 'catalogName', 'schemaName', 'constraintName', 'uniqueColumns'])
+		addMapBasedChange('dropUniqueConstraint', DropUniqueConstraintChange, params)
 	}
 
 
 	void createSequence(Map params) {
-		addMapBasedChange('createSequence', CreateSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName', 'incrementBy', 'minValue', 'maxValue', 'ordered', 'startValue', 'cycle'])
+		addMapBasedChange('createSequence', CreateSequenceChange, params)
 	}
 
 
 	void dropSequence(Map params) {
-		addMapBasedChange('dropSequence', DropSequenceChange, params, ['sequenceName', 'catalogName', 'schemaName'])
+		addMapBasedChange('dropSequence', DropSequenceChange, params)
 	}
 
 
 	void addAutoIncrement(Map params) {
-		addMapBasedChange('addAutoIncrement', AddAutoIncrementChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType', 'startWith', 'incrementBy'])
+		addMapBasedChange('addAutoIncrement', AddAutoIncrementChange, params)
 	}
 
 
 	void addDefaultValue(Map params) {
-		addMapBasedChange('addDefaultValue', AddDefaultValueChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType', 'defaultValue', 'defaultValueNumeric', 'defaultValueBoolean', 'defaultValueDate', 'defaultValueComputed', 'defaultValueSequenceNext'])
+		addMapBasedChange('addDefaultValue', AddDefaultValueChange, params)
 	}
 
 
 	void dropDefaultValue(Map params) {
-		addMapBasedChange('dropDefaultValue', DropDefaultValueChange, params, ['tableName', 'catalogName', 'schemaName', 'columnName', 'columnDataType'])
+		addMapBasedChange('dropDefaultValue', DropDefaultValueChange, params)
 	}
 
 	/**
-	 * process an addForeignKeyConstraint change.  This change has 2 deprecated
-	 * properties for which we need a warning.
+	 * process an addForeignKeyConstraint change.  This change has a deprecated
+	 * property for which we need a warning.
 	 * @param params the properties to set on the new changes.
 	 */
 	void addForeignKeyConstraint(Map params) {
-		if ( params['deleteCascade'] != null ) {
-			println "Warning: ChangeSet '${changeSet.id}': addForeignKeyConstraint's deleteCascade parameter has been deprecated, and may be removed in a future release."
-			println "Consider using \"onDelete='CASCADE'\" instead."
-		}
 		if ( params['referencesUniqueColumn'] != null ) {
 			println "Warning: ChangeSet '${changeSet.id}': addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated, and may be removed in a future release."
 			println "Consider removing it, as Liquibase ignores it anyway."
 		}
-		addMapBasedChange('addForeignKeyConstraint', AddForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName', 'baseColumnNames', 'referencedTableName', 'referencedTableCatalogName', 'referencedTableSchemaName', 'referencedColumnNames', 'deferrable', 'initiallyDeferred', 'onDelete', 'onUpdate', 'deleteCascade', 'referencesUniqueColumn'])
+		addMapBasedChange('addForeignKeyConstraint', AddForeignKeyConstraintChange, params)
 	}
 
 
 	void dropAllForeignKeyConstraints(Map params) {
-		addMapBasedChange('dropAllForeignKeyConstraints', DropAllForeignKeyConstraintsChange, params, ['baseTableName', 'baseTableCatalogName', 'baseTableSchemaName'])
+		addMapBasedChange('dropAllForeignKeyConstraints', DropAllForeignKeyConstraintsChange, params)
 	}
 
 
 	void dropForeignKeyConstraint(Map params) {
-		addMapBasedChange('dropForeignKeyConstraint', DropForeignKeyConstraintChange, params, ['constraintName', 'baseTableName', 'baseTableCatalogName', 'baseTableSchemaName'])
+		addMapBasedChange('dropForeignKeyConstraint', DropForeignKeyConstraintChange, params)
 	}
 
 
 	void addPrimaryKey(Map params) {
-		addMapBasedChange('addPrimaryKey', AddPrimaryKeyChange, params, ['tableName', 'catalogName', 'schemaName', 'columnNames', 'constraintName', 'tablespace'])
+		addMapBasedChange('addPrimaryKey', AddPrimaryKeyChange, params)
 	}
 
 	void dropPrimaryKey(Map params) {
-		addMapBasedChange('dropPrimaryKey', DropPrimaryKeyChange, params, ['tableName', 'catalogName', 'schemaName', 'constraintName'])
+		addMapBasedChange('dropPrimaryKey', DropPrimaryKeyChange, params)
 	}
 
 	void insert(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('insert', InsertDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'dbms'])
+		def change = makeColumnarChangeFromMap('insert', InsertDataChange, params, closure)
 		addChange(change)
 	}
 
@@ -409,7 +405,7 @@ class ChangeSetDelegate {
 			params.file = params.file.canonicalPath
 		}
 
-		def change = makeLoadDataColumnarChangeFromMap('loadData', LoadDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar'])
+		def change = makeLoadDataColumnarChangeFromMap('loadData', LoadDataChange, params, closure)
 		change.resourceAccessor = resourceAccessor
 		addChange(change)
 	}
@@ -422,25 +418,25 @@ class ChangeSetDelegate {
 			params.file = params.file.canonicalPath
 		}
 
-		def change = makeLoadDataColumnarChangeFromMap('loadUpdateData', LoadUpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'file', 'encoding', 'separator', 'quotchar', 'primaryKey'])
+		def change = makeLoadDataColumnarChangeFromMap('loadUpdateData', LoadUpdateDataChange, params, closure)
 		change.resourceAccessor = resourceAccessor
 		addChange(change)
 	}
 
 
 	void update(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('update', UpdateDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
+		def change = makeColumnarChangeFromMap('update', UpdateDataChange, params, closure)
 		addChange(change)
 	}
 
 
 	void delete(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('delete', DeleteDataChange, closure, params, ['catalogName', 'schemaName', 'tableName'])
+		def change = makeColumnarChangeFromMap('delete', DeleteDataChange, params, closure)
 		addChange(change)
 	}
 
 	void delete(Map params) {
-		addMapBasedChange('delete', DeleteDataChange, params, ['catalogName', 'schemaName', 'tableName'])
+		addMapBasedChange('delete', DeleteDataChange, params)
 	}
 
 	/**
@@ -449,7 +445,7 @@ class ChangeSetDelegate {
 	 * @param params params the parameter map
 	 */
 	void tagDatabase(Map params) {
-		addMapBasedChange('tagDatabase', TagDatabaseChange, params, ['tag'])
+		addMapBasedChange('tagDatabase', TagDatabaseChange, params)
 	}
 
 	/**
@@ -470,7 +466,7 @@ class ChangeSetDelegate {
 	 * @param params the parameter map
 	 */
 	void stop(Map params) {
-		addMapBasedChange('stop', StopChange, params, ['message'])
+		addMapBasedChange('stop', StopChange, params)
 	}
 
 	/**
@@ -486,18 +482,18 @@ class ChangeSetDelegate {
 	}
 
 	void createIndex(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('createIndex', CreateIndexChange, closure, params, ['catalogName', 'schemaName', 'tableName', 'tablespace', 'indexName', 'unique', 'associatedWith'])
+		def change = makeColumnarChangeFromMap('createIndex', CreateIndexChange, params, closure)
 		addChange(change)
 	}
 
 
 	void dropIndex(Map params) {
-		addMapBasedChange('dropIndex', DropIndexChange, params, ['tableName', 'catalogName', 'schemaName', 'indexName', 'associatedWith'])
+		addMapBasedChange('dropIndex', DropIndexChange, params)
 	}
 
 
 	void sql(Map params = [:], Closure closure) {
-		def change = makeChangeFromMap('sql', RawSQLChange, params, ['stripComments', 'splitStatements', 'endDelimiter', 'dbms'])
+		def change = makeChangeFromMap('sql', RawSQLChange, params)
 		def delegate = new CommentDelegate(changeSetId: changeSet.id,
 		                                   changeName: 'sql')
 		closure.delegate = delegate
@@ -517,8 +513,12 @@ class ChangeSetDelegate {
 
 
 	void sqlFile(Map params) {
-		// Todo: If we remove the map, we should still look for and block the 'sql' attribute.
-		def change = makeChangeFromMap('sqlFile', SQLFileChange, params, ['path', 'stripComments', 'splitStatements', 'encoding', 'endDelimiter', 'relativeToChangelogFile', 'dbms'])
+		// It doesn't make sense to have SQL in a sqlFile change, even though
+		// liquibase allows it.
+		if ( params.containsKey('sql') ) {
+			throw new ChangeLogParseException("ChangeSet '${changeSet.id}': 'sql' is an invalid property for 'sqlFile' changes.")
+		}
+		def change = makeChangeFromMap('sqlFile', SQLFileChange, params)
 		change.resourceAccessor = resourceAccessor
 		// Before we add the change, work around the Liquibase bug where sqlFile
 		// change sets don't load the SQL until it is too late to calculate
@@ -562,12 +562,12 @@ class ChangeSetDelegate {
 
 
 	void executeCommand(Map params) {
-		addMapBasedChange('executeCommand', ExecuteShellCommandChange, params, ['executable', 'os'])
+		addMapBasedChange('executeCommand', ExecuteShellCommandChange, params)
 	}
 
 
 	void executeCommand(Map params, Closure closure) {
-		def change = makeChangeFromMap('executeCommand', ExecuteShellCommandChange, params, ['executable', 'os'])
+		def change = makeChangeFromMap('executeCommand', ExecuteShellCommandChange, params)
 		def delegate = new ArgumentDelegate(changeSetId: changeSet.id,
 		                                    changeName: 'executeCommand')
 		closure.delegate = delegate
@@ -603,8 +603,8 @@ class ChangeSetDelegate {
 	 * @param paramNames a list of valid parameter names.
 	 * @return the newly created change.
 	 */
-	private def makeLoadDataColumnarChangeFromMap(String name, Class klass, Closure closure, Map params, List paramNames) {
-		def change = makeChangeFromMap(name, klass, params, paramNames)
+	private def makeLoadDataColumnarChangeFromMap(String name, Class klass, Map params, Closure closure) {
+		def change = makeChangeFromMap(name, klass, params)
 
 		def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig,
 						                                databaseChangeLog: databaseChangeLog,
@@ -638,8 +638,8 @@ class ChangeSetDelegate {
 	 * @param paramNames a list of valid properties for the new change
 	 * @return the newly created change
 	 */
-	private def makeColumnarChangeFromMap(String name, Class klass, Closure closure, Map params, List paramNames) {
-		def change = makeChangeFromMap(name, klass, params, paramNames)
+	private def makeColumnarChangeFromMap(String name, Class klass, Map params, Closure closure) {
+		def change = makeChangeFromMap(name, klass, params)
 
 		def columnDelegate = new ColumnDelegate(databaseChangeLog: databaseChangeLog,
 						                                changeSetId: changeSet.id,
@@ -678,26 +678,22 @@ class ChangeSetDelegate {
 	 * map of parameters.
 	 * @param klass the type of change to create/
 	 * @param sourceMap a map of parameter names and values for the new change
-	 * @param paramNames a list of valid parameter names.
 	 * @return the newly create change, with the appropriate properties set.
 	 * @throws ChangeLogParseException if the source map contains any keys that
 	 * are not in the list of valid paramNames.
 	 */
-	private def makeChangeFromMap(String name, Class klass, Map sourceMap, List paramNames) {
+	private def makeChangeFromMap(String name, Class klass, Map sourceMap) {
 		def change = klass.newInstance()
 
-		// Todo: if we get rid of paramNames, just loop through the source map
-		// and set properties.  The else block with the error message goes away.
 		sourceMap.each { key, value ->
-			if ( paramNames.contains(key) && value != null ) {
-				try {
-					ObjectUtil.setProperty(change, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
-				}
-				catch (NumberFormatException ex) {
-					change[key] = value.toBigInteger()
-				}
-			} else {
-				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': '${key}' is an invalid property for '${name}' changes.")
+			try {
+				ObjectUtil.setProperty(change, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
+			}
+			catch (NumberFormatException ex) {
+				change[key] = value.toBigInteger()
+			}
+			catch (RuntimeException re) {
+				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': '${key}' is an invalid property for '${name}' changes.", re)
 			}
 
 		}
@@ -713,8 +709,8 @@ class ChangeSetDelegate {
 	 * @param sourceMap the map of attributes to set on the Liquibase change.
 	 * @param paramNames a list of valid attribute names.
 	 */
-	private def addMapBasedChange(String name, Class klass, Map sourceMap, List paramNames) {
-		addChange(makeChangeFromMap(name, klass, sourceMap, paramNames))
+	private def addMapBasedChange(String name, Class klass, Map sourceMap) {
+		addChange(makeChangeFromMap(name, klass, sourceMap))
 	}
 
 	/**

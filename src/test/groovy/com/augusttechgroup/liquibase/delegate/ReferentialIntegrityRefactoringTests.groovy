@@ -140,52 +140,6 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 	}
 
 	/**
-	 * Liquibase has an undocumented attribute {@code deleteCascade}, which does
-	 * the same thing as {@code onDelete: 'CASCADE'}, so let's make sure it works.
-	 * Since it is undocumented, we may want to deprecate this option.  We can't
-	 * just delete it because older versions of the DSL supported it, but we can
-	 * make sure we get the deprecation warning on stdout.
-	 */
-	@Test
-	void addForeignKeyConstraintWithDeleteCascadeProperty() {
-		buildChangeSet {
-			addForeignKeyConstraint(constraintName: 'fk_monkey_emotion',
-							                baseTableName: 'monkey',
-							                baseTableCatalogName: 'base_catalog',
-							                baseTableSchemaName: 'base_schema',
-							                baseColumnNames: 'emotion_id',
-							                referencedTableName: 'emotions',
-							                referencedTableCatalogName: 'referenced_catalog',
-							                referencedTableSchemaName: 'referenced_schema',
-							                referencedColumnNames: 'id',
-							                deferrable: false,
-							                initiallyDeferred: true,
-							                deleteCascade: true,
-							                onUpdate: 'RESTRICT')
-		}
-
-		assertEquals 0, changeSet.getRollBackChanges().length
-		def changes = changeSet.changes
-		assertNotNull changes
-		assertEquals 1, changes.size()
-		assertTrue changes[0] instanceof AddForeignKeyConstraintChange
-		assertEquals 'fk_monkey_emotion', changes[0].constraintName
-		assertEquals 'monkey', changes[0].baseTableName
-		assertEquals 'base_catalog', changes[0].baseTableCatalogName
-		assertEquals 'base_schema', changes[0].baseTableSchemaName
-		assertEquals 'emotion_id', changes[0].baseColumnNames
-		assertEquals 'emotions', changes[0].referencedTableName
-		assertEquals 'referenced_catalog', changes[0].referencedTableCatalogName
-		assertEquals 'referenced_schema', changes[0].referencedTableSchemaName
-		assertEquals 'id', changes[0].referencedColumnNames
-		assertFalse changes[0].deferrable
-		assertTrue changes[0].initiallyDeferred
-		assertEquals 'CASCADE', changes[0].onDelete // set by deleteCascade: true
-		assertEquals 'RESTRICT', changes[0].onUpdate
-		assertPrinted("addForeignKeyConstraint's deleteCascade parameter has been deprecated")
-	}
-
-	/**
 	 * Liquibase has deprecated, though still documented, attribute
 	 * {@code referencedUniqueColumn}, which is currently ignored by Liquibase,
 	 * so let's make sure we get a deprecation warning for it.

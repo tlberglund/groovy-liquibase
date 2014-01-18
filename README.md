@@ -44,7 +44,7 @@ builder syntax will result in a valid changelog. Hence this DSL is not
 documented separately from the Liquibase XML format.  We will, however let you know about the minor differences or enhancements to the XML format, and help out with a couple of the gaping holes in Liquibase's documentation of the XML.
 
 ##### Deprecated Items
-* In the Liquibase XML, you can set a ```sql``` attrobute in a ```sqlFile```
+* In the Liquibase XML, you can set a ```sql``` attribute in a ```sqlFile```
   change, but that doesn't make a lot sense, so this has been disabled in the
   Groovy DSL.
 * The documentation mentions a ```referencesUniqueColumn``` attribute of the
@@ -133,8 +133,27 @@ sql { """
   the command should execute.  If present, the ```os.name``` system property
   will be checked against this list, and the command will only run if the
   operating system is in the list.
-- column has some undocumented attributes that we should document here...
-- constraints have some undocumented attributes that we should document here...
+* The ```column``` element has some undocumented attributes that are pretty
+  significant.  They include:
+    - ```valueSequenceNext```, ```valueSequenceCurrent```, and
+      ```defaultValueSequenceNext```, which appear to link values for a column
+      to database sequences.
+
+    - A column can be set auto-number if it the ```autoIncrement``` attribute is
+      set to true, but did you know that you can also control the starting
+      number and the increment interval with the ```startWith``` and
+      ```incrementBy``` attributes?
+* The ```constraints``` elementt also has some hidden gems:
+    - Some databases automatically create indexes for primary keys. The
+      ```primaryKeyTablespace``` can be used to control the tablespace.
+    - A foreign key can be made by using the ```references``` attribute like
+      this: ```references: 'monkey(id)'```, It can also be done like this:
+      ```referencedTableName: 'monkey', referencedColumnNames: 'id'``` for those
+    who prefer to separate out the table from the column.
+    - There is also a ```checkConstraint``` attribute, that appears to be
+      useful for defining a check constraint, but I could not determine the
+      proper syntax for it yet.  For now, it may be best to stick to custom
+      ```sql``` changes to define check constraints.
 
 ## License
 This code is released under the Apache Public License 2.0, just like Liquibase 2.0.
