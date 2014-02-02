@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.change.AddColumnConfig
 import liquibase.change.ColumnConfig
 import liquibase.exception.ChangeLogParseException
 import liquibase.statement.DatabaseFunction
@@ -243,6 +244,80 @@ class ColumnDelegateTests {
 		assertNotNull delegate.columns[0].constraints
 		assertFalse delegate.columns[0].constraints.nullable
 		assertTrue delegate.columns[0].constraints.unique
+	}
+
+	/**
+	 * Test creating an "addColumn" column with all currently supported Liquibase
+	 * attributes. An "addColumn" column is the same as a normal column, but adds
+	 * 3 new attributes for use in an "addColumn" change.  Let's repeat the
+	 * {@link #oneColumnFull()} test, but change the type of column to create to
+	 * make sure we can set the 3 new attributes.  This is the only "addColumn"
+	 * test we'll have since there is not any code in the Delegate itself that
+	 * does anything different for "addColumn" columns.  It makes a different type
+	 * of object because the caller tells it to.
+	 */
+	@Test
+	void oneAddColumnFull() {
+		def dateValue = "2010-11-02 07:52:04"
+		def columnDateValue = parseSqlTimestamp(dateValue)
+		def defaultDate = "2013-12-31 09:30:04"
+		def columnDefaultDate = parseSqlTimestamp(defaultDate)
+
+		def delegate = buildColumnDelegate(AddColumnConfig.class) {
+			column(name: 'columnName',
+							type: 'varchar(30)',
+							value: 'someValue',
+							valueNumeric: 1,
+							valueBoolean: false,
+							valueDate: dateValue,
+							valueComputed: new DatabaseFunction('databaseValue'),
+							valueSequenceNext: new SequenceNextValueFunction('sequenceNext'),
+							valueSequenceCurrent: new SequenceCurrentValueFunction('sequenceCurrent'),
+							valueBlobFile: 'someBlobFile',
+							valueClobFile: 'someClobFile',
+							defaultValue: 'someDefaultValue',
+							defaultValueNumeric: 2,
+							defaultValueDate: defaultDate,
+							defaultValueBoolean: false,
+							defaultValueComputed: new DatabaseFunction("defaultDatabaseValue"),
+							autoIncrement: true, // should be the only true.
+							startWith: 3,
+							incrementBy: 4,
+							remarks: 'No comment',
+							defaultValueSequenceNext: new SequenceNextValueFunction('defaultSequence'),
+			        beforeColumn: 'before',
+			        afterColumn: 'after',
+			        position: 5)
+		}
+
+		assertNull delegate.whereClause
+		assertEquals 1, delegate.columns.size()
+		assertTrue delegate.columns[0] instanceof AddColumnConfig
+		assertEquals 'columnName', delegate.columns[0].name
+		assertEquals 'varchar(30)', delegate.columns[0].type
+		assertEquals 'someValue', delegate.columns[0].value
+		assertEquals 1, delegate.columns[0].valueNumeric
+		assertFalse delegate.columns[0].valueBoolean
+		assertEquals columnDateValue, delegate.columns[0].valueDate
+		assertEquals 'databaseValue', delegate.columns[0].valueComputed.value
+		assertEquals 'sequenceNext', delegate.columns[0].valueSequenceNext.value
+		assertEquals 'sequenceCurrent', delegate.columns[0].valueSequenceCurrent.value
+		assertEquals 'someBlobFile', delegate.columns[0].valueBlobFile
+		assertEquals 'someClobFile', delegate.columns[0].valueClobFile
+		assertEquals 'someDefaultValue', delegate.columns[0].defaultValue
+		assertEquals 2, delegate.columns[0].defaultValueNumeric
+		assertEquals columnDefaultDate, delegate.columns[0].defaultValueDate
+		assertFalse delegate.columns[0].defaultValueBoolean
+		assertEquals 'defaultDatabaseValue', delegate.columns[0].defaultValueComputed.value
+		assertTrue delegate.columns[0].autoIncrement
+		assertEquals 3G, delegate.columns[0].startWith
+		assertEquals 4G, delegate.columns[0].incrementBy
+		assertEquals 'No comment', delegate.columns[0].remarks
+		assertEquals 'defaultSequence', delegate.columns[0].defaultValueSequenceNext.value
+		assertEquals 'before', delegate.columns[0].beforeColumn
+		assertEquals 'after', delegate.columns[0].afterColumn
+		assertEquals 5, delegate.columns[0].position
+		assertNull delegate.columns[0].constraints
 	}
 
 	/**

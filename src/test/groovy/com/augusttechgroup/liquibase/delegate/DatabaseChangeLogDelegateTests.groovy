@@ -170,7 +170,7 @@ databaseChangeLog()
 		assertFalse changeLog.changeSets[0].alwaysRun // the property doesn't match xml or docs.
 		assertFalse changeLog.changeSets[0].runOnChange
 		assertEquals FILE_PATH, changeLog.changeSets[0].filePath
-		assertNull changeLog.changeSets[0].contexts
+		assertEquals 0, changeLog.changeSets[0].contexts.size()
 		assertNull changeLog.changeSets[0].dbmsSet
 		assertTrue changeLog.changeSets[0].runInTransaction
 	  assertNull changeLog.changeSets[0].failOnError
@@ -518,7 +518,7 @@ databaseChangeLog {
 		assertNull property.key
 		assertNull property.value
 		assertNull property.validDatabases
-		assertNull property.validContexts
+		assertEquals 0, property.validContexts.size()
 	}
 
 	/**
@@ -541,7 +541,7 @@ databaseChangeLog {
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertNull property.validDatabases
-		assertNull property.validContexts
+		assertEquals 0, property.validContexts.size()
 	}
 
 	/**
@@ -563,7 +563,7 @@ databaseChangeLog {
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertEquals 'mysql', property.validDatabases[0]
-		assertEquals 'test', property.validContexts[0]
+		assertEquals 'test', property.validContexts.toArray()[0]
 	}
 
 	/**
@@ -602,7 +602,7 @@ emotion=angry
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertNull property.validDatabases
-		assertNull property.validContexts
+		assertEquals 0, property.validContexts.size()
 	}
 
 	/**
@@ -631,7 +631,7 @@ emotion=angry
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertEquals 'mysql', property.validDatabases[0]
-		assertEquals 'test', property.validContexts[0]
+		assertEquals 'test', property.validContexts.toArray()[0]
 	}
 
 	/**

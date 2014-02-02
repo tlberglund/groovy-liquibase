@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.Contexts
 import liquibase.changelog.ChangeSet
 import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParserFactory

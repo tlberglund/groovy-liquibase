@@ -16,6 +16,7 @@
 
 package com.augusttechgroup.liquibase.delegate
 
+import liquibase.Contexts
 import liquibase.exception.ChangeLogParseException
 import liquibase.sql.visitor.SqlVisitor;
 import liquibase.sql.visitor.SqlVisitorFactory;
@@ -104,7 +105,7 @@ class ModifySqlDelegate {
 			sqlVisitor.setApplicableDbms(modifySqlDbmsList)
 		}
 		if ( modifySqlContexts ) {
-			sqlVisitor.setContexts(modifySqlContexts)
+			sqlVisitor.setContexts(new Contexts(modifySqlContexts))
 		}
 		sqlVisitor.setApplyToRollback(modifySqlAppliedOnRollback)
 

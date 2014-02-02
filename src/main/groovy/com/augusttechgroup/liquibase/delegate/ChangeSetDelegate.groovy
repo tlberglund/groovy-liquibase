@@ -16,51 +16,13 @@
 
 package com.augusttechgroup.liquibase.delegate
 
-import liquibase.change.core.AddColumnChange
-import liquibase.change.core.DropAllForeignKeyConstraintsChange
-import liquibase.change.core.RenameColumnChange
-import liquibase.change.core.DropColumnChange
-import liquibase.change.core.AlterSequenceChange
-import liquibase.change.core.CreateTableChange
-import liquibase.change.core.RenameTableChange
-import liquibase.change.core.DropTableChange
-import liquibase.change.core.CreateViewChange
-import liquibase.change.core.RenameViewChange
-import liquibase.change.core.DropViewChange
-import liquibase.change.core.MergeColumnChange
-import liquibase.change.core.CreateProcedureChange
-import liquibase.change.core.AddLookupTableChange
-import liquibase.change.core.AddNotNullConstraintChange
-import liquibase.change.core.DropNotNullConstraintChange
-import liquibase.change.core.AddUniqueConstraintChange
-import liquibase.change.core.DropUniqueConstraintChange
-import liquibase.change.core.CreateSequenceChange
-import liquibase.change.core.DropSequenceChange
-import liquibase.change.core.AddAutoIncrementChange
-import liquibase.change.core.AddDefaultValueChange
-import liquibase.change.core.DropDefaultValueChange
-import liquibase.change.core.AddForeignKeyConstraintChange
-import liquibase.change.core.DropForeignKeyConstraintChange
-import liquibase.change.core.AddPrimaryKeyChange
-import liquibase.change.core.DropPrimaryKeyChange
-import liquibase.change.core.InsertDataChange
-import liquibase.change.core.LoadDataColumnConfig
-import liquibase.change.core.LoadDataChange
-import liquibase.change.core.LoadUpdateDataChange
-import liquibase.change.core.UpdateDataChange
-import liquibase.change.core.TagDatabaseChange
-import liquibase.change.core.StopChange
-import liquibase.change.core.CreateIndexChange
-import liquibase.change.core.DropIndexChange
-import liquibase.change.core.RawSQLChange
-import liquibase.change.core.SQLFileChange
-import liquibase.change.core.ExecuteShellCommandChange
+import liquibase.change.AddColumnConfig
+import liquibase.change.ColumnConfig
+import liquibase.change.core.*
 import liquibase.change.custom.CustomChangeWrapper
 import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
-import liquibase.util.ObjectUtil;
-import liquibase.change.core.ModifyDataTypeChange
-import liquibase.change.core.DeleteDataChange
+import liquibase.util.ObjectUtil
 
 /**
  * This class is the closure delegate for a ChangeSet.  It processes all the
@@ -213,7 +175,7 @@ class ChangeSetDelegate {
   // -----------------------------------------------------------------------
 	// Refactoring changes
 	void addColumn(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('addColumn', AddColumnChange, params, closure)
+		def change = makeColumnarChangeFromMap('addColumn', AddColumnChange, AddColumnConfig, params, closure)
 		addChange(change)
 	}
 
@@ -239,7 +201,7 @@ class ChangeSetDelegate {
 
 
 	void createTable(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('createTable', CreateTableChange, params, closure)
+		def change = makeColumnarChangeFromMap('createTable', CreateTableChange, ColumnConfig, params, closure)
 		addChange(change)
 	}
 
@@ -386,7 +348,7 @@ class ChangeSetDelegate {
 	}
 
 	void insert(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('insert', InsertDataChange, params, closure)
+		def change = makeColumnarChangeFromMap('insert', InsertDataChange, ColumnConfig, params, closure)
 		addChange(change)
 	}
 
@@ -395,7 +357,7 @@ class ChangeSetDelegate {
 			throw new ChangeLogParseException("Warning: ChangeSet '${changeSet.id}': using a File object for loadData's 'file' attribute is no longer supported.  Use the path to the file instead.")
 		}
 
-		def change = makeLoadDataColumnarChangeFromMap('loadData', LoadDataChange, params, closure)
+		def change = makeColumnarChangeFromMap('loadData', LoadDataChange, LoadDataColumnConfig, params, closure)
 		change.resourceAccessor = resourceAccessor
 		addChange(change)
 	}
@@ -406,20 +368,20 @@ class ChangeSetDelegate {
 			throw new ChangeLogParseException("Warning: ChangeSet '${changeSet.id}': using a File object for loadUpdateData's 'file' attribute is no longer supported.  Use the path to the file instead.")
 		}
 
-		def change = makeLoadDataColumnarChangeFromMap('loadUpdateData', LoadUpdateDataChange, params, closure)
+		def change = makeColumnarChangeFromMap('loadUpdateData', LoadUpdateDataChange, LoadDataColumnConfig, params, closure)
 		change.resourceAccessor = resourceAccessor
 		addChange(change)
 	}
 
 
 	void update(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('update', UpdateDataChange, params, closure)
+		def change = makeColumnarChangeFromMap('update', UpdateDataChange, ColumnConfig, params, closure)
 		addChange(change)
 	}
 
 
 	void delete(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('delete', DeleteDataChange, params, closure)
+		def change = makeColumnarChangeFromMap('delete', DeleteDataChange, ColumnConfig, params, closure)
 		addChange(change)
 	}
 
@@ -470,7 +432,7 @@ class ChangeSetDelegate {
 	}
 
 	void createIndex(Map params, Closure closure) {
-		def change = makeColumnarChangeFromMap('createIndex', CreateIndexChange, params, closure)
+		def change = makeColumnarChangeFromMap('createIndex', CreateIndexChange, AddColumnConfig, params, closure)
 		addChange(change)
 	}
 
@@ -579,57 +541,24 @@ class ChangeSetDelegate {
 		throw new ChangeLogParseException("ChangeSet '${changeSet.id}': '${name}' is not a valid element of a ChangeSet")
 	}
 
-
-	/**
-	 * Helper method to make a Liquibase change that takes columns of the type
-	 * used by the {@code loadData} change.
-	 * @param name the name of the change, used for improved error messages.
-	 * @param klass the Liquibase class to create
-	 * @param closure the closure containing columns.
-	 * @param params a map containing the attributes to set on the newly created
-	 *        change
-	 * @param paramNames a list of valid parameter names.
-	 * @return the newly created change.
-	 */
-	private def makeLoadDataColumnarChangeFromMap(String name, Class klass, Map params, Closure closure) {
-		def change = makeChangeFromMap(name, klass, params)
-
-		def columnDelegate = new ColumnDelegate(columnConfigClass: LoadDataColumnConfig,
-						                                databaseChangeLog: databaseChangeLog,
-		                                        changeSetId: changeSet.id,
-		                                        changeName: name)
-		closure.delegate = columnDelegate
-		closure.resolveStrategy = Closure.DELEGATE_FIRST
-		closure.call()
-
-		// We use the same columnDelegate for LoadData columns as regular ones, but
-		// a where clause is not legal for a load change.  Rather than silently
-		// eating a where clause, let the user know.
-		if ( columnDelegate.whereClause != null ) {
-			throw new ChangeLogParseException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.")
-		}
-
-		columnDelegate.columns.each { column ->
-			change.addColumn(column)
-		}
-
-		return change
-	}
-
 	/**
 	 * Create a Liquibase change for the types of changes that can have a nested
 	 * closure of columns and where clauses.
 	 * @param name the name of the change to make, used for improved error messages.
-	 * @param klass the Liquibase class to create.
+	 * @param changeClass the Liquibase class to create.
+	 * @param columnConfigClass the class for the nested column configuration.
 	 * @param closure the closure with column information
 	 * @param params a map containing attributes of the new change
 	 * @param paramNames a list of valid properties for the new change
 	 * @return the newly created change
 	 */
-	private def makeColumnarChangeFromMap(String name, Class klass, Map params, Closure closure) {
-		def change = makeChangeFromMap(name, klass, params)
+	private def makeColumnarChangeFromMap(String name, Class changeClass,
+	                                      columnConfigClass, Map params,
+	                                      Closure closure) {
+		def change = makeChangeFromMap(name, changeClass, params)
 
-		def columnDelegate = new ColumnDelegate(databaseChangeLog: databaseChangeLog,
+		def columnDelegate = new ColumnDelegate(columnConfigClass: columnConfigClass,
+						                                databaseChangeLog: databaseChangeLog,
 						                                changeSetId: changeSet.id,
 						                                changeName: name)
 		closure.delegate = columnDelegate
@@ -648,6 +577,8 @@ class ChangeSetDelegate {
 			}
 		}
 
+		// If we have a where clause, try to set it in the change.  We'll get an
+		// exception if a where clause is not supported by the change.
 		if ( columnDelegate.whereClause != null ) {
 			try {
 				// The columnDelegate DOES take care of expansion.
