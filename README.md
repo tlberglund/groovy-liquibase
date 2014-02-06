@@ -4,8 +4,8 @@ creation of changelogs in a Groovy DSL, rather than hurtful XML. If this DSL
 isn't reason enough to adopt Liquibase, then there is no hope for you.
 
 ## News
-Version 1.0.0 is under development, and we hope to have a release by the end of
-January.  Until then, use caution when building and using a 1.0.0 snapshot
+Version 1.0.0 is under development, and we hope to have a release by the middle
+of February.  Until then, use caution when building and using a 1.0.0 snapshot
 because there are still a few things that need to be changed, and there could be
 some breaking changes.
 **IMPORTANT NOTE FOR USERS UPGRADING FROM A PRE 1.0.0 RELEASE OF THE GROOVY DSL:**
@@ -67,7 +67,7 @@ documented separately from the Liquibase XML format.  We will, however let you k
 
 ##### Additions to the XML format:
 * The Groovy DSL supports a simplified means of passing arguments to the
-  ```exececuteCommand change```.  Instead of:
+  ```executeCommand change```.  Instead of:
 
   ```groovy
 execute {
@@ -167,6 +167,11 @@ sql { """
       useful for defining a check constraint, but I could not determine the
       proper syntax for it yet.  For now, it may be best to stick to custom
       ```sql``` changes to define check constraints.
+* The documentation for version 3.1.1 of Liquibase mentions the new
+  ```beforeColumn```, ```afterColumn```, and ```position``` attributes that you
+  can put on a ```column``` statement to control where a new column is placed in
+  an existing table.  What the documentation leaves out is that these attributes
+  don't work :-)
 
 ## License
 This code is released under the Apache Public License 2.0, just like Liquibase 2.0.
