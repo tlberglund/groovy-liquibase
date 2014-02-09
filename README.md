@@ -19,16 +19,14 @@ following procedure:
 1. Make sure all of your Liquibase managed databases are up to date by running
    an update on them *before upgrading the Groovy DSL*.
 
-2. Create a new, throw away database and test your Liquibase change sets by
-   running an update on this new database with the latest version of the Groovy
-   DSL.  This is important because of the deprecated items in the Groovy DSL,
-   and because there are some subtle differences in the ways the different
-   Liquibase versions generate SQL.  For example, adding a default value to a
-   boolean column in MySql using ```defaultValue: "0"``` worked fine in
-   Liquibase 2, but in Liquibase 3, it generates SQL that doesn't work for
-   MySql; ```defaultValueNumeric: 0``` needs to be used instead.  Here is a tip
-   to help find deprecation warnings: redirect stderr to a file.  Most of what
-   Liquibase tells you is on stderr, but not deprecation warnings.
+2. Create a new, throw away database to test your Liquibase change sets.  Run
+   an update on this new database with the latest version of the Groovy DSL.
+   This is important because of the deprecated items in the Groovy DSL, and
+   because there are some subtle differences in the ways the different Liquibase
+   versions generate SQL.  For example, adding a default value to a boolean
+   column in MySql using ```defaultValue: "0"``` worked fine in Liquibase 2, but
+   in Liquibase 3, it generates SQL that doesn't work for MySql;
+   ```defaultValueNumeric: 0``` needs to be used instead.
 
 3. Once you are sure all of your change sets work with the latest Groovy DSL and
    Liquibase 3, clear all checksums that were calculated by Liquibase 2 by using
@@ -38,10 +36,13 @@ following procedure:
     checksums.
 
 ## Usage
-The DSL syntax is intended to mirror the Liquibase XML syntax directly, such
-that mapping elements and attributes from the Liquibase documentation to Groovy
-builder syntax will result in a valid changelog. Hence this DSL is not
-documented separately from the Liquibase XML format.  We will, however let you know about the minor differences or enhancements to the XML format, and help out with a couple of the gaping holes in Liquibase's documentation of the XML.
+The DSL syntax is intended to mirror the [Liquibase XML]
+(http://www.liquibase.org/documentation/databasechangelog.html) syntax directly,
+such that mapping elements and attributes from the Liquibase documentation to
+Groovy builder syntax will result in a valid changelog. Hence this DSL is not
+documented separately from the Liquibase XML format.  We will, however let you
+know about the minor differences or enhancements to the XML format, and help out
+with a couple of the gaping holes in Liquibase's documentation of the XML.
 
 ##### Deprecated Items
 * In the Liquibase XML, you can set a ```sql``` attribute in a ```sqlFile```
