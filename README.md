@@ -4,10 +4,8 @@ creation of changelogs in a Groovy DSL, rather than hurtful XML. If this DSL
 isn't reason enough to adopt Liquibase, then there is no hope for you.
 
 ## News
-Version 1.0.0 is under development, and we hope to have a release by the middle
-of February.  Until then, use caution when building and using a 1.0.0 snapshot
-because there are still a few things that need to be changed, and there could be
-some breaking changes.
+Version 1.0.0 is under development, and we will have a release by the end of 
+June. We're hoping that Gradle 2.0 will be released by then.
 **IMPORTANT NOTE FOR USERS UPGRADING FROM A PRE 1.0.0 RELEASE OF THE GROOVY DSL:**
 
 Version 1.0.0 of the Groovy Liquibase DSL uses Liquibase 3, instead of Liquibase
