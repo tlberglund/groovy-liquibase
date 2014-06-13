@@ -14,10 +14,19 @@
  *  limitations under the License.
  */
 
-databaseChangeLog(logicalFilePath: '.') {
+package net.saliman.liquibase
 
-  changeSet(author: 'tlberglund', id: 'change-set-001') {
-    
+import org.junit.Test
+import org.junit.Before
+import static org.junit.Assert.*
+import groovy.sql.Sql
+
+
+class PreconditionTests { 
+
+  @Before
+  void setupDatabase() { 
+    def createDatabase = this.class.classLoader.findResource('sql/CreateDefaultDB.sql')
+    println createDatabase
   }
-
 }

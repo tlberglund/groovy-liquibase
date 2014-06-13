@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 Tim Berglund
+ * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import liquibase.changelog.ChangeLogParameters
 import liquibase.resource.ResourceAccessor
 import liquibase.exception.ChangeLogParseException
 
-import com.augusttechgroup.liquibase.delegate.DatabaseChangeLogDelegate
+import net.saliman.liquibase.delegate.DatabaseChangeLogDelegate
 import org.codehaus.groovy.control.CompilerConfiguration
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Tim Berglund
+ * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -350,7 +350,7 @@ databaseChangeLog(logicalFilePath: '') {
   
   
   changeSet(id: 'custom-refactoring', author: 'tlberglund') {
-    customChange(class: 'com.augusttechgroup.liquibase.MonkeyRefactoring') {
+    customChange(class: 'net.saliman.liquibase.MonkeyRefactoring') {
       tableName('animal')
       species('monkey')
       status('angry')

@@ -14,38 +14,35 @@
  *  limitations under the License.
  */
 
-package org.liquibase.change.custom
+package net.saliman.liquibase.serialize
 
-import liquibase.change.custom.CustomChange
-import liquibase.resource.ResourceAccessor
-import liquibase.exception.ValidationErrors
-import liquibase.database.Database
+import org.junit.Test
+import static org.junit.Assert.*
+
+import liquibase.change.core.AddDefaultValueChange
+
 
 /**
- * A dummy change class for unit testing of the custom change mechanism.
+ * <p></p>
  * 
  * @author Tim Berglund
  */
-class MonkeyChange
-  implements CustomChange
+class DataQualityRefactoringSerializerTests
+  extends SerializerTests
 {
 
-  String getConfirmationMessage() {
-    "MonkeyChange confirmed"
+  @Test
+  void addDefaultValueBoolean() {
+    def change = [
+      tableName: 'monkey',
+      schemaName: 'schema',
+      columnName: 'emotion',
+      defaultValueBoolean: true
+    ] as AddDefaultValueChange
+
+    def serializedText = serializer.serialize(change, true)
+    def expectedText = "addDefaultValue(columnName: 'emotion', defaultValueBoolean: true, schemaName: 'schema', tableName: 'monkey')"
+    assertEquals expectedText, serializedText
   }
 
-
-  void setUp() {
-    
-  }
-
-
-  void setFileOpener(ResourceAccessor resourceAccessor) {
-
-  }
-
-
-  ValidationErrors validate(Database database) {
-    null
-  }
 }

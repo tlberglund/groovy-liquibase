@@ -14,38 +14,37 @@
  *  limitations under the License.
  */
 
-package org.liquibase.change.custom
+package net.saliman.liquibase.delegate
 
-import liquibase.change.custom.CustomChange
-import liquibase.resource.ResourceAccessor
-import liquibase.exception.ValidationErrors
-import liquibase.database.Database
+import net.saliman.liquibase.delegate.ChangeSetTests
+import org.junit.Test
+import static org.junit.Assert.*
+
 
 /**
- * A dummy change class for unit testing of the custom change mechanism.
+ * <p></p>
  * 
  * @author Tim Berglund
  */
-class MonkeyChange
-  implements CustomChange
+class ChangeSetPreconditionTests extends ChangeSetTests
 {
 
-  String getConfirmationMessage() {
-    "MonkeyChange confirmed"
-  }
+  @Test
+  void testPreconditionWithoutParams() {
+    buildChangeSet {
+      preConditions {
+        dbms(type: 'mysql')
+      }
+      addColumn(tableName: 'animal') {
+        column(name: 'monkey_status', type: 'varchar(98)')
+      }
+    }
 
-
-  void setUp() {
-    
-  }
-
-
-  void setFileOpener(ResourceAccessor resourceAccessor) {
-
-  }
-
-
-  ValidationErrors validate(Database database) {
-    null
+    def changes = changeSet.changes
+    assertNotNull changes
+    assertEquals 1, changes.size()
+    def preconditions = changeSet.preconditions?.nestedPreconditions
+    assertNotNull preconditions
+	  assertNoOutput()
   }
 }

@@ -14,10 +14,37 @@
  *  limitations under the License.
  */
 
-databaseChangeLog(logicalFilePath: '.') {
 
-  changeSet(author: 'tlberglund', id: 'change-set-001') {
-    
+
+package net.saliman.liquibase.change
+
+import liquibase.change.AbstractChange
+import liquibase.statement.SqlStatement
+import liquibase.database.Database
+
+/**
+ * <p></p>
+ * 
+ * @author Tim Berglund
+ */
+class GroovyChange
+  extends AbstractChange
+{
+  def groovyChangeClosure
+
+  
+  GroovyChange(groovyChangeClosure) {
+    super()
+    this.groovyChangeClosure = groovyChangeClosure
   }
 
+  
+  String getConfirmationMessage() {
+    "Custom Groovy change executed"
+  }
+
+  
+  SqlStatement[] generateStatements(Database database) {
+    return new SqlStatement[0];  //To change body of implemented methods use File | Settings | File Templates.
+  }
 }

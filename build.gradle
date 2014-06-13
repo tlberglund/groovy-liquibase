@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 
 version = '1.0.0-SNAPSHOT'
-group = 'com.augusttechgroup'
+group = 'net.saliman'
 def artifact = 'groovy-liquibase-dsl'
 
 

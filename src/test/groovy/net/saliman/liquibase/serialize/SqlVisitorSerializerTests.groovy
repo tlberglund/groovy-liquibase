@@ -14,10 +14,25 @@
  *  limitations under the License.
  */
 
-databaseChangeLog(logicalFilePath: '.') {
+package net.saliman.liquibase.serialize
 
-  changeSet(author: 'tlberglund', id: 'change-set-001') {
-    
+import org.junit.Test
+import static org.junit.Assert.*
+import liquibase.sql.visitor.ReplaceSqlVisitor
+
+/**
+ * <p></p>
+ * 
+ * @author Tim Berglund
+ */
+class SqlVisitorSerializerTests
+  extends SerializerTests
+{
+
+  @Test
+  void testReplaceSqlVisitorSerialize() {
+    def visitor = [
+       
+    ] as ReplaceSqlVisitor
   }
-
 }
