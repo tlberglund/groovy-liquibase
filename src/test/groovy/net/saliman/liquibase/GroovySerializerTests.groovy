@@ -30,15 +30,14 @@ import static org.junit.Assert.*
  *
  * @author Tim Berglund
  */
-class GroovySerializerTests
-{
+class GroovySerializerTests {
   def resourceAccessor
   def serializerFactory
 
 
   @Before
   void registerSerializer() {
-    resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
+	  resourceAccessor = new FileSystemResourceAccessor(baseDirectory: new File('.'))
     serializerFactory = ChangeLogSerializerFactory.instance
     ChangeLogSerializerFactory.getInstance().register(new GroovyChangeLogSerializer())
   }

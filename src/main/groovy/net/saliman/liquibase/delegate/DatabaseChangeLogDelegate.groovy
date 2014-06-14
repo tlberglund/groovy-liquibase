@@ -16,11 +16,10 @@
 
 package net.saliman.liquibase.delegate
 
-import liquibase.Contexts
+import liquibase.ContextExpression
 import liquibase.changelog.ChangeSet
 import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParserFactory
-import liquibase.parser.core.xml.XMLChangeLogSAXHandler;
 
 /**
  * This class is the delegate for the {@code databaseChangeLog} element.  It
@@ -202,23 +201,25 @@ class DatabaseChangeLogDelegate {
 		  throw new ChangeLogParseException("DababaseChangeLog: ${unsupportedKeys.toArray()[0]} is not a supported property attribute")
 	  }
 
-	  def context = params['context'] ?: null
+	  ContextExpression context = new ContextExpression(params['context']) ?: null
     def dbms = params['dbms'] ?: null
     def changeLogParameters = databaseChangeLog.changeLogParameters
     
     if (!params['file']) {
       changeLogParameters.set(params['name'], params['value'], context, dbms)
     } else {
-	    def propFile = params['file']
+	    String propFile = params['file']
       def props = new Properties()
-      def propertiesStream = resourceAccessor.getResourceAsStream(propFile)
-      if (!propertiesStream) {
+      def propertiesStreams = resourceAccessor.getResourcesAsStream(propFile)
+      if (!propertiesStreams) {
         throw new ChangeLogParseException("Unable to load file with properties: ${params['file']}")
       } else {
-        props.load(propertiesStream)
-        props.each { k, v ->
-          changeLogParameters.set(k, v, context, dbms)
-        }
+	      propertiesStreams.each { stream ->
+		      props.load(stream)
+		      props.each { k, v ->
+			      changeLogParameters.set(k, v, context, dbms)
+		      }
+	      }
       }
     }
   }

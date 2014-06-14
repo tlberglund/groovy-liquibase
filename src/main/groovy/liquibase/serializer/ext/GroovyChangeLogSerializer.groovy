@@ -17,7 +17,6 @@
 package liquibase.serializer.ext
 
 import liquibase.serializer.ChangeLogSerializer
-import liquibase.changelog.DatabaseChangeLog
 import liquibase.changelog.ChangeSet
 import liquibase.change.Change
 import liquibase.serializer.LiquibaseSerializable
@@ -34,9 +33,8 @@ import java.sql.Timestamp
  * @author Tim Berglund
  */
 class GroovyChangeLogSerializer
-  implements ChangeLogSerializer
-{
-  ISODateFormat isoFormat = new ISODateFormat()
+				implements ChangeLogSerializer {
+	ISODateFormat isoFormat = new ISODateFormat()
 
 	/**
 	 * What file extensions can this serializer handle?
@@ -79,8 +77,7 @@ class GroovyChangeLogSerializer
   for the new changelog, then copy and paste that content into the existing file.""")
 	}
 
-
-  //---------------------------------------------------------------------------
+	//---------------------------------------------------------------------------
 	// In Liquibase 2.x, there were many different serialize methods for different
 	// types of liquibase objects. In version 3.0, the different serializable
 	// objects all implement a common interface, and the serialize methods were
@@ -90,132 +87,127 @@ class GroovyChangeLogSerializer
 	// the master method.  These methods are private to force outside classes to
 	// use serialization method defined by the interface.
 
-  private String serializeObject(ChangeSet changeSet) {
-    def attrNames = [ 'id', 'author', 'runAlways', 'runOnChange', 'failOnError', 'context', 'dbms' ]
-    def attributes = [
-      id: changeSet.id,
-      author: changeSet.author
-    ]
-    def children = []
+	private String serializeObject(ChangeSet changeSet) {
+		def attrNames = ['id', 'author', 'runAlways', 'runOnChange', 'failOnError', 'context', 'dbms']
+		def attributes = [
+						id    : changeSet.id,
+						author: changeSet.author
+		]
+		def children = []
 
-    //
-    // Do these the hard way to keep them out of the map if they're false
-    //
+		//
+		// Do these the hard way to keep them out of the map if they're false
+		//
 
-    if(changeSet.isAlwaysRun()) {
-      attributes.runAlways = true
-    }
+		if ( changeSet.isAlwaysRun() ) {
+			attributes.runAlways = true
+		}
 
-    if(changeSet.isRunOnChange()) {
-      attributes.runOnChange = true
-    }
+		if ( changeSet.isRunOnChange() ) {
+			attributes.runOnChange = true
+		}
 
-    if(changeSet.failOnError) {
-      attributes.failOnError = changeSet.failOnError?.toString()
-    }
+		if ( changeSet.failOnError ) {
+			attributes.failOnError = changeSet.failOnError?.toString()
+		}
 
-    if(changeSet.contexts) {
-      attributes.context = changeSet.getContexts().join(',')
-    }
+		if ( changeSet.contexts && changeSet.contexts.contexts ) {
+			attributes.context = changeSet.getContexts().getContexts().join(',')
+		}
 
-    if(changeSet.dbmsSet) {
-      attributes.dbms = changeSet.dbmsSet.join(',')
-    }
+		if ( changeSet.dbmsSet ) {
+			attributes.dbms = changeSet.dbmsSet.join(',')
+		}
 
-    if(changeSet.comments?.trim()) {
-      children << "comment \"${changeSet.comments.replaceAll('"', '\\\"')}\""
-    }
+		if ( changeSet.comments?.trim() ) {
+			children << "comment \"${changeSet.comments.replaceAll('"', '\\\"')}\""
+		}
 
-    changeSet.changes.each { change -> children << serialize(change, true) }
+		changeSet.changes.each { change -> children << serialize(change, true) }
 
-    def renderedChildren = children.collect { child -> indent(child) }.join('\n')
-    return """\
+		def renderedChildren = children.collect { child -> indent(child) }.join('\n')
+		return """\
 changeSet(${buildPropertyListFrom(attrNames, attributes).join(', ')}) {
 ${renderedChildren}
 }""".toString()
-  }
+	}
 
 
-  private String serializeObject(Change change) {
-    def fields = change.serializableFields
-    def children = []
-    def attributes = []
-    def textBody
-    fields.each { field ->
-      def fieldName = field
-      def fieldValue = change.getSerializableFieldValue(fieldName)
+	private String serializeObject(Change change) {
+		def fields = change.serializableFields
+		def children = []
+		def attributes = []
+		def textBody
+		fields.each { field ->
+			def fieldName = field
+			def fieldValue = change.getSerializableFieldValue(fieldName)
 
-	    // TODO: The TextNode annotation used to mark a special case where
-	    // we set the text body to the field value.  This only applied to
-	    // UpdateDataChange and DeleteDataChange.  we need to figure out what to
-	    // do with these classes in 3.0
+			// TODO: The TextNode annotation used to mark a special case where
+			// we set the text body to the field value.  This only applied to
+			// UpdateDataChange and DeleteDataChange.  we need to figure out what to
+			// do with these classes in 3.0
 //	    def textNodeAnnotation = fieldValue.class.getAnnotation(StringBuilder.class)
-	    def textNodeAnnotation = null
-      if(textNodeAnnotation) {
-        textBody = fieldValue
-      } else if(fieldValue instanceof Collection) {
-        fieldValue.findAll { it instanceof ColumnConfig }.each {
-          children << serialize(it, true)
-        }
-      } else if(fieldValue instanceof ColumnConfig) {
-        children << serialize(fieldValue, true)
-      }
-      else if(fieldName in [ 'procedureBody', 'sql', 'selectQuery' ]) {
-        textBody = fieldValue
-      }
-      else  {
-        attributes << fieldName
-      }
-    }
+			def textNodeAnnotation = null
+			if ( textNodeAnnotation ) {
+				textBody = fieldValue
+			} else if ( fieldValue instanceof Collection ) {
+				fieldValue.findAll { it instanceof ColumnConfig }.each {
+					children << serialize(it, true)
+				}
+			} else if ( fieldValue instanceof ColumnConfig ) {
+				children << serialize(fieldValue, true)
+			} else if ( fieldName in ['procedureBody', 'sql', 'selectQuery'] ) {
+				textBody = fieldValue
+			} else {
+				attributes << fieldName
+			}
+		}
 
-    attributes = attributes.sort { it }
+		attributes = attributes.sort { it }
 
-    def serializedChange
-    if(attributes) {
-      serializedChange = "${change.serializedObjectName}(${buildPropertyListFrom(attributes, change).join(', ')})"
-    }
-    else {
-      serializedChange = "${change.serializedObjectName}"
-    }
+		def serializedChange
+		if ( attributes ) {
+			serializedChange = "${change.serializedObjectName}(${buildPropertyListFrom(attributes, change).join(', ')})"
+		} else {
+			serializedChange = "${change.serializedObjectName}"
+		}
 
-    if(children) {
-      def renderedChildren = children.collect { child -> indent(child) }.join('\n')
-      serializedChange = """\
+		if ( children ) {
+			def renderedChildren = children.collect { child -> indent(child) }.join('\n')
+			serializedChange = """\
 ${serializedChange} {
 ${renderedChildren}
 }"""
-    }
-    else if(textBody) {
-      serializedChange = """\
+		} else if ( textBody ) {
+			serializedChange = """\
 ${serializedChange} {
   "${textBody}"
 }"""
-    }
+		}
 
-    return serializedChange
-  }
+		return serializedChange
+	}
 
 
-  private String serializeObject(ColumnConfig columnConfig) {
-    def propertyNames = [ 'name', 'type', 'value', 'valueNumeric', 'valueDate', 'valueBoolean', 'valueComputed', 'defaultValue', 'defaultValueNumeric', 'defaultValueDate', 'defaultValueBoolean', 'defaultValueComputed', 'autoIncrement', 'remarks' ]
-    def properties = buildPropertyListFrom(propertyNames, columnConfig)
-    def column = "column(${properties.join(', ')})"
-    if(columnConfig.constraints) {
-      """\
+	private String serializeObject(ColumnConfig columnConfig) {
+		def propertyNames = ['name', 'type', 'value', 'valueNumeric', 'valueDate', 'valueBoolean', 'valueComputed', 'defaultValue', 'defaultValueNumeric', 'defaultValueDate', 'defaultValueBoolean', 'defaultValueComputed', 'autoIncrement', 'remarks']
+		def properties = buildPropertyListFrom(propertyNames, columnConfig)
+		def column = "column(${properties.join(', ')})"
+		if ( columnConfig.constraints ) {
+			"""\
 ${column} {
   ${serialize(columnConfig.constraints, true)}
 }"""
-    }
-    else {
-      column
-    }
-  }
+		} else {
+			column
+		}
+	}
 
 
-  private String serializeObject(ConstraintsConfig constraintsConfig) {
-    def propertyNames = [ 'nullable', 'primaryKey', 'primaryKeyName', 'primaryKeyTablespace', 'references', 'referencedTableName', 'referencedColumnNames', 'unique', 'uniqueConstraintName', 'checkConstraint', 'deleteCascade', 'foreignKeyName', 'initiallyDeferred', 'deferrable' ]
-    "constraints(${buildPropertyListFrom(propertyNames, constraintsConfig).join(', ')})"
-  }
+	private String serializeObject(ConstraintsConfig constraintsConfig) {
+		def propertyNames = ['nullable', 'primaryKey', 'primaryKeyName', 'primaryKeyTablespace', 'references', 'referencedTableName', 'referencedColumnNames', 'unique', 'uniqueConstraintName', 'checkConstraint', 'deleteCascade', 'foreignKeyName', 'initiallyDeferred', 'deferrable']
+		"constraints(${buildPropertyListFrom(propertyNames, constraintsConfig).join(', ')})"
+	}
 
 
 	private String serializeObject(SqlVisitor visitor) {
@@ -239,9 +231,9 @@ ${column} {
 			// UpdateDataChange and DeleteDataChange.  we need to figure out what to
 			// do with these classes in 3.0
 			def textNodeAnnotation = fieldValue.class.getAnnotation(Integer.class)
-			if(textNodeAnnotation) {
+			if ( textNodeAnnotation ) {
 				textBody = fieldValue
-			} else if(fieldValue instanceof Collection) {
+			} else if ( fieldValue instanceof Collection ) {
 				fieldValue.findAll { it instanceof LiquibaseSerializable }.each {
 					children << serialize(it, true)
 				}
@@ -249,15 +241,15 @@ ${column} {
 //			  for (Map.Entry entry : (Set<Map.Entry>) ((Map) fieldValue).entrySet()) {
 //			  	children << setValueOnNode((String) entry.getKey(), entry.getValue(), serializationType);
 //        }
-			} else if(field in [ 'procedureBody', 'sql', 'selectQuery' ]) {
+			} else if ( field in ['procedureBody', 'sql', 'selectQuery'] ) {
 				textBody = fieldValue
 			} else if ( fieldValue instanceof ChangeSet ) {
 				children << serialize(fieldValue, true)
-			} else if (fieldValue instanceof LiquibaseSerializable) {
-				children << serialize((LiquibaseSerializable)fieldValue, true)
-			} else if (serializationType.equals(LiquibaseSerializable.SerializationType.NESTED_OBJECT)) {
+			} else if ( fieldValue instanceof LiquibaseSerializable ) {
+				children << serialize((LiquibaseSerializable) fieldValue, true)
+			} else if ( serializationType.equals(LiquibaseSerializable.SerializationType.NESTED_OBJECT) ) {
 				children << serialize(fieldValue, true);
-			} else if (serializationType.equals(LiquibaseSerializable.SerializationType.DIRECT_VALUE)) {
+			} else if ( serializationType.equals(LiquibaseSerializable.SerializationType.DIRECT_VALUE) ) {
 				textBody = fieldValue.toString()
 			} else {
 				attributes << field
@@ -267,21 +259,19 @@ ${column} {
 		attributes = attributes.sort { it }
 
 		def serializedChange
-		if(attributes) {
+		if ( attributes ) {
 			serializedChange = "${change.serializedObjectName}(${buildPropertyListFrom(attributes, change).join(', ')})"
-		}
-		else {
+		} else {
 			serializedChange = "${change.serializedObjectName}"
 		}
 
-		if(children) {
+		if ( children ) {
 			def renderedChildren = children.collect { child -> indent(child) }.join('\n')
 			serializedChange = """\
 ${serializedChange} {
 ${renderedChildren}
 }"""
-		}
-		else if(textBody) {
+		} else if ( textBody ) {
 			serializedChange = """\
 ${serializedChange} {
   "${textBody}"
@@ -296,9 +286,9 @@ ${serializedChange} {
 	 * @param text the text to indent
 	 * @return the indented text
 	 */
-  private indent(text) {
-    text?.readLines().collect { line -> "  ${line}" }.join('\n')
-  }
+	private indent(text) {
+		text?.readLines().collect { line -> "  ${line}" }.join('\n')
+	}
 
 	/**
 	 * Builds the correct string representation of an object's properties based
@@ -307,41 +297,41 @@ ${serializedChange} {
 	 * @param object an array of strings representing each property.
 	 * @return
 	 */
-  private buildPropertyListFrom(propertyNames, object) {
-    def properties = []
+	private buildPropertyListFrom(propertyNames, object) {
+		def properties = []
 
-    propertyNames.each { propertyName ->
-      def propertyString
-      def propertyValue = object[propertyName]
-      if(propertyValue != null) {
-        switch(propertyValue.class) {
-          case Boolean:
-            propertyString = Boolean.toString(propertyValue)
-            break
+		propertyNames.each { propertyName ->
+			def propertyString
+			def propertyValue = object[propertyName]
+			if ( propertyValue != null ) {
+				switch (propertyValue.class) {
+					case Boolean:
+						propertyString = Boolean.toString(propertyValue)
+						break
 
-          case BigInteger:
-          case BigDecimal:
-          case Number:
-            propertyString = propertyValue.toString()
-            break
+					case BigInteger:
+					case BigDecimal:
+					case Number:
+						propertyString = propertyValue.toString()
+						break
 
-          case Timestamp:
-            propertyString = "'${isoFormat.format((Timestamp)propertyValue)}'"
-            break
+					case Timestamp:
+						propertyString = "'${isoFormat.format((Timestamp) propertyValue)}'"
+						break
 
-          default:
-            if(propertyValue) {
-              propertyString = "'${propertyValue.toString()}'"
-            }
-            break
-        }
-        if(propertyString) {
-          properties << "${propertyName}: ${propertyString}"
-        }
-      }
-    }
+					default:
+						if ( propertyValue ) {
+							propertyString = "'${propertyValue.toString()}'"
+						}
+						break
+				}
+				if ( propertyString ) {
+					properties << "${propertyName}: ${propertyString}"
+				}
+			}
+		}
 
-    return properties
-  }
+		return properties
+	}
 
 }

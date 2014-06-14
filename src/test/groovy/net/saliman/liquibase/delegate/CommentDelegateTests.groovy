@@ -55,10 +55,10 @@ class CommentDelegateTests {
 
 	/**
 	 * Test what happens when we have a two comments, and some SQL.  In this case
-	 * the comments should be appended.  We'l also add some Sql to the mix.
+	 * the comments should be appended.  We'll also add some Sql to the mix.
 	 */
 	@Test
-	void twoComentsWithSql() {
+	void twoCommentsWithSql() {
 		def comment = buildComments("delete from monkey;") {
 			comment 'first'
 			comment 'second'
