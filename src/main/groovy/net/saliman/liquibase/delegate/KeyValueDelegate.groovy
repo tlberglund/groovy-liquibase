@@ -19,7 +19,7 @@ package net.saliman.liquibase.delegate
 import liquibase.exception.ChangeLogParseException
 
 /**
- * A general-purpose delgate class to provide key/value support in a builder.
+ * A general-purpose delegate class to provide key/value support in a builder.
  * This delegate supports 2 ways of creating the key/value pairs.  We can
  * pass them in a manner consistent with the XML, namely a series of
  * {@code param ( name : ' someName ' , value : ' someValue ' ) ) elements.  The Groovy

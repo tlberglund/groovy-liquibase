@@ -4,8 +4,18 @@ creation of changelogs in a Groovy DSL, rather than hurtful XML. If this DSL
 isn't reason enough to adopt Liquibase, then there is no hope for you.
 
 ## News
-Version 1.0.0 is under development, and we will have a release by the end of 
-June. We're hoping that Gradle 2.0 will be released by then.
+###June 15, 2014
+We are proud to announce the long awaited release of version 1.0.0 of the 
+Liquibase Groovy parser. Version 1.0.0 uses version the latest release of 
+Liquibase (3.1.1), and it appears to work fine with both Gradle 1.x releases as
+well as the upcoming Gradle 2.0 release.
+
+Tim Berglund has asked me to take on the continued maintenance of this project,
+so I've had to change the maven group ID to one for which I have permission to 
+publish on Maven Central.  Going forward, this parser will be available under 
+the ```net.saliman``` group id.  The artifact ID will remain the same: 
+```groovy-liquibase-dsl```  
+
 **IMPORTANT NOTE FOR USERS UPGRADING FROM A PRE 1.0.0 RELEASE OF THE GROOVY DSL:**
 
 Version 1.0.0 of the Groovy Liquibase DSL uses Liquibase 3, instead of Liquibase

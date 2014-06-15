@@ -81,9 +81,6 @@ uploadPublished {
   }
 }
 
-
-
-
 //
 // A single place to create the POM configuration, so it can be
 // applied from the install and the upload tasks.
@@ -105,6 +102,11 @@ def getPomConfiguration() {
         id('tlberglund')
         name('Tim Berglund')
         email('tlberglund@gmail.com')
+      }
+      developer {
+        id 'stevesaliman'
+        name 'Steven C. Saliman'
+        email 'support@saliman.net'
       }
     }
     scm {
