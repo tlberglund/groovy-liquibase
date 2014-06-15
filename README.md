@@ -14,7 +14,11 @@ Tim Berglund has asked me to take on the continued maintenance of this project,
 so I've had to change the maven group ID to one for which I have permission to 
 publish on Maven Central.  Going forward, this parser will be available under 
 the ```net.saliman``` group id.  The artifact ID will remain the same: 
-```groovy-liquibase-dsl```  
+```groovy-liquibase-dsl```.  
+
+My thanks to Tim for the opportunity to help out with this great project.
+ 
+Steve Saliman
 
 **IMPORTANT NOTE FOR USERS UPGRADING FROM A PRE 1.0.0 RELEASE OF THE GROOVY DSL:**
 
