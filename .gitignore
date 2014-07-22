@@ -11,3 +11,5 @@ database.properties
 bin/
 maven-central.properties
 gradle.properties
+groovy-liquibase.ipr
+groovy-liquibase.iws

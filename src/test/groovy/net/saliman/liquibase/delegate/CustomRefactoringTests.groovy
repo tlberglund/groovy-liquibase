@@ -431,7 +431,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 	@Test
 	void customRefactoringWithClassAndNoParameters() {
 		buildChangeSet {
-			customChange(class: 'org.liquibase.change.custom.MonkeyChange')
+			customChange(className: 'org.liquibase.change.custom.MonkeyChange')
 		}
 
 		assertEquals 0, changeSet.getRollBackChanges().length
@@ -447,7 +447,7 @@ class CustomRefactoringTests extends ChangeSetTests {
 	@Test
 	void customRefactoringWithClassAndParameters() {
 		buildChangeSet {
-			customChange(class: 'org.liquibase.change.custom.MonkeyChange') {
+			customChange(className: 'org.liquibase.change.custom.MonkeyChange') {
 				emotion('angry')
 				'rfid-tag'(28763)
 			}

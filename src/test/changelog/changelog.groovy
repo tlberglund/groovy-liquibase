@@ -350,7 +350,7 @@ databaseChangeLog(logicalFilePath: '') {
   
   
   changeSet(id: 'custom-refactoring', author: 'tlberglund') {
-    customChange(class: 'net.saliman.liquibase.MonkeyRefactoring') {
+    customChange(className: 'net.saliman.liquibase.MonkeyRefactoring') {
       tableName('animal')
       species('monkey')
       status('angry')

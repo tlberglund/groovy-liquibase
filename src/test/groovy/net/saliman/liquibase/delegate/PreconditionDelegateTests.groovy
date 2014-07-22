@@ -349,7 +349,7 @@ class PreconditionDelegateTests {
 	@Test(expected = ChangeLogParseException)
 	void customPreconditionInvalidAttribute() {
 		buildPreconditions {
-			customPrecondition(class: 'org.liquibase.precondition.MonkeyFailPrecondition') {
+			customPrecondition(className: 'org.liquibase.precondition.MonkeyFailPrecondition') {
 				param(paramName: 'emotion', value: 'angry')
 			}
 		}

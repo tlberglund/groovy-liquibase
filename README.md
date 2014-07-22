@@ -13,8 +13,8 @@ well as the upcoming Gradle 2.0 release.
 Tim Berglund has asked me to take on the continued maintenance of this project,
 so I've had to change the maven group ID to one for which I have permission to 
 publish on Maven Central.  Going forward, this parser will be available under 
-the ```net.saliman``` group id.  The artifact ID will remain the same: 
-```groovy-liquibase-dsl```.  
+the ```net.saliman``` group id.  The artifact ID, ```groovy-liquibase-dsl```,
+will remain the same.
 
 My thanks to Tim for the opportunity to help out with this great project.
  

@@ -1,9 +1,10 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'idea'
 
 
-version = '1.0.0'
+version = '1.0.1'
 group = 'net.saliman'
 def artifact = 'groovy-liquibase-dsl'
 
@@ -49,7 +50,7 @@ task groovydocJar(type: Jar, dependsOn: groovydoc) {
   from fileTree(groovydoc.destinationDir)
 }
 
-artifacts { 
+artifacts {
   archives groovydocJar, sourceJar
 }
 
@@ -72,7 +73,7 @@ uploadPublished {
       signPom(deployment)
     }
     name = 'mavenCentralReleaseDeployer'
-    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") { 
+    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
       authentication(userName: mavenCentralUsername, password: mavenCentralPassword)
       releases(updatePolicy: 'always')
       snapshots(updatePolicy: 'never')
@@ -85,7 +86,7 @@ uploadPublished {
 // A single place to create the POM configuration, so it can be
 // applied from the install and the upload tasks.
 //
-def getPomConfiguration() { 
+def getPomConfiguration() {
   return {
     name('Groovy Liquibase DSL')
     description('A Groovy-based DSL for the Liquibase database refactoring tool.')
