@@ -108,7 +108,7 @@ sql {
 ```
 * The  ```stop``` change can take a message as an argument as well as an
   attribute.  In other words, ```stop 'message'``` works as well as the more
-  XMLish ```xml stop(message: 'message')```
+  XMLish ```stop(message: 'message')```
 * A ```customPrecondition```  can take parameters.  the XMLish way to pass them
   is with ```param(name: 'myParam', value: 'myValue')``` statements in the
   customPrecondition's closure.  In the Groovy DSL, you can also have
