@@ -17,7 +17,26 @@
 databaseChangeLog(logicalFilePath: '.') {
 
   changeSet(author: 'tlberglund', id: 'change-set-001') {
-    
+
+      myParametrizedCustomChange{
+          name('myProperty')
+          value('prop1')
+      }
+      myParametrizedCustomChange{
+          myProperty('prop2')
+      }
+      customChange(className: 'net.saliman.liquibase.custom.MyParametrizedCustomChange') {
+          name('myProperty')
+          value('prop3')
+      }
+      customChange(className: 'net.saliman.liquibase.custom.MyCustomSqlChange') {
+      }
   }
+
+    changeSet(author: 'tlberglund', id: 'change-set-001') {
+        myParametrizedCustomChange{
+            myProperty('prop4')
+        }
+    }
 
 }

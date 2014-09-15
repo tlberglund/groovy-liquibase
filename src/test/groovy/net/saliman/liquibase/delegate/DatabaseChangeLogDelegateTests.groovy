@@ -30,6 +30,7 @@ import liquibase.precondition.core.DBMSPrecondition
 import liquibase.precondition.core.PreconditionContainer
 import liquibase.precondition.core.RunningAsPrecondition
 import liquibase.resource.FileSystemResourceAccessor
+import net.saliman.liquibase.custom.MyParametrizedCustomChange
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -92,19 +93,70 @@ class DatabaseChangeLogDelegateTests {
 
 		assertNotNull "Groovy changelog parser was not found", parser
 
-		def changeLog = parser.parse(SIMPLE_CHANGELOG, null, resourceAccessor)
+		def changeLog = parser.parse(SIMPLE_CHANGELOG, new ChangeLogParameters(), resourceAccessor)
 		assertNotNull "Parsed DatabaseChangeLog was null", changeLog
 		assertTrue "Parser result was not a DatabaseChangeLog", changeLog instanceof DatabaseChangeLog
 		assertEquals '.', changeLog.logicalFilePath
 
 		def changeSets = changeLog.changeSets
-		assertEquals 1, changeSets.size()
+		assertEquals 2, changeSets.size()
 		def changeSet = changeSets[0]
 		assertNotNull "ChangeSet was null", changeSet
 		assertEquals 'tlberglund', changeSet.author
 		assertEquals 'change-set-001', changeSet.id
 	}
 
+    @Test
+    public void differentChangeSetShouldHaveDifferentChecksum(){
+        def parser = parserFactory.getParser(SIMPLE_CHANGELOG, resourceAccessor)
+        def changeLog = parser.parse(SIMPLE_CHANGELOG, new ChangeLogParameters(), resourceAccessor)
+
+        def changes = changeLog.changeSets[0].changes
+        def cs = changes[0].generateCheckSum()
+        def cs1 = changes[1].generateCheckSum()
+
+        assertFalse cs.equals(cs1)
+    }
+
+    @Test
+    public void checkSumShouldBeIdentBetweenRuns() {
+        def parser = parserFactory.getParser(SIMPLE_CHANGELOG, resourceAccessor)
+        def changeLog = parser.parse(SIMPLE_CHANGELOG, new ChangeLogParameters(), resourceAccessor)
+        def changes = changeLog.changeSets[0].changes
+        def cs = changes[0].generateCheckSum()
+
+
+        parser = parserFactory.getParser(SIMPLE_CHANGELOG, resourceAccessor)
+        changeLog = parser.parse(SIMPLE_CHANGELOG, new ChangeLogParameters(), resourceAccessor)
+        changes = changeLog.changeSets[0].changes
+        def cs1 = changes[0].generateCheckSum()
+
+        assertTrue cs.equals(cs1)
+    }
+
+    @Test
+    public void checkSumShouldBeIdentSameChaneInDifferentSet() {
+        def parser = parserFactory.getParser(SIMPLE_CHANGELOG, resourceAccessor)
+        def changeLog = parser.parse(SIMPLE_CHANGELOG, new ChangeLogParameters(), resourceAccessor)
+        def changes = changeLog.changeSets[0].changes
+        def cs = changes[0].generateCheckSum()
+
+        changes = changeLog.changeSets[1].changes
+        def cs1 = changes[0].generateCheckSum()
+
+        assertFalse cs.equals(cs1)
+    }
+
+    @Test
+    public void wrapperShouldInstantiateCustomChangeClass(){
+        def parser = parserFactory.getParser(SIMPLE_CHANGELOG, resourceAccessor)
+        def changeLog = parser.parse(SIMPLE_CHANGELOG, new ChangeLogParameters(), resourceAccessor)
+
+        def changes = changeLog.changeSets[0].changes
+        assertNotNull(changes[0].customChange)
+        assertTrue  changes[0].customChange instanceof MyParametrizedCustomChange
+
+    }
 
 	@Test(expected=ChangeLogParseException)
 	void parsingEmptyDatabaseChangeLogFails() {

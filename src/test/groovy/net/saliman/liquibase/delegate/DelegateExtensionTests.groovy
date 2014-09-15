@@ -16,13 +16,12 @@
 
 package net.saliman.liquibase.delegate
 
-import static org.junit.Assert.*
 import liquibase.change.core.RawSQLChange
-
+import liquibase.change.custom.CustomChangeWrapper
+import net.saliman.liquibase.custom.MyCustomSqlChange
 import org.junit.Test
 
-import net.saliman.liquibase.change.CustomProgrammaticChangeWrapper
-import net.saliman.liquibase.custom.MyCustomSqlChange
+import static org.junit.Assert.*
 
 
 /**
@@ -42,10 +41,20 @@ class DelegateExtensionTests extends ChangeSetTests {
 
     assertNotNull changes
     assertEquals 1, changes.size()
-    assertTrue changes[0] instanceof CustomProgrammaticChangeWrapper
+    assertTrue changes[0] instanceof CustomChangeWrapper
     assertTrue changes[0].customChange instanceof MyCustomSqlChange
     assertEquals(new RawSQLChange("SELECT * FROM monkey").sql,
                  changes[0].customChange.generateStatements(null)[0].sql);
 	  assertNoOutput()
   }
+
+    @Test
+    public void wrapperShouldHaveCustomHasAnnotation() {
+        buildChangeSet {
+            myCustomSqlChange()
+        }
+
+        def changes = changeSet.changes
+        changes[0].createChangeMetaData()
+    }
 }

@@ -1,13 +1,6 @@
 package groovy.runtime.metaclass.net.saliman.liquibase.delegate
 
-import groovy.lang.ExpandoMetaClass
-import groovy.lang.MetaClassRegistry
-
 import org.codehaus.groovy.runtime.metaclass.ClosureMetaMethod.AnonymousMetaMethod
-
-import net.saliman.liquibase.change.CustomProgrammaticChangeWrapper
-import net.saliman.liquibase.custom.MyCustomSqlChange
-
 
 /**
  * This defines an ExpandoMetaClass on net.saliman.liquibase.delegate.ChangeSetDelegate
@@ -23,9 +16,20 @@ class ChangeSetDelegateMetaClass
   ChangeSetDelegateMetaClass(MetaClassRegistry reg, Class clazz) {
     super(clazz, true, false)
 
-    addMetaMethod(new AnonymousMetaMethod({ addChange(new CustomProgrammaticChangeWrapper(new MyCustomSqlChange())) }, 
-      'myCustomSqlChange', 
+    addMetaMethod(new AnonymousMetaMethod(
+          {
+              customChange([className: 'net.saliman.liquibase.custom.MyCustomSqlChange'], {})
+          },
+      'myCustomSqlChange',
       clazz))
+
+
+    addMetaMethod(new AnonymousMetaMethod(
+         {Closure closure = null ->
+                customChange([className: 'net.saliman.liquibase.custom.MyParametrizedCustomChange'], closure)
+         },
+         'myParametrizedCustomChange',
+         clazz))
 
     initialize()
   }
