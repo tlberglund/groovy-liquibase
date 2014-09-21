@@ -1,16 +1,25 @@
+#!groovy
+// The above triggers groovy syntax highlighting in vim
+
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-
-version = '1.0.0'
 group = 'net.saliman'
-def artifact = 'groovy-liquibase-dsl'
+archivesBaseName = 'groovy-liquibase-dsl'
+version = '1.0.1-SNAPSHOT'
+ext.isSnapshot = version.endsWith('SNAPSHOT')
 
+if ( isSnapshot ) {
+  println "using snapshot"
+  ext.mavenCentralUploadUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+} else {
+  println "using staging"
+  ext.mavenCentralUploadUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+}
 
 configurations {
-  deployment
-  published.extendsFrom archives, signatures
+  archives
 }
 
 
@@ -21,70 +30,108 @@ repositories {
 
 dependencies {
   groovy 'org.codehaus.groovy:groovy:1.8.6'
-  runtime 'org.codehaus.groovy:groovy:1.8.6'
-  testCompile 'junit:junit:4.8.2'
   compile 'org.liquibase:liquibase-core:3.1.1'
-  deployment "org.apache.maven.wagon:wagon-webdav-jackrabbit:1.0-beta-7"
+  testCompile 'junit:junit:4.8.2'
+  runtime 'org.codehaus.groovy:groovy:1.8.6'
   testRuntime 'com.h2database:h2:1.3.159'
-}
-
-
-jar {
-  baseName = artifact
+  archives "org.apache.maven.wagon:wagon-ssh:2.2"
+  archives "org.apache.maven.wagon:wagon-ssh-external:2.2"
 }
 
 
 task sourceJar(type: Jar) {
   description = 'An archive of the source code for Maven Central'
-  baseName = artifact
   classifier = 'sources'
-  from sourceSets.main.groovy
+  from sourceSets.main.allSource
 }
 
 
 task groovydocJar(type: Jar, dependsOn: groovydoc) {
   description = 'An archive of the GroovyDocs for Maven Central'
-  baseName = artifact
   classifier = 'javadoc'
-  from fileTree(groovydoc.destinationDir)
+  from groovydoc
 }
 
 artifacts { 
-  archives groovydocJar, sourceJar
+  archives jar, groovydocJar, sourceJar
 }
 
 signing {
   sign configurations.archives
 }
 
+// Only *Require* signing if we are uploading a non snapshot version.  If we
+// do need to sign, make sure we've got the properties we need to do the 
+// signing.
+import org.gradle.plugins.signing.Sign
+gradle.taskGraph.whenReady { taskGraph ->
+  tasks.withType(org.gradle.plugins.signing.Sign).all {
+    required = taskGraph.hasTask(":uploadArchives") && !isSnapshot
+    if ( required ) {
+      // Use Java's console to read from the console (no good for a CI
+      // environment)
+      Console console = System.console()
+      console.printf "\n\nWe have to sign some things in this build...\n\n"
 
-install {
-  repositories.mavenInstaller {
-    pom.project(pomConfiguration)
+      if ( !project.hasProperty('signing.keyId') ) {
+        def id = console.readLine("PGP Public Key Id: ")
+        allprojects { ext."signing.keyId" = id }
+      }
+
+      if ( !project.hasProperty('signing.secretKeyRingFile') ) {
+        def file = console.readLine("PGP Secret Key Ring File (absolute path): ")
+        allprojects { ext."signing.secretKeyRingFile" = file }
+      }
+
+      if ( !project.hasProperty('signing.password') ) {
+        def password = console.readPassword("PGP Private Key Password: ")
+        allprojects { ext."signing.password" = password }
+      }
+
+      console.printf "\nThanks.\n\n"
+    }
   }
 }
 
+uploadArchives {
+  // We can't use taskGraph.whenReady because it doesn't resolve until after
+  // configuration.  The startParameter is not as good, but it probably
+  // good enough for our purposes.
+  if ( gradle.startParameter.taskNames.contains("uploadArchives") ) {
+    // Use Java's console to read from the console (no good for a CI
+    // environment)
+    Console console = System.console()
+    console.printf "\n\nWe have to upload some things in this build...\n\n"
 
-uploadPublished {
-  dependsOn << [ signArchives ]
-  repositories.mavenDeployer {
-    beforeDeployment { deployment ->
-      signPom(deployment)
+    if ( !project.hasProperty('mavenCentralUsername') ) {
+      def mavenCentralUsername = console.readLine("Maven Central Username: ")
+      allprojects { ext."mavenCentralUsername" = mavenCentralUsername }
     }
-    name = 'mavenCentralReleaseDeployer'
-    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") { 
-      authentication(userName: mavenCentralUsername, password: mavenCentralPassword)
-      releases(updatePolicy: 'always')
-      snapshots(updatePolicy: 'never')
+
+    if ( !project.hasProperty('mavenCentralPassword') ) {
+      def mavenCentralPassword = console.readLine("Maven Central Password: ")
+      allprojects { ext."mavenCentralPassword" = mavenCentralPassword }
     }
-    pom.project(pomConfiguration)
+
+    repositories {
+      mavenDeployer {
+        if ( signing.signatory ) {
+          beforeDeployment { signing.signPom(it) }
+        }
+        configuration = configurations.archives
+        //repository(url: "file://$buildDir/m2repo")
+        repository(url: mavenCentralUploadUrl) {
+          authentication(userName: mavenCentralUsername,
+                  password: mavenCentralPassword)
+          releases(updatePolicy: "always")
+          snapshots(updatePolicy: "always")
+        }
+        pom.project(pomConfiguration)
+      }
+    }
   }
 }
 
-//
-// A single place to create the POM configuration, so it can be
-// applied from the install and the upload tasks.
-//
 def getPomConfiguration() { 
   return {
     name('Groovy Liquibase DSL')
