@@ -29,7 +29,7 @@ repositories {
 
 
 dependencies {
-  groovy 'org.codehaus.groovy:groovy:1.8.6'
+  compile 'org.codehaus.groovy:groovy:1.8.6'
   compile 'org.liquibase:liquibase-core:3.1.1'
   testCompile 'junit:junit:4.8.2'
   runtime 'org.codehaus.groovy:groovy:1.8.6'
@@ -52,7 +52,7 @@ task groovydocJar(type: Jar, dependsOn: groovydoc) {
   from groovydoc
 }
 
-artifacts { 
+artifacts {
   archives jar, groovydocJar, sourceJar
 }
 
@@ -61,7 +61,7 @@ signing {
 }
 
 // Only *Require* signing if we are uploading a non snapshot version.  If we
-// do need to sign, make sure we've got the properties we need to do the 
+// do need to sign, make sure we've got the properties we need to do the
 // signing.
 import org.gradle.plugins.signing.Sign
 gradle.taskGraph.whenReady { taskGraph ->
@@ -132,7 +132,7 @@ uploadArchives {
   }
 }
 
-def getPomConfiguration() { 
+def getPomConfiguration() {
   return {
     name('Groovy Liquibase DSL')
     description('A Groovy-based DSL for the Liquibase database refactoring tool.')
