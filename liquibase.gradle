@@ -6,9 +6,11 @@ repositories {
 }
 
 dependencies {
-  groovy 'org.codehaus.groovy:groovy:1.7.5'
-  runtime 'org.liquibase:liquibase-core:3.1.1'
-  runtime 'mysql:mysql-connector-java:5.1.9'
+  runtime 'org.codehaus.groovy:groovy:2.4.1'
+  runtime 'org.codehaus.groovy:groovy-sql:2.4.1'
+
+  runtime 'org.liquibase:liquibase-core:3.3.1'
+  runtime 'mysql:mysql-connector-java:5.1.34'
 }
 
 
@@ -135,14 +137,14 @@ def liquibaseRollback(dryRun) {
     suffix = 'rollback'
     param = tag
   }
-  
+
   if(dryRun) {
     suffix = suffix + 'SQL'
   }
-  
+
   argList << suffix
   argList << param
-  
+
   runLiquibase(argList)
 }
 
@@ -158,7 +160,7 @@ def liquibaseUpdate(dryRun) {
   }
 
   def argList = [ "update${suffix}" ]
- 
+
   if(count) {
     argList << count
   }
@@ -174,7 +176,7 @@ def runLiquibase(String command) {
 def runLiquibase(List argList) {
   def contexts = System.properties['liquibase.contexts']
   def stdArgs = ["--url=${project.database.url}", "--username=${project.database.username}", "--password=${project.database.password}"]
-  
+
   if(project.database.changeLogFile) {
     stdArgs << "--changeLogFile=${project.database.changeLogFile}"
   }
@@ -187,7 +189,7 @@ def runLiquibase(List argList) {
   if(contexts) {
     stdArgs << "--contexts=${contexts}"
   }
-  
+
   javaexec {
     workingDir =  database.workingDir ?: projectDir
     main = 'liquibase.integration.commandline.Main'

@@ -57,7 +57,7 @@ class DatabaseChangeLogDelegateTests {
 
 	@Before
 	void registerParser() {
-		resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
+		resourceAccessor = new FileSystemResourceAccessor('.')
 		parserFactory = ChangeLogParserFactory.instance
 		ChangeLogParserFactory.getInstance().register(new GroovyLiquibaseChangeLogParser())
 		// make sure we start with clean temporary directories before each test
@@ -170,7 +170,7 @@ databaseChangeLog()
 		assertFalse changeLog.changeSets[0].alwaysRun // the property doesn't match xml or docs.
 		assertFalse changeLog.changeSets[0].runOnChange
 		assertEquals FILE_PATH, changeLog.changeSets[0].filePath
-		assertEquals 0, changeLog.changeSets[0].contexts.size()
+		assertEquals 0, changeLog.changeSets[0].contexts.contexts.size()
 		assertNull changeLog.changeSets[0].dbmsSet
 		assertTrue changeLog.changeSets[0].runInTransaction
 	  assertNull changeLog.changeSets[0].failOnError
@@ -203,7 +203,7 @@ databaseChangeLog()
 		assertTrue changeLog.changeSets[0].alwaysRun // the property doesn't match xml or docs.
 		assertTrue changeLog.changeSets[0].runOnChange
 		assertEquals FILE_PATH, changeLog.changeSets[0].filePath
-		assertEquals 'testing', changeLog.changeSets[0].contexts.toArray()[0]
+		assertEquals 'testing', changeLog.changeSets[0].contexts.contexts[0]
 		assertEquals 'mysql', changeLog.changeSets[0].dbmsSet.toArray()[0]
 		assertFalse changeLog.changeSets[0].runInTransaction
 		assertTrue changeLog.changeSets[0].failOnError
@@ -518,7 +518,7 @@ databaseChangeLog {
 		assertNull property.key
 		assertNull property.value
 		assertNull property.validDatabases
-		assertEquals 0, property.validContexts.size()
+		assertEquals 0, property.validContexts.contexts.size()
 	}
 
 	/**
@@ -541,7 +541,7 @@ databaseChangeLog {
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertNull property.validDatabases
-		assertEquals 0, property.validContexts.size()
+		assertEquals 0, property.validContexts.contexts.size()
 	}
 
 	/**
@@ -563,7 +563,7 @@ databaseChangeLog {
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertEquals 'mysql', property.validDatabases[0]
-		assertEquals 'test', property.validContexts.toArray()[0]
+		assertEquals 'test', property.validContexts.contexts[0]
 	}
 
 	/**
@@ -602,7 +602,7 @@ emotion=angry
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertNull property.validDatabases
-		assertEquals 0, property.validContexts.size()
+		assertEquals 0, property.validContexts.contexts.size()
 	}
 
 	/**
@@ -631,7 +631,7 @@ emotion=angry
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertEquals 'mysql', property.validDatabases[0]
-		assertEquals 'test', property.validContexts.toArray()[0]
+		assertEquals 'test', property.validContexts.contexts[0]
 	}
 
 	/**

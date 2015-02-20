@@ -163,7 +163,7 @@ class ColumnDelegateTests {
 		assertEquals 'columnName', delegate.columns[0].name
 		assertEquals 'varchar(30)', delegate.columns[0].type
 		assertEquals 'someValue', delegate.columns[0].value
-		assertEquals 1, delegate.columns[0].valueNumeric
+		assertEquals 1, delegate.columns[0].valueNumeric.intValue()
 		assertFalse delegate.columns[0].valueBoolean
 		assertEquals columnDateValue, delegate.columns[0].valueDate
 		assertEquals 'databaseValue', delegate.columns[0].valueComputed.value
@@ -172,7 +172,7 @@ class ColumnDelegateTests {
 		assertEquals 'someBlobFile', delegate.columns[0].valueBlobFile
 		assertEquals 'someClobFile', delegate.columns[0].valueClobFile
 		assertEquals 'someDefaultValue', delegate.columns[0].defaultValue
-		assertEquals 2, delegate.columns[0].defaultValueNumeric
+		assertEquals 2, delegate.columns[0].defaultValueNumeric.intValue()
 		assertEquals columnDefaultDate, delegate.columns[0].defaultValueDate
 		assertFalse delegate.columns[0].defaultValueBoolean
 		assertEquals 'defaultDatabaseValue', delegate.columns[0].defaultValueComputed.value
@@ -296,7 +296,7 @@ class ColumnDelegateTests {
 		assertEquals 'columnName', delegate.columns[0].name
 		assertEquals 'varchar(30)', delegate.columns[0].type
 		assertEquals 'someValue', delegate.columns[0].value
-		assertEquals 1, delegate.columns[0].valueNumeric
+		assertEquals 1, delegate.columns[0].valueNumeric.intValue()
 		assertFalse delegate.columns[0].valueBoolean
 		assertEquals columnDateValue, delegate.columns[0].valueDate
 		assertEquals 'databaseValue', delegate.columns[0].valueComputed.value
@@ -305,7 +305,7 @@ class ColumnDelegateTests {
 		assertEquals 'someBlobFile', delegate.columns[0].valueBlobFile
 		assertEquals 'someClobFile', delegate.columns[0].valueClobFile
 		assertEquals 'someDefaultValue', delegate.columns[0].defaultValue
-		assertEquals 2, delegate.columns[0].defaultValueNumeric
+		assertEquals 2, delegate.columns[0].defaultValueNumeric.intValue()
 		assertEquals columnDefaultDate, delegate.columns[0].defaultValueDate
 		assertFalse delegate.columns[0].defaultValueBoolean
 		assertEquals 'defaultDatabaseValue', delegate.columns[0].defaultValueComputed.value
@@ -369,7 +369,7 @@ class ColumnDelegateTests {
 		assertEquals 'columnName', delegate.columns[0].name
 		assertEquals 'varchar(30)', delegate.columns[0].type
 		assertEquals 'someValue', delegate.columns[0].value
-		assertEquals 1, delegate.columns[0].valueNumeric
+		assertEquals 1, delegate.columns[0].valueNumeric.intValue()
 		assertFalse delegate.columns[0].valueBoolean
 		assertEquals columnDateValue, delegate.columns[0].valueDate
 		assertEquals 'databaseValue', delegate.columns[0].valueComputed.value
@@ -378,7 +378,7 @@ class ColumnDelegateTests {
 		assertEquals 'someBlobFile', delegate.columns[0].valueBlobFile
 		assertEquals 'someClobFile', delegate.columns[0].valueClobFile
 		assertEquals 'someDefaultValue', delegate.columns[0].defaultValue
-		assertEquals 2, delegate.columns[0].defaultValueNumeric
+		assertEquals 2, delegate.columns[0].defaultValueNumeric.intValue()
 		assertEquals columnDefaultDate, delegate.columns[0].defaultValueDate
 		assertFalse delegate.columns[0].defaultValueBoolean
 		assertEquals 'defaultDatabaseValue', delegate.columns[0].defaultValueComputed.value
@@ -468,7 +468,7 @@ class ColumnDelegateTests {
       closure.delegate = columnDelegate
       closure.resolveStrategy = Closure.DELEGATE_FIRST
       closure.call()
-      
+
       return columnDelegate
   }
 

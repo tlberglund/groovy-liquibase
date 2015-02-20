@@ -38,7 +38,7 @@ class GroovySerializerTests
 
   @Before
   void registerSerializer() {
-    resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
+    resourceAccessor = new FileSystemResourceAccessor('.')
     serializerFactory = ChangeLogSerializerFactory.instance
     ChangeLogSerializerFactory.getInstance().register(new GroovyChangeLogSerializer())
   }

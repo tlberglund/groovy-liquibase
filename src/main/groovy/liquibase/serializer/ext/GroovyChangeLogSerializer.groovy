@@ -115,7 +115,7 @@ class GroovyChangeLogSerializer
     }
 
     if(changeSet.contexts) {
-      attributes.context = changeSet.getContexts().join(',')
+      attributes.context = changeSet.contexts.contexts.join(',')
     }
 
     if(changeSet.dbmsSet) {

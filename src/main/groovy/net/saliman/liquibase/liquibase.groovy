@@ -24,7 +24,7 @@ import liquibase.resource.FileSystemResourceAccessor
 ChangeLogParserFactory.getInstance().register(new GroovyLiquibaseChangeLogParser())
 
 //changeLogFile = 'src/test/changelog/basic-changelog.groovy'
-//resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
+//resourceAccessor = new FileSystemResourceAccessor('.')
 //parser = ChangeLogParserFactory.getInstance().getParser(changeLogFile, resourceAccessor)
 //
 //def changeLog = parser.parse(changeLogFile, null, resourceAccessor)

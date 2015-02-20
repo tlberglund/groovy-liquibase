@@ -16,7 +16,6 @@
 
 package net.saliman.liquibase.delegate
 
-import liquibase.Contexts
 import liquibase.changelog.ChangeSet
 import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParserFactory
@@ -39,7 +38,7 @@ class DatabaseChangeLogDelegate {
     this([:], databaseChangeLog)
   }
 
-  
+
   DatabaseChangeLogDelegate(Map params, databaseChangeLog) {
     this.params = params
     this.databaseChangeLog = databaseChangeLog
@@ -107,7 +106,7 @@ class DatabaseChangeLogDelegate {
     closure.delegate = delegate
     closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()
-    
+
     databaseChangeLog.addChangeSet(changeSet)
   }
 
@@ -134,7 +133,7 @@ class DatabaseChangeLogDelegate {
 
 	  def physicalChangeLogLocation = databaseChangeLog.physicalFilePath.replace(System.getProperty("user.dir").toString() + "/", "")
     def relativeToChangelogFile = false
-    
+
     if (params.relativeToChangelogFile) {
       relativeToChangelogFile = params.relativeToChangelogFile
     }
@@ -203,26 +202,27 @@ class DatabaseChangeLogDelegate {
 	  }
 
 	  def context = params['context'] ?: null
+    def label = params['label'] ?: null
     def dbms = params['dbms'] ?: null
     def changeLogParameters = databaseChangeLog.changeLogParameters
-    
+
     if (!params['file']) {
-      changeLogParameters.set(params['name'], params['value'], context, dbms)
+      changeLogParameters.set(params['name'], params['value'], context as String, label as String, dbms as String)
     } else {
 	    def propFile = params['file']
       def props = new Properties()
-      def propertiesStream = resourceAccessor.getResourceAsStream(propFile)
+      def propertiesStream = resourceAccessor.getResourcesAsStream(propFile)
       if (!propertiesStream) {
         throw new ChangeLogParseException("Unable to load file with properties: ${params['file']}")
       } else {
-        props.load(propertiesStream)
+        props.load(propertiesStream[0])
         props.each { k, v ->
-          changeLogParameters.set(k, v, context, dbms)
+          changeLogParameters.set(k, v, context as String, label as String, dbms as String)
         }
       }
     }
   }
-  
+
   def propertyMissing(String name) {
     def changeLogParameters = databaseChangeLog.changeLogParameters
     if (changeLogParameters.hasValue(name)) {

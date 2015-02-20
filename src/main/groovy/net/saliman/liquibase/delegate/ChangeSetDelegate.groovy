@@ -22,7 +22,7 @@ import liquibase.change.core.*
 import liquibase.change.custom.CustomChangeWrapper
 import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
-import liquibase.util.ObjectUtil
+import liquibase.util.ObjectUtilOld
 
 /**
  * This class is the closure delegate for a ChangeSet.  It processes all the
@@ -582,7 +582,7 @@ class ChangeSetDelegate {
 		if ( columnDelegate.whereClause != null ) {
 			try {
 				// The columnDelegate DOES take care of expansion.
-				ObjectUtil.setProperty(change, 'where', columnDelegate.whereClause)
+				ObjectUtilOld.setProperty(change, 'where', columnDelegate.whereClause)
 			} catch (RuntimeException e) {
 				throw new ChangeLogParseException("ChangeSet '${changeSet.id}': a where clause is invalid for '${name}' changes.", e)
 			}
@@ -606,7 +606,7 @@ class ChangeSetDelegate {
 
 		sourceMap.each { key, value ->
 			try {
-				ObjectUtil.setProperty(change, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
+				ObjectUtilOld.setProperty(change, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 			}
 			catch (NumberFormatException ex) {
 				change[key] = value.toBigInteger()
