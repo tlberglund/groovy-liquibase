@@ -57,7 +57,7 @@ class DatabaseChangeLogDelegateTests {
 
 	@Before
 	void registerParser() {
-		resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
+		resourceAccessor = new FileSystemResourceAccessor('.')
 		parserFactory = ChangeLogParserFactory.instance
 		ChangeLogParserFactory.getInstance().register(new GroovyLiquibaseChangeLogParser())
 		// make sure we start with clean temporary directories before each test
