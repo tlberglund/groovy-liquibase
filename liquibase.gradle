@@ -9,7 +9,7 @@ dependencies {
   compile 'org.codehaus.groovy:groovy:2.4.1'
   compile 'org.codehaus.groovy:groovy-sql:2.4.1'
   runtime 'org.liquibase:liquibase-core:3.1.1'
-  runtime 'mysql:mysql-connector-java:5.1.9'
+  runtime 'mysql:mysql-connector-java:5.1.34'
 }
 
 
