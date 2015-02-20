@@ -29,7 +29,7 @@ dependencies {
 
   compile 'org.codehaus.groovy:groovy:2.4.1'
   compile 'org.codehaus.groovy:groovy-sql:2.4.1'
-  compile 'org.liquibase:liquibase-core:3.1.1'
+  compile 'org.liquibase:liquibase-core:3.3.2'
 
   archives 'org.apache.maven.wagon:wagon-ssh:2.8'
   archives 'org.apache.maven.wagon:wagon-ssh-external:2.8'

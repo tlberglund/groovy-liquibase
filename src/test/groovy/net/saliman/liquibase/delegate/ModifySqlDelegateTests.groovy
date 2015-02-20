@@ -160,7 +160,7 @@ class ModifySqlDelegateTests {
 		assertTrue sqlVisitors[0] instanceof AppendSqlVisitor
 		assertEquals 'exec', sqlVisitors[0].value
 		assertNull sqlVisitors[0].applicableDbms
-		assertEquals 'test', sqlVisitors[0].contexts.toArray()[0]
+		assertEquals 'test', sqlVisitors[0].contexts.contexts[0]
 		assertFalse sqlVisitors[0].applyToRollback
 	}
 
@@ -257,9 +257,9 @@ class ModifySqlDelegateTests {
 		assertEquals 'execute', sqlVisitors[0].replace
 		assertEquals 'exec', sqlVisitors[0].with
 		assertNull sqlVisitors[0].applicableDbms
-		assertEquals 2, sqlVisitors[0].contexts.size()
-		assertTrue sqlVisitors[0].contexts.contains('test')
-		assertTrue sqlVisitors[0].contexts.contains('ci')
+		assertEquals 2, sqlVisitors[0].contexts.contexts.size()
+		assertTrue sqlVisitors[0].contexts.contexts.contains('test')
+		assertTrue sqlVisitors[0].contexts.contexts.contains('ci')
 		assertFalse sqlVisitors[0].applyToRollback
 	}
 

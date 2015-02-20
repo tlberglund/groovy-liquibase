@@ -133,7 +133,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertTrue columns.every { column -> column instanceof ColumnConfig }
 		assertEquals 4, columns.size()
 		assertEquals 'id', columns[0].name
-		assertEquals 502, columns[0].valueNumeric
+		assertEquals 502, columns[0].valueNumeric.intValue()
 		assertEquals 'emotion', columns[1].name
 		assertEquals 'angry', columns[1].value
 		assertEquals 'last_updated', columns[2].name

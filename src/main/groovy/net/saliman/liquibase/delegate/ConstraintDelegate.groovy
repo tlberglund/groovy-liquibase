@@ -18,7 +18,7 @@ package net.saliman.liquibase.delegate
 
 import liquibase.change.ConstraintsConfig
 import liquibase.exception.ChangeLogParseException
-import liquibase.util.ObjectUtil;
+import liquibase.util.ObjectUtilOld;
 
 
 class ConstraintDelegate {
@@ -36,7 +36,7 @@ class ConstraintDelegate {
   def constraints(Map params = [:]) {
     params.each { key, value ->
       try {
-	      ObjectUtil.setProperty(constraint, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
+	      ObjectUtilOld.setProperty(constraint, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
       } catch(RuntimeException e) {
 	      // Rethrow as an ChangeLogParseException with a more helpful message
 	      // than you'll get from the Liquibase helper.
@@ -56,14 +56,14 @@ class ConstraintDelegate {
 		// deprecate it.
 		throw new ChangeLogParseException("Error: ChangeSet '${changeSetId}', ${changeName} change: Setting constraint attributes in nested closures is no longer supported. Use an attribute map instead.")
   }
-  
+
 
   def methodMissing(String name, params) {
     if ( constraint.hasProperty(name) ) {
-      ObjectUtil.setProperty(constraint, name, DelegateUtil.expandExpressions(params[0], databaseChangeLog))
+      ObjectUtilOld.setProperty(constraint, name, DelegateUtil.expandExpressions(params[0], databaseChangeLog))
     } else {
 	    throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of constraint closures in ${changeName} changes")
     }
   }
-  
+
 }

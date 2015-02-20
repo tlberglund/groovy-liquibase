@@ -16,12 +16,12 @@
 
 package net.saliman.liquibase.delegate
 
-import liquibase.Contexts
+import liquibase.ContextExpression
 import liquibase.exception.ChangeLogParseException
 import liquibase.sql.visitor.SqlVisitor;
 import liquibase.sql.visitor.SqlVisitorFactory;
 import liquibase.changelog.ChangeSet
-import liquibase.util.ObjectUtil
+import liquibase.util.ObjectUtilOld
 
 /**
  * This delegate handles the Liquibase ModifySql element, which can be used
@@ -93,7 +93,7 @@ class ModifySqlDelegate {
 		// Pass parameters through to the underlying Liquibase object.
 		params.each { key, value ->
 			try {
-				ObjectUtil.setProperty(sqlVisitor, key, DelegateUtil.expandExpressions(value, changeSet.changeLog))
+				ObjectUtilOld.setProperty(sqlVisitor, key, DelegateUtil.expandExpressions(value, changeSet.changeLog))
 			} catch (RuntimeException e) {
 				// Rethrow as an ChangeLogParseException with a more helpful message
 				// than you'll get from the Liquibase helper.
@@ -105,7 +105,7 @@ class ModifySqlDelegate {
 			sqlVisitor.setApplicableDbms(modifySqlDbmsList)
 		}
 		if ( modifySqlContexts ) {
-			sqlVisitor.setContexts(new Contexts(modifySqlContexts))
+			sqlVisitor.setContexts(new ContextExpression(modifySqlContexts))
 		}
 		sqlVisitor.setApplyToRollback(modifySqlAppliedOnRollback)
 
