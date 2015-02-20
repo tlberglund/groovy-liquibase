@@ -1,16 +1,13 @@
-#!groovy
-// The above triggers groovy syntax highlighting in vim
-
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'net.saliman'
 archivesBaseName = 'groovy-liquibase-dsl'
-version = '1.0.1-SNAPSHOT'
+version = '3.3.x-SNAPSHOT'
 ext.isSnapshot = version.endsWith('SNAPSHOT')
 
-if ( isSnapshot ) {
+if (isSnapshot) {
   println "using snapshot"
   ext.mavenCentralUploadUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 } else {
@@ -22,31 +19,27 @@ configurations {
   archives
 }
 
-
 repositories {
   mavenCentral()
 }
 
-
 dependencies {
+  testCompile 'junit:junit:4.12'
+  testCompile 'com.h2database:h2:1.4.185'
+
   compile 'org.codehaus.groovy:groovy:2.4.1'
   compile 'org.codehaus.groovy:groovy-sql:2.4.1'
   compile 'org.liquibase:liquibase-core:3.1.1'
-  testCompile 'junit:junit:4.12'
-  runtime 'org.codehaus.groovy:groovy:2.4.1'
-  runtime 'org.codehaus.groovy:groovy-sql:2.4.1'
-  testRuntime 'com.h2database:h2:1.4.185'
+
   archives 'org.apache.maven.wagon:wagon-ssh:2.8'
   archives 'org.apache.maven.wagon:wagon-ssh-external:2.8'
 }
-
 
 task sourceJar(type: Jar) {
   description = 'An archive of the source code for Maven Central'
   classifier = 'sources'
   from sourceSets.main.allSource
 }
-
 
 task groovydocJar(type: Jar, dependsOn: groovydoc) {
   description = 'An archive of the GroovyDocs for Maven Central'
@@ -69,23 +62,23 @@ import org.gradle.plugins.signing.Sign
 gradle.taskGraph.whenReady { taskGraph ->
   tasks.withType(org.gradle.plugins.signing.Sign).all {
     required = taskGraph.hasTask(":uploadArchives") && !isSnapshot
-    if ( required ) {
+    if (required) {
       // Use Java's console to read from the console (no good for a CI
       // environment)
       Console console = System.console()
       console.printf "\n\nWe have to sign some things in this build...\n\n"
 
-      if ( !project.hasProperty('signing.keyId') ) {
+      if (!project.hasProperty('signing.keyId')) {
         def id = console.readLine("PGP Public Key Id: ")
         allprojects { ext."signing.keyId" = id }
       }
 
-      if ( !project.hasProperty('signing.secretKeyRingFile') ) {
+      if (!project.hasProperty('signing.secretKeyRingFile')) {
         def file = console.readLine("PGP Secret Key Ring File (absolute path): ")
         allprojects { ext."signing.secretKeyRingFile" = file }
       }
 
-      if ( !project.hasProperty('signing.password') ) {
+      if (!project.hasProperty('signing.password')) {
         def password = console.readPassword("PGP Private Key Password: ")
         allprojects { ext."signing.password" = password }
       }
@@ -99,25 +92,25 @@ uploadArchives {
   // We can't use taskGraph.whenReady because it doesn't resolve until after
   // configuration.  The startParameter is not as good, but it probably
   // good enough for our purposes.
-  if ( gradle.startParameter.taskNames.contains("uploadArchives") ) {
+  if (gradle.startParameter.taskNames.contains("uploadArchives")) {
     // Use Java's console to read from the console (no good for a CI
     // environment)
     Console console = System.console()
     console.printf "\n\nWe have to upload some things in this build...\n\n"
 
-    if ( !project.hasProperty('mavenCentralUsername') ) {
+    if (!project.hasProperty('mavenCentralUsername')) {
       def mavenCentralUsername = console.readLine("Maven Central Username: ")
       allprojects { ext."mavenCentralUsername" = mavenCentralUsername }
     }
 
-    if ( !project.hasProperty('mavenCentralPassword') ) {
+    if (!project.hasProperty('mavenCentralPassword')) {
       def mavenCentralPassword = console.readLine("Maven Central Password: ")
       allprojects { ext."mavenCentralPassword" = mavenCentralPassword }
     }
 
     repositories {
       mavenDeployer {
-        if ( signing.signatory ) {
+        if (signing.signatory) {
           beforeDeployment { signing.signPom(it) }
         }
         configuration = configurations.archives
@@ -165,4 +158,3 @@ def getPomConfiguration() {
     }
   }
 }
-
