@@ -18,7 +18,7 @@ package net.saliman.liquibase.delegate
 
 import liquibase.change.ColumnConfig
 import liquibase.exception.ChangeLogParseException
-import liquibase.util.ObjectUtil;
+import liquibase.util.PatchedObjectUtil;
 
 /**
  * This class is a delegate for nested columns found frequently in the DSL, such
@@ -55,7 +55,7 @@ class ColumnDelegate {
 
 		params.each { key, value ->
 			try {
-				ObjectUtil.setProperty(column, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
+				PatchedObjectUtil.setProperty(column, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 			} catch(RuntimeException e) {
 				// Rethrow as an ChangeLogParseException with a more helpful message
 				// than you'll get from the Liquibase helper.

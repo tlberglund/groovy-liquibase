@@ -27,7 +27,7 @@ import liquibase.precondition.core.PreconditionContainer
 import liquibase.precondition.core.PreconditionContainer.OnSqlOutputOption
 import liquibase.precondition.core.PreconditionContainer.ErrorOption
 import liquibase.precondition.core.PreconditionContainer.FailOption
-import liquibase.util.ObjectUtil;
+import liquibase.util.PatchedObjectUtil;
 
 
 class PreconditionDelegate {
@@ -55,7 +55,7 @@ class PreconditionDelegate {
     if ( params != null && params instanceof Map ) {
       params.each { key, value ->
 	      try {
-          ObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
+		      PatchedObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 	      } catch (RuntimeException e) {
 		      throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for '${name}' preconditions.", e)
 	      }
@@ -76,7 +76,7 @@ class PreconditionDelegate {
     def precondition = new SqlPrecondition()
 	  params.each { key, value ->
 		  try {
-			  ObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
+			  PatchedObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 		  } catch (RuntimeException e) {
 			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'sqlCheck' preconditions.", e)
 		  }
@@ -109,7 +109,7 @@ class PreconditionDelegate {
     def precondition = new CustomPreconditionWrapper()
 	  params.each { key, value ->
 		  try {
-			  ObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
+			  PatchedObjectUtil.setProperty(precondition, key, DelegateUtil.expandExpressions(value, databaseChangeLog))
 		  } catch (RuntimeException e) {
 			  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for 'customPrecondition' preconditions.", e)
 		  }
@@ -163,7 +163,7 @@ class PreconditionDelegate {
 		  } else {
 			  // pass the reset to Liquibase
 			  try {
-				  ObjectUtil.setProperty(preconditions, key, paramValue)
+				  PatchedObjectUtil.setProperty(preconditions, key, paramValue)
 			  } catch (RuntimeException e) {
 				  throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${key}' is an invalid property for preconditions.", e)
 			  }

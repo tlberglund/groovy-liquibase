@@ -18,11 +18,12 @@ package net.saliman.liquibase.delegate
 
 import liquibase.ContextExpression
 import liquibase.Contexts
+import liquibase.Labels
 import liquibase.exception.ChangeLogParseException
 import liquibase.sql.visitor.SqlVisitor;
 import liquibase.sql.visitor.SqlVisitorFactory;
 import liquibase.changelog.ChangeSet
-import liquibase.util.ObjectUtil
+import liquibase.util.PatchedObjectUtil
 
 /**
  * This delegate handles the Liquibase ModifySql element, which can be used
@@ -35,6 +36,7 @@ class ModifySqlDelegate {
 	def modifySqlDbmsList
 	def modifySqlAppliedOnRollback
 	def modifySqlContexts
+	def modifySqlLabels
 	def sqlVisitors = []
 	def changeSet
 
@@ -44,7 +46,7 @@ class ModifySqlDelegate {
 
 		// params are optional
 		if ( params != null ) {
-			def unsupportedKeys = params.keySet() - ['dbms', 'context', 'applyToRollback']
+			def unsupportedKeys = params.keySet() - ['dbms', 'context', 'labels', 'applyToRollback']
 			if ( unsupportedKeys.size() > 0 ) {
 				throw new ChangeLogParseException("ChangeSet '${changeSet.id}':  '${unsupportedKeys.toArray()[0]}' is not a supported attribute of the 'modifySql' element.")
 			}
@@ -57,8 +59,14 @@ class ModifySqlDelegate {
 			if ( params.context ) {
 				// expand expressions, then split into a list.
 				def value = DelegateUtil.expandExpressions(params.context, changeSet.changeLog)
-				modifySqlContexts = value.replaceAll(" ", "").split(',') as Set
+				modifySqlContexts = new ContextExpression(value as String)
 			}
+			if ( params.labels ) {
+				// expand expressions, then split into a list.
+				def value = DelegateUtil.expandExpressions(params.labels, changeSet.changeLog)
+				modifySqlLabels = new Labels(value as String)
+			}
+
 
 			modifySqlAppliedOnRollback = false
 			if ( params.applyToRollback ) {
@@ -94,7 +102,7 @@ class ModifySqlDelegate {
 		// Pass parameters through to the underlying Liquibase object.
 		params.each { key, value ->
 			try {
-				ObjectUtil.setProperty(sqlVisitor, key, DelegateUtil.expandExpressions(value, changeSet.changeLog))
+				PatchedObjectUtil.setProperty(sqlVisitor, key, DelegateUtil.expandExpressions(value, changeSet.changeLog))
 			} catch (RuntimeException e) {
 				// Rethrow as an ChangeLogParseException with a more helpful message
 				// than you'll get from the Liquibase helper.
@@ -103,12 +111,15 @@ class ModifySqlDelegate {
 		}
 
 		if ( modifySqlDbmsList ) {
-			sqlVisitor.setApplicableDbms(modifySqlDbmsList)
+			sqlVisitor.applicableDbms = modifySqlDbmsList
 		}
 		if ( modifySqlContexts ) {
-			sqlVisitor.setContexts(new ContextExpression(modifySqlContexts))
+			sqlVisitor.contexts = modifySqlContexts
 		}
-		sqlVisitor.setApplyToRollback(modifySqlAppliedOnRollback)
+		if ( modifySqlLabels ) {
+			sqlVisitor.labels = modifySqlLabels
+		}
+		sqlVisitor.applyToRollback = modifySqlAppliedOnRollback
 
 		sqlVisitors << sqlVisitor
 	}

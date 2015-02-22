@@ -88,6 +88,7 @@ class ModifySqlDelegateTests {
     assertNull sqlVisitors[0].value
 		assertNull sqlVisitors[0].applicableDbms
 		assertNull sqlVisitors[0].contexts
+		assertNull sqlVisitors[0].labels
 		assertFalse sqlVisitors[0].applyToRollback
 
 	}
@@ -116,6 +117,7 @@ class ModifySqlDelegateTests {
 		assertEquals 'exec', sqlVisitors[0].value
 		assertEquals 'mysql', sqlVisitors[0].applicableDbms.toArray()[0]
 		assertNull sqlVisitors[0].contexts
+		assertNull sqlVisitors[0].labels
 		assertFalse sqlVisitors[0].applyToRollback
 	}
 
@@ -133,6 +135,7 @@ class ModifySqlDelegateTests {
 		assertNull sqlVisitors[0].value
 		assertNull sqlVisitors[0].applicableDbms
 		assertNull sqlVisitors[0].contexts
+		assertNull sqlVisitors[0].labels
 		assertTrue sqlVisitors[0].applyToRollback
 
 	}
@@ -149,11 +152,11 @@ class ModifySqlDelegateTests {
 
 	/**
 	 * Test the append element with all supported attributes.  For this test,
-	 * we will also set a context.
+	 * we will also set a context and a label
 	 */
 	@Test
 	void appendFull() {
-		def sqlVisitors = buildDelegate(context: 'test') {
+		def sqlVisitors = buildDelegate(context: 'test', labels: 'test_label') {
 			append(value: 'exec')
 		}
 		assertEquals 1, sqlVisitors.size()
@@ -161,6 +164,7 @@ class ModifySqlDelegateTests {
 		assertEquals 'exec', sqlVisitors[0].value
 		assertNull sqlVisitors[0].applicableDbms
 		assertEquals 'test', sqlVisitors[0].contexts.contexts.toArray()[0]
+		assertEquals 'test_label', sqlVisitors[0].labels.toString()
 		assertFalse sqlVisitors[0].applyToRollback
 	}
 
@@ -179,6 +183,7 @@ class ModifySqlDelegateTests {
 		assertNull sqlVisitors[0].with
 		assertNull sqlVisitors[0].applicableDbms
 		assertNull sqlVisitors[0].contexts
+		assertNull sqlVisitors[0].labels
 		assertFalse sqlVisitors[0].applyToRollback
 
 	}
@@ -210,6 +215,7 @@ class ModifySqlDelegateTests {
 		assertTrue sqlVisitors[0].applicableDbms.contains('mysql')
 		assertTrue sqlVisitors[0].applicableDbms.contains('oracle')
 		assertNull sqlVisitors[0].contexts
+		assertNull sqlVisitors[0].labels
 		assertFalse sqlVisitors[0].applyToRollback
 	}
 
@@ -228,6 +234,7 @@ class ModifySqlDelegateTests {
 		assertNull sqlVisitors[0].with
 		assertNull sqlVisitors[0].applicableDbms
 		assertNull sqlVisitors[0].contexts
+		assertNull sqlVisitors[0].labels
 		assertTrue sqlVisitors[0].applyToRollback
 
 	}
@@ -246,7 +253,6 @@ class ModifySqlDelegateTests {
 	 * Test the regExpReplace element with all supported attributes.  For this test,
 	 * we will also set two contexts.
 	 */
-	// replaceRegex full use 2 contexts
 	@Test
 	void regExpReplaceFull() {
 		def sqlVisitors = buildDelegate(context: 'test,ci') {
@@ -260,6 +266,7 @@ class ModifySqlDelegateTests {
 		assertEquals 2, sqlVisitors[0].contexts.contexts.size()
 		assertTrue sqlVisitors[0].contexts.contexts.contains('test')
 		assertTrue sqlVisitors[0].contexts.contexts.contains('ci')
+		assertNull sqlVisitors[0].labels
 		assertFalse sqlVisitors[0].applyToRollback
 	}
 

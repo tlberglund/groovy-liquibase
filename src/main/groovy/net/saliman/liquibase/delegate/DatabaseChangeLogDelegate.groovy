@@ -17,6 +17,7 @@
 package net.saliman.liquibase.delegate
 
 import liquibase.ContextExpression
+import liquibase.Labels
 import liquibase.changelog.ChangeSet
 import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParserFactory
@@ -67,7 +68,7 @@ class DatabaseChangeLogDelegate {
 		  throw new ChangeLogParseException("Error: ChangeSet '${params.id}': the alwaysRun attribute of a changeSet has been removed.  Please use 'runAlways' instead.")
 	  }
 
-	  def unsupportedKeys = params.keySet() - ['id', 'author', 'dbms', 'runAlways', 'runOnChange', 'context', 'runInTransaction', 'failOnError', 'onValidationFail']
+	  def unsupportedKeys = params.keySet() - ['id', 'author', 'dbms', 'runAlways', 'runOnChange', 'context', 'labels', 'runInTransaction', 'failOnError', 'onValidationFail']
 	  if ( unsupportedKeys.size() > 0 ) {
 		  throw new ChangeLogParseException("ChangeSet '${params.id}': ${unsupportedKeys.toArray()[0]} is not a supported ChangeSet attribute")
 	  }
@@ -99,6 +100,10 @@ class DatabaseChangeLogDelegate {
     if ( params.onValidationFail ) {
       changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(params.onValidationFail)
     }
+
+	  if ( params.labels ) {
+		  changeSet.labels = new Labels(params.labels as String)
+	  }
 
     def delegate = new ChangeSetDelegate(changeSet: changeSet,
                                          databaseChangeLog: databaseChangeLog,
@@ -196,17 +201,24 @@ class DatabaseChangeLogDelegate {
 	 */
   void property(Map params = [:]) {
 	  // Start by validating input
-	  def unsupportedKeys = params.keySet() - ['name', 'value', 'context', 'dbms', 'file']
+	  def unsupportedKeys = params.keySet() - ['name', 'value', 'context', 'labels', 'dbms', 'file']
 	  if ( unsupportedKeys.size() > 0 ) {
 		  throw new ChangeLogParseException("DababaseChangeLog: ${unsupportedKeys.toArray()[0]} is not a supported property attribute")
 	  }
 
-	  ContextExpression context = new ContextExpression(params['context']) ?: null
+	  ContextExpression context = null
+	  if ( params['context'] != null ) {
+		  context = new ContextExpression(params['context'])
+	  }
+	  Labels labels = null
+	  if ( params['labels'] != null ) {
+		  labels = new Labels(params['labels'])
+	  }
     def dbms = params['dbms'] ?: null
     def changeLogParameters = databaseChangeLog.changeLogParameters
     
     if (!params['file']) {
-      changeLogParameters.set(params['name'], params['value'], context, dbms)
+      changeLogParameters.set(params['name'], params['value'], context as ContextExpression, labels as Labels, dbms)
     } else {
 	    String propFile = params['file']
       def props = new Properties()
@@ -217,7 +229,7 @@ class DatabaseChangeLogDelegate {
 	      propertiesStreams.each { stream ->
 		      props.load(stream)
 		      props.each { k, v ->
-			      changeLogParameters.set(k, v, context, dbms)
+			      changeLogParameters.set(k, v, context as ContextExpression, labels as Labels, dbms)
 		      }
 	      }
       }

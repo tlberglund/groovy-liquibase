@@ -33,7 +33,8 @@ dependencies {
   groovy 'org.codehaus.groovy:groovy:1.8.6'
   runtime 'org.codehaus.groovy:groovy:1.8.6'
   testCompile 'junit:junit:4.8.2'
-  compile 'org.liquibase:liquibase-core:3.2.0'
+//  compile 'org.liquibase:liquibase-core:3.2.0'
+  compile 'org.liquibase:liquibase-core:3.3.2'
   testRuntime 'com.h2database:h2:1.3.159'
   archives "org.apache.maven.wagon:wagon-ssh:2.2"
   archives "org.apache.maven.wagon:wagon-ssh-external:2.2"

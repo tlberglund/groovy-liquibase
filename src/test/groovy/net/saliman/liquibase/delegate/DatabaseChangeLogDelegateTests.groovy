@@ -171,6 +171,7 @@ databaseChangeLog()
 		assertFalse changeLog.changeSets[0].runOnChange
 		assertEquals FILE_PATH, changeLog.changeSets[0].filePath
 		assertEquals 0, changeLog.changeSets[0].contexts.contexts.size()
+		assertNull changeLog.changeSets[0].labels
 		assertNull changeLog.changeSets[0].dbmsSet
 		assertTrue changeLog.changeSets[0].runInTransaction
 	  assertNull changeLog.changeSets[0].failOnError
@@ -189,6 +190,7 @@ databaseChangeLog()
 							  runAlways: true,
 							  runOnChange: true,
 							  context: 'testing',
+							  labels: 'test_label',
 							  runInTransaction: false,
 							  failOnError: true,
 							  onValidationFail: "MARK_RAN") {
@@ -204,6 +206,7 @@ databaseChangeLog()
 		assertTrue changeLog.changeSets[0].runOnChange
 		assertEquals FILE_PATH, changeLog.changeSets[0].filePath
 		assertEquals 'testing', changeLog.changeSets[0].contexts.contexts.toArray()[0]
+		assertEquals 'test_label', changeLog.changeSets[0].labels.toString()
 		assertEquals 'mysql', changeLog.changeSets[0].dbmsSet.toArray()[0]
 		assertFalse changeLog.changeSets[0].runInTransaction
 		assertTrue changeLog.changeSets[0].failOnError
@@ -222,6 +225,7 @@ databaseChangeLog()
 							runAlways: false,
 							runOnChange: true,
 							context: 'testing',
+							labels: 'test_label',
 							runInTransaction: false,
 							failOnError: true,
 							onValidationFail: "MARK_RAN",
@@ -518,7 +522,8 @@ databaseChangeLog {
 		assertNull property.key
 		assertNull property.value
 		assertNull property.validDatabases
-		assertEquals 0, property.validContexts.contexts.size()
+		assertNull property.validContexts
+		assertNull property.labels
 	}
 
 	/**
@@ -541,7 +546,8 @@ databaseChangeLog {
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertNull property.validDatabases
-		assertEquals 0, property.validContexts.contexts.size()
+		assertNull property.validContexts
+		assertNull property.labels
 	}
 
 	/**
@@ -550,7 +556,7 @@ databaseChangeLog {
 	@Test
 	void propertyFull() {
 		def changeLog = buildChangeLog {
-			property(name: 'emotion', value: 'angry', dbms: 'mysql', context: 'test')
+			property(name: 'emotion', value: 'angry', dbms: 'mysql', labels: 'test_label', context: 'test')
 		}
 
 		// change log parameters are not exposed through the API, so get them
@@ -564,6 +570,7 @@ databaseChangeLog {
 		assertEquals 'angry', property.value
 		assertEquals 'mysql', property.validDatabases[0]
 		assertEquals 'test', property.validContexts.contexts.toArray()[0]
+		assertEquals 'test_label', property.labels.toString()
 	}
 
 	/**
@@ -602,7 +609,8 @@ emotion=angry
 		assertEquals 'emotion', property.key
 		assertEquals 'angry', property.value
 		assertNull property.validDatabases
-		assertEquals 0, property.validContexts.contexts.size()
+		assertNull property.validContexts
+		assertNull property.labels
 	}
 
 	/**
@@ -617,7 +625,7 @@ emotion=angry
 		propertyFile = propertyFile.replaceAll("\\\\", "/")
 
 		def changeLog = buildChangeLog {
-			property(file: "${propertyFile}", dbms: 'mysql', context: 'test')
+			property(file: "${propertyFile}", dbms: 'mysql', context: 'test', labels: 'test_label')
 		}
 
 
@@ -632,6 +640,7 @@ emotion=angry
 		assertEquals 'angry', property.value
 		assertEquals 'mysql', property.validDatabases[0]
 		assertEquals 'test', property.validContexts.contexts.toArray()[0]
+		assertEquals 'test_label', property.labels.toString()
 	}
 
 	/**
