@@ -25,7 +25,6 @@ import static org.junit.Assert.*
 import liquibase.change.ColumnConfig
 import liquibase.change.core.RenameColumnChange
 import liquibase.change.core.DropColumnChange
-import liquibase.change.core.AlterSequenceChange
 import liquibase.change.core.CreateTableChange
 import liquibase.change.core.RenameTableChange
 import liquibase.change.core.DropTableChange
@@ -225,13 +224,13 @@ class StructuralRefactoringTests extends ChangeSetTests {
 	}
 
 	/**
-	 * Test parsing a dropColumn change with no attributes to make sure the DSL
-	 * doesn't introduce any side effects.
+	 * Test parsing a dropColumn change with no attributes and and empty closure.
+	 * This just makes sure the DSL doesn't introduce any unexpected defaults.
 	 */
 	@Test
 	void dropColumnEmpty() {
 		buildChangeSet {
-			dropColumn([:])
+			dropColumn([:]) { }
 		}
 
 		assertEquals 0, changeSet.getRollBackChanges().length
@@ -243,19 +242,24 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].tableName
 		assertNull changes[0].columnName
+		assertEquals 0, changes[0].columns.size()
 		assertNoOutput()
 	}
 
 	/**
-	 * Test parsing a dropColumn change with all supported attributes.
+	 * Test parsing a delete change when we have all attributes and a column
+	 * closure.  This probably wouldn't ever get used, but we will support it.
 	 */
 	@Test
 	void dropColumnFull() {
 		buildChangeSet {
 			dropColumn(catalogName: 'catalog',
-							   schemaName: 'schema',
-							   tableName: 'monkey',
-							   columnName: 'emotion')
+							schemaName: 'schema',
+							tableName: 'monkey',
+							columnName: 'emotion') {
+				column(name: 'monkey_status')
+				column(name: 'monkey_business')
+			}
 		}
 
 		assertEquals 0, changeSet.getRollBackChanges().length
@@ -267,7 +271,57 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'emotion', changes[0].columnName
+		def columns = changes[0].columns
+		assertNotNull columns
+		assertEquals 2, columns.size()
+		assertEquals 'monkey_status', columns[0].name
+		assertEquals 'monkey_business', columns[1].name
 		assertNoOutput()
+	}
+
+	/**
+	 * Test parsing a dropColumn change without a closure. This is the use case
+	 * when we put the column names in an attribute instead of the closure, and
+	 * is the original way the dropColumn method was used.
+	 */
+	@Test
+	void dropColumnNoClosure() {
+		buildChangeSet {
+			dropColumn(catalogName: 'catalog',
+							schemaName: 'schema',
+							tableName: 'monkey',
+							columnName: 'emotion')
+		}
+
+		assertEquals 0, changeSet.getRollBackChanges().length
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof DropColumnChange
+		assertEquals 'catalog', changes[0].catalogName
+		assertEquals 'schema', changes[0].schemaName
+		assertEquals 'monkey', changes[0].tableName
+		assertEquals 'emotion', changes[0].columnName
+		def columns = changes[0].columns
+		assertNotNull columns
+		assertEquals 0, columns.size()
+		assertNoOutput()
+	}
+
+	/**
+	 * Test parsing a delete change when we have an invalid method in the closure.
+	 * This is not allowed and should be caught by the parser.
+	 */
+	@Test(expected = ChangeLogParseException)
+	void deleteDataWithColumns() {
+		buildChangeSet {
+			dropColumn(catalogName: 'catalog',
+							schemaName: 'schema',
+							tableName: 'monkey',
+							columnName: 'emotion') {
+				where(name: 'emotion')
+			}
+		}
 	}
 
 	/**
@@ -462,6 +516,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].viewName
 		assertNull changes[0].replaceIfExists
+		assertNull changes[0].fullDefinition
 		assertNull changes[0].selectQuery
 		assertNoOutput()
 	}
@@ -477,7 +532,8 @@ class StructuralRefactoringTests extends ChangeSetTests {
 			createView(catalogName: 'catalog',
 							   schemaName: 'schema',
 							   viewName: 'monkey_view',
-							   replaceIfExists: true) {
+							   replaceIfExists: true,
+			           fullDefinition: false) {
 				"SELECT * FROM monkey WHERE state='angry'"
 			}
 		}
@@ -491,6 +547,7 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey_view', changes[0].viewName
 		assertTrue changes[0].replaceIfExists
+		assertFalse changes[0].fullDefinition
 		assertEquals "SELECT * FROM monkey WHERE state='angry'", changes[0].selectQuery
 		assertNoOutput()
 	}
@@ -706,7 +763,15 @@ class StructuralRefactoringTests extends ChangeSetTests {
 		assertNotNull changes
 		assertEquals 1, changes.size()
 		assertNull changes[0].comments
-		assertNull changes[0].procedureBody
+		assertNull changes[0].catalogName
+		assertNull changes[0].schemaName
+		assertNull changes[0].procedureName
+		assertNull changes[0].procedureText
+		assertNull changes[0].dbms
+		assertNull changes[0].path
+		assertNull changes[0].relativeToChangelogFile
+		assertNull changes[0].encoding
+		assertNull changes[0].replaceIfExists
 		assertNoOutput()
 	}
 
@@ -733,7 +798,15 @@ END;"""
 		assertEquals 1, changes.size()
 		assertTrue changes[0] instanceof CreateProcedureChange
 		assertNull changes[0].comments
-		assertEquals sql, changes[0].procedureBody
+		assertNull changes[0].catalogName
+		assertNull changes[0].schemaName
+		assertNull changes[0].procedureName
+		assertEquals sql, changes[0].procedureText
+		assertNull changes[0].dbms
+		assertNull changes[0].path
+		assertNull changes[0].relativeToChangelogFile
+		assertNull changes[0].encoding
+		assertNull changes[0].replaceIfExists
 		assertNoOutput()
 	}
 
@@ -760,7 +833,15 @@ END;"""
 		assertEquals 1, changes.size()
 		assertTrue changes[0] instanceof CreateProcedureChange
 		assertNull changes[0].comments
-		assertEquals sql, changes[0].procedureBody
+		assertNull changes[0].catalogName
+		assertNull changes[0].schemaName
+		assertNull changes[0].procedureName
+		assertEquals sql, changes[0].procedureText
+		assertNull changes[0].dbms
+		assertNull changes[0].path
+		assertNull changes[0].relativeToChangelogFile
+		assertNull changes[0].encoding
+		assertNull changes[0].replaceIfExists
 		assertNoOutput()
 	}
 
@@ -777,7 +858,15 @@ BEGIN
  -- do something with the monkey
 END;"""
 		buildChangeSet {
-			createProcedure(comments: 'someComments') { sql }
+			createProcedure(comments: 'someComments',
+			                catalogName: 'catalog',
+			                schemaName: 'schema',
+			                procedureName: 'procedure',
+			                dbms: 'mysql',
+			                path: 'mypath',
+			                relativeToChangelogFile: false,
+			                encoding: 'utf8',
+			                replaceIfExists: true) { sql }
 		}
 
 		assertEquals 0, changeSet.getRollBackChanges().length
@@ -786,7 +875,15 @@ END;"""
 		assertEquals 1, changes.size()
 		assertTrue changes[0] instanceof CreateProcedureChange
 		assertEquals 'someComments', changes[0].comments
-		assertEquals sql, changes[0].procedureBody
+		assertEquals 'catalog', changes[0].catalogName
+		assertEquals 'schema', changes[0].schemaName
+		assertEquals 'procedure', changes[0].procedureName
+		assertEquals sql, changes[0].procedureText
+		assertEquals 'mysql', changes[0].dbms
+		assertEquals 'mypath', changes[0].path
+		assertFalse changes[0].relativeToChangelogFile
+		assertEquals 'utf8', changes[0].encoding
+		assertTrue changes[0].replaceIfExists
 		assertNoOutput()
 	}
 

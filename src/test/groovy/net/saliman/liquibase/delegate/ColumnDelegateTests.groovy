@@ -55,6 +55,7 @@ class ColumnDelegateTests {
 		assertEquals 1, delegate.columns.size()
 		assertTrue delegate.columns[0] instanceof ColumnConfig
 		assertNull delegate.columns[0].name
+		assertNull delegate.columns[0].computed
 		assertNull delegate.columns[0].type
 		assertNull delegate.columns[0].value
 		assertNull delegate.columns[0].valueNumeric
@@ -94,6 +95,7 @@ class ColumnDelegateTests {
 		assertEquals 1, delegate.columns.size()
 		assertTrue delegate.columns[0] instanceof ColumnConfig
 		assertNull delegate.columns[0].name
+		assertNull delegate.columns[0].computed
 		assertNull delegate.columns[0].type
 		assertNull delegate.columns[0].value
 		assertNull delegate.columns[0].valueNumeric
@@ -135,6 +137,7 @@ class ColumnDelegateTests {
 
 		def delegate = buildColumnDelegate(ColumnConfig.class) {
 			column(name: 'columnName',
+						 computed: true,
 						 type: 'varchar(30)',
 						 value: 'someValue',
 						 valueNumeric: 1,
@@ -161,6 +164,7 @@ class ColumnDelegateTests {
 		assertEquals 1, delegate.columns.size()
 		assertTrue delegate.columns[0] instanceof ColumnConfig
 		assertEquals 'columnName', delegate.columns[0].name
+		assertTrue delegate.columns[0].computed
 		assertEquals 'varchar(30)', delegate.columns[0].type
 		assertEquals 'someValue', delegate.columns[0].value
 		assertEquals 1, delegate.columns[0].valueNumeric.intValue()
@@ -265,6 +269,7 @@ class ColumnDelegateTests {
 
 		def delegate = buildColumnDelegate(AddColumnConfig.class) {
 			column(name: 'columnName',
+							computed: false,
 							type: 'varchar(30)',
 							value: 'someValue',
 							valueNumeric: 1,
@@ -294,6 +299,7 @@ class ColumnDelegateTests {
 		assertEquals 1, delegate.columns.size()
 		assertTrue delegate.columns[0] instanceof AddColumnConfig
 		assertEquals 'columnName', delegate.columns[0].name
+		assertFalse delegate.columns[0].computed
 		assertEquals 'varchar(30)', delegate.columns[0].type
 		assertEquals 'someValue', delegate.columns[0].value
 		assertEquals 1, delegate.columns[0].valueNumeric.intValue()
@@ -339,6 +345,7 @@ class ColumnDelegateTests {
 
 		def delegate = buildColumnDelegate(LoadDataColumnConfig.class) {
 			column(name: 'columnName',
+							computed: true,
 							type: 'varchar(30)',
 							value: 'someValue',
 							valueNumeric: 1,
@@ -367,6 +374,7 @@ class ColumnDelegateTests {
 		assertEquals 1, delegate.columns.size()
 		assertTrue delegate.columns[0] instanceof LoadDataColumnConfig
 		assertEquals 'columnName', delegate.columns[0].name
+		assertTrue delegate.columns[0].computed
 		assertEquals 'varchar(30)', delegate.columns[0].type
 		assertEquals 'someValue', delegate.columns[0].value
 		assertEquals 1, delegate.columns[0].valueNumeric.intValue()

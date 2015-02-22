@@ -83,6 +83,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].tablespace
 		assertNull changes[0].indexName
 		assertNull changes[0].unique
+		assertNull changes[0].clustered
 		assertNull changes[0].associatedWith
 		def columns = changes[0].columns
 		assertNotNull columns
@@ -104,6 +105,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 							    tablespace: 'tablespace',
 							    indexName: 'ndx_monkeys',
 							    unique: true,
+							    clustered: false,
 			            associatedWith: 'foreignKey') {
 				column(name: 'name')
 			}
@@ -121,6 +123,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertEquals 'ndx_monkeys', changes[0].indexName
 		assertEquals 'foreignKey', changes[0].associatedWith
 		assertTrue changes[0].unique
+		assertFalse changes[0].clustered
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertTrue columns.every { column -> column instanceof ColumnConfig }
@@ -131,7 +134,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 
 	/**
 	 * Test parsing a createIndex change with more than one column to make sure
-	 * we get them both.
+	 * we get them both.  This test also swaps the values of the booleans.
 	 */
 	@Test
 	void createIndexMultipleColumns() {
@@ -141,7 +144,8 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 							    tableName: 'monkey',
 							    tablespace: 'tablespace',
 							    indexName: 'ndx_monkeys',
-							    unique: true,
+							    unique: false,
+							    clustered: true,
 							    associatedWith: 'foreignKey') {
 				column(name: 'species')
 				column(name: 'name')
@@ -159,7 +163,8 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 		assertEquals 'tablespace', changes[0].tablespace
 		assertEquals 'ndx_monkeys', changes[0].indexName
 		assertEquals 'foreignKey', changes[0].associatedWith
-		assertTrue changes[0].unique
+		assertFalse changes[0].unique
+		assertTrue changes[0].clustered
 		def columns = changes[0].columns
 		assertNotNull columns
 		assertTrue columns.every { column -> column instanceof ColumnConfig }
@@ -183,6 +188,7 @@ class ArchitecturalRefactoringTests extends ChangeSetTests {
 							tablespace: 'tablespace',
 							indexName: 'ndx_monkeys',
 							unique: true,
+							clustered: false,
 							associatedWith: 'foreignKey') {
 				where "it doesn't matter"
 			}

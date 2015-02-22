@@ -295,7 +295,6 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
 		assertTrue changes[0] instanceof AddColumnChange
 		assertEquals 'monkey', changes[0].tableName
 		assertNoOutput()
-
 	}
 
 	/**

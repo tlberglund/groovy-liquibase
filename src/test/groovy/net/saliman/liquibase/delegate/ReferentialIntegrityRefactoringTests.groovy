@@ -409,6 +409,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertNull changes[0].tableName
 		assertNull changes[0].tablespace
 		assertNull changes[0].columnNames
+		assertNull changes[0].clustered
 		assertNoOutput()
 	}
 
@@ -423,7 +424,8 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 							      tableName: 'monkey',
 							      columnNames: 'id',
 							      constraintName: 'pk_monkey',
-							      tablespace: 'tablespace')
+							      tablespace: 'tablespace',
+			              clustered: true)
 		}
 
 		assertEquals 0, changeSet.getRollBackChanges().length
@@ -437,6 +439,7 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'tablespace', changes[0].tablespace
 		assertEquals 'id', changes[0].columnNames
+		assertTrue changes[0].clustered
 		assertNoOutput()
 	}
 

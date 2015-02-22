@@ -16,6 +16,7 @@
 
 package net.saliman.liquibase.delegate
 
+import liquibase.change.core.OutputChange
 import liquibase.exception.ChangeLogParseException
 import org.junit.Test
 import static org.junit.Assert.*
@@ -181,6 +182,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].tableName
 		assertNull changes[0].file
+		assertNull changes[0].relativeToChangelogFile
 		assertNull changes[0].encoding
 		assertEquals ",", changes[0].separator
 		assertEquals '"', changes[0].quotchar
@@ -207,6 +209,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 							 schemaName: 'schema',
 							 tableName: 'monkey',
 							 file: 'data.csv',
+							 relativeToChangelogFile: true,
 							 encoding: 'UTF-8',
 							 separator: ';',
 							 quotchar: "'") {
@@ -224,6 +227,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'data.csv', changes[0].file
+		assertTrue changes[0].relativeToChangelogFile
 		assertEquals 'UTF-8', changes[0].encoding
 		assertEquals ';', changes[0].separator
 		assertEquals "'", changes[0].quotchar
@@ -303,6 +307,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertNull changes[0].schemaName
 		assertNull changes[0].tableName
 		assertNull changes[0].file
+		assertNull changes[0].relativeToChangelogFile
 		assertNull changes[0].encoding
 		assertEquals ",", changes[0].separator
 		assertEquals '"', changes[0].quotchar
@@ -329,6 +334,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 							schemaName: 'schema',
 							tableName: 'monkey',
 							file: 'data.csv',
+							relativeToChangelogFile: true,
 							encoding: 'UTF-8',
 							separator: ';',
 							quotchar: "'") {
@@ -346,6 +352,7 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'schema', changes[0].schemaName
 		assertEquals 'monkey', changes[0].tableName
 		assertEquals 'data.csv', changes[0].file
+		assertTrue changes[0].relativeToChangelogFile
 		assertEquals 'UTF-8', changes[0].encoding
 		assertEquals ';', changes[0].separator
 		assertEquals "'", changes[0].quotchar
@@ -691,4 +698,50 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'Stop the refactoring. Just...stop.', changes[0].message
 		assertNoOutput()
 	}
+
+	/**
+	 * Process the "empty" change.  This doesn't do anything more than verify
+	 * that we can have one without blowing up.  Note that
+	 */
+	@Test
+	void emptyChange() {
+		buildChangeSet {
+			empty()
+		}
+	}
+
+	/**
+	 * Test an empty output change
+	 */
+	@Test
+	void outputEmpty() {
+		buildChangeSet {
+			output([:])
+		}
+
+		assertEquals 1, changeSet.changes.size()
+		assertTrue changeSet.changes[0] instanceof OutputChange
+		assertNull changeSet.changes[0].message
+		assertEquals "", changeSet.changes[0].target
+		assertNoOutput()
+	}
+
+	/**
+	 * Test an output change with all supported properties
+	 */
+	@Test
+	void outputFull() {
+		buildChangeSet {
+			output([message: 'some helpful message',
+			        target: 'STDOUT'])
+		}
+
+		assertEquals 1, changeSet.changes.size()
+		assertTrue changeSet.changes[0] instanceof OutputChange
+		assertEquals 'some helpful message', changeSet.changes[0].message
+		assertEquals 'STDOUT', changeSet.changes[0].target
+		assertNoOutput()
+	}
+
+
 }

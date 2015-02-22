@@ -163,6 +163,14 @@ class ChangeSetDelegate {
 		}
 	}
 
+	/**
+	 * Process an "empty" changes.  It doesn't do anything, but it is allowed
+	 * by the spec.
+	 */
+	void empty() {
+		// To support empty changes (allowed by the spec)
+	}
+
 	void groovyChange(Closure closure) {
 		def delegate = new GroovyChangeDelegate(closure, changeSet, resourceAccessor)
 		delegate.changeSet = changeSet
@@ -194,6 +202,11 @@ class ChangeSetDelegate {
 		addMapBasedChange('dropColumn', DropColumnChange, params)
 	}
 
+
+	void dropColumn(Map params, Closure closure) {
+		def change = makeColumnarChangeFromMap('dropColumn', DropColumnChange, ColumnConfig, params, closure)
+		addChange(change)
+	}
 
 	void alterSequence(Map params) {
 		addMapBasedChange('alterSequence', AlterSequenceChange, params)
@@ -255,14 +268,14 @@ class ChangeSetDelegate {
 
 	void createProcedure(Map params = [:], Closure closure) {
 		def change = makeChangeFromMap('createProcedure', CreateProcedureChange, params)
-		change.procedureBody = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
+		change.procedureText = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 		addChange(change)
 	}
 
 
 	void createProcedure(String storedProc) {
 		def change = new CreateProcedureChange()
-		change.procedureBody = DelegateUtil.expandExpressions(storedProc, databaseChangeLog)
+		change.procedureText = DelegateUtil.expandExpressions(storedProc, databaseChangeLog)
 		addChange(change)
 	}
 
@@ -295,6 +308,9 @@ class ChangeSetDelegate {
 		addMapBasedChange('createSequence', CreateSequenceChange, params)
 	}
 
+	void renameSequence(Map params) {
+		addMapBasedChange('renameSequence', RenameSequenceChange, params)
+	}
 
 	void dropSequence(Map params) {
 		addMapBasedChange('dropSequence', DropSequenceChange, params)
@@ -529,6 +545,10 @@ class ChangeSetDelegate {
 		}
 
 		addChange(change)
+	}
+
+	void output(Map params) {
+		addMapBasedChange('output', OutputChange, params)
 	}
 
 	/**

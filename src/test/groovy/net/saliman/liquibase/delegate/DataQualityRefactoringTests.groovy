@@ -16,6 +16,7 @@
 
 package net.saliman.liquibase.delegate
 
+import liquibase.change.core.RenameSequenceChange
 import org.junit.Test
 import static org.junit.Assert.*
 
@@ -464,6 +465,7 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 							       minValue: 7,
 							       maxValue: 6.023E24,
 							       ordered: true,
+							       cacheSize: 314,
 							       cycle: false)
 		}
 
@@ -480,7 +482,55 @@ class DataQualityRefactoringTests extends ChangeSetTests {
 		assertEquals 6023000000000000000000000, changes[0].maxValue
 		assertEquals 8G, changes[0].startValue
 		assertTrue changes[0].ordered
+		assertEquals 314G, changes[0].cacheSize
 		assertFalse changes[0].cycle
+		assertNoOutput()
+	}
+
+	/**
+	 * Test parsing a renameSequence change with no attributes to make sure the
+	 * DSL doesn't create any defaults.
+	 */
+	@Test
+	void renameSequenceEmpty() {
+		buildChangeSet {
+			renameSequence([:])
+		}
+
+		assertEquals 0, changeSet.getRollBackChanges().length
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof RenameSequenceChange
+		assertNull changes[0].catalogName
+		assertNull changes[0].schemaName
+		assertNull changes[0].oldSequenceName
+		assertNull changes[0].newSequenceName
+		assertNoOutput()
+	}
+
+	/**
+	 * Test parsing a renameSequence change with all attributes present to make
+	 * sure they all go to the right place.
+	 */
+	@Test
+	void renameSequenceFull() {
+		buildChangeSet {
+			renameSequence(catalogName: 'catalog',
+							schemaName: 'schema',
+							oldSequenceName: 'old_sequence',
+							newSequenceName: 'new_sequence')
+		}
+
+		assertEquals 0, changeSet.getRollBackChanges().length
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof RenameSequenceChange
+		assertEquals 'catalog', changes[0].catalogName
+		assertEquals 'schema', changes[0].schemaName
+		assertEquals 'old_sequence', changes[0].oldSequenceName
+		assertEquals 'new_sequence', changes[0].newSequenceName
 		assertNoOutput()
 	}
 
