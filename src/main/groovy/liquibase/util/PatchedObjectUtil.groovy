@@ -3,7 +3,8 @@ package liquibase.util;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.statement.DatabaseFunction;
 import liquibase.statement.SequenceCurrentValueFunction;
-import liquibase.statement.SequenceNextValueFunction;
+import liquibase.statement.SequenceNextValueFunction
+import liquibase.structure.core.ForeignKeyConstraintType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -104,7 +105,13 @@ class PatchedObjectUtil {
               // This is where the patch is.  The Liquibase version of this
 	            // method simply returns the first one arg method that it finds.
 	            // The patched one returns the first one that has an argument type
-	            // we can use.
+	            // we can use. We need a special little bit of logic for the
+	            // ForeignKeyConstraintType enum because it's string doesn't
+	            // match the enum constant.  The AddForiegnKeyConstraintChange
+	            // class has 2 different one-arg setters for onDelete and onUpdate
+	            // but you never know which one you will get on any given run,
+	            // so force the String one.  Basically, we allow any enum EXCEPT
+	            // our problematic ForeignKeyConstraintType
 	            Class<?> c = method.getParameterTypes()[0];
 	            if ( c.equals(Boolean.class) ||
 					            c.equals(boolean.class) ||
@@ -115,7 +122,7 @@ class PatchedObjectUtil {
 					            c.equals(SequenceNextValueFunction.class) ||
 					            c.equals(SequenceCurrentValueFunction.class) ||
 					            c.equals(String.class) ||
-					            Enum.class.isAssignableFrom(c)) {
+					            (Enum.class.isAssignableFrom(c)) && !c.equals(ForeignKeyConstraintType.class)) {
 		              return method;
 	            }
             }

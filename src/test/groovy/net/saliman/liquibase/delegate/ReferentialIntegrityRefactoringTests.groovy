@@ -17,6 +17,7 @@
 package net.saliman.liquibase.delegate
 
 import liquibase.change.core.DropAllForeignKeyConstraintsChange
+import liquibase.exception.ChangeLogParseException
 import org.junit.Test
 import static org.junit.Assert.*
 
@@ -66,6 +67,29 @@ import liquibase.change.core.DropPrimaryKeyChange
 class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 
 	/**
+	 * Try creating an AddForeignKeyConstraint change with an invalid attribute.
+	 */
+	@Test(expected = ChangeLogParseException)
+	void addForeignKeyConstraintInvalid() {
+		buildChangeSet {
+			addForeignKeyConstraint(constraintName: 'fk_monkey_emotion',
+							baseTableName: 'monkey',
+							baseTableCatalogName: 'base_catalog',
+							baseTableSchemaName: 'base_schema',
+							baseColumnNames: 'emotion_id',
+							referencedTableName: 'emotions',
+							referencedTableCatalogName: 'referenced_catalog',
+							referencedTableSchemaName: 'referenced_schema',
+							referencedColumnNames: 'id',
+							deferrable: true,
+							initiallyDeferred: false,
+							onDelete: 'RESTRICT',
+							onUpdate: 'CASCADE',
+			        invalidAttribute: 'invalid')
+		}
+	}
+
+	/**
 	 * Build an addForeignKeyConstraint with no attributes to make sure the DSL
 	 * doesn't make up defaults.
 	 */
@@ -98,7 +122,8 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 
 	/**
 	 * Make an addForeignKeyConstraint with all attributes set to make sure the
-	 * right values go to the right places.
+	 * right values go to the right places.  This also tests proper handling of
+	 * the RESTRICT and CASCADE values for the foreign key type.
 	 */
 	@Test
 	void addForeignKeyConstraintFull() {
@@ -142,10 +167,11 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 	/**
 	 * Liquibase has deprecated, though still documented, attribute
 	 * {@code referencedUniqueColumn}, which is currently ignored by Liquibase,
-	 * so let's make sure we get a deprecation warning for it.
+	 * so let's make sure we get a deprecation warning for it.  This test also
+	 * validates proper handling of the SET DEFAULT and SET NULL cascade types.
 	 */
 	@Test
-	void addForeignKeyConstraintWithWithReferencesUniqueColumnProperty() {
+	void addForeignKeyConstraintWithReferencesUniqueColumnProperty() {
 		buildChangeSet {
 			addForeignKeyConstraint(constraintName: 'fk_monkey_emotion',
 							baseTableName: 'monkey',
@@ -159,8 +185,96 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 							referencesUniqueColumn: 'true',
 							deferrable: false,
 							initiallyDeferred: true,
-							onDelete: 'CASCADE',
-							onUpdate: 'RESTRICT')
+							onDelete: 'SET DEFAULT',
+							onUpdate: 'SET NULL')
+		}
+
+		assertEquals 0, changeSet.getRollBackChanges().length
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof AddForeignKeyConstraintChange
+		assertEquals 'fk_monkey_emotion', changes[0].constraintName
+		assertEquals 'monkey', changes[0].baseTableName
+		assertEquals 'base_catalog', changes[0].baseTableCatalogName
+		assertEquals 'base_schema', changes[0].baseTableSchemaName
+		assertEquals 'emotion_id', changes[0].baseColumnNames
+		assertEquals 'emotions', changes[0].referencedTableName
+		assertEquals 'referenced_catalog', changes[0].referencedTableCatalogName
+		assertEquals 'referenced_schema', changes[0].referencedTableSchemaName
+		assertEquals 'id', changes[0].referencedColumnNames
+		assertFalse changes[0].deferrable
+		assertTrue changes[0].initiallyDeferred
+		assertEquals 'SET DEFAULT', changes[0].onDelete // set by deleteCascade: true
+		assertEquals 'SET NULL', changes[0].onUpdate
+		assertPrinted("addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated")
+	}
+
+	/**
+	 * Liquibase has deprecated, though still documented, attribute
+	 * {@code referencedUniqueColumn}, which is currently ignored by Liquibase,
+	 * so let's make sure we get a deprecation warning for it.  This test also
+	 * validates proper handling of the SET DEFAULT and SET NULL cascade types.
+	 */
+	@Test
+	void addForeignKeyConstraintWithWithNoActionType() {
+		buildChangeSet {
+			addForeignKeyConstraint(constraintName: 'fk_monkey_emotion',
+							baseTableName: 'monkey',
+							baseTableCatalogName: 'base_catalog',
+							baseTableSchemaName: 'base_schema',
+							baseColumnNames: 'emotion_id',
+							referencedTableName: 'emotions',
+							referencedTableCatalogName: 'referenced_catalog',
+							referencedTableSchemaName: 'referenced_schema',
+							referencedColumnNames: 'id',
+							deferrable: false,
+							initiallyDeferred: true,
+							onDelete: 'NO ACTION',
+							onUpdate: 'NO ACTION')
+		}
+
+		assertEquals 0, changeSet.getRollBackChanges().length
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof AddForeignKeyConstraintChange
+		assertEquals 'fk_monkey_emotion', changes[0].constraintName
+		assertEquals 'monkey', changes[0].baseTableName
+		assertEquals 'base_catalog', changes[0].baseTableCatalogName
+		assertEquals 'base_schema', changes[0].baseTableSchemaName
+		assertEquals 'emotion_id', changes[0].baseColumnNames
+		assertEquals 'emotions', changes[0].referencedTableName
+		assertEquals 'referenced_catalog', changes[0].referencedTableCatalogName
+		assertEquals 'referenced_schema', changes[0].referencedTableSchemaName
+		assertEquals 'id', changes[0].referencedColumnNames
+		assertFalse changes[0].deferrable
+		assertTrue changes[0].initiallyDeferred
+		assertEquals 'NO ACTION', changes[0].onDelete
+		assertEquals 'NO ACTION', changes[0].onUpdate
+		assertNoOutput()
+	}
+
+	/**
+	 * Make sure we can properly handle the boolean {@code deleteCascade}
+	 * attribute.
+	 */
+	@Test
+	void addForeignKeyConstraintWithWithBooleanCascade() {
+		buildChangeSet {
+			addForeignKeyConstraint(constraintName: 'fk_monkey_emotion',
+							baseTableName: 'monkey',
+							baseTableCatalogName: 'base_catalog',
+							baseTableSchemaName: 'base_schema',
+							baseColumnNames: 'emotion_id',
+							referencedTableName: 'emotions',
+							referencedTableCatalogName: 'referenced_catalog',
+							referencedTableSchemaName: 'referenced_schema',
+							referencedColumnNames: 'id',
+							deferrable: false,
+							initiallyDeferred: true,
+							deleteCascade: true,
+							onUpdate: 'NO ACTION')
 		}
 
 		assertEquals 0, changeSet.getRollBackChanges().length
@@ -180,8 +294,8 @@ class ReferentialIntegrityRefactoringTests extends ChangeSetTests {
 		assertFalse changes[0].deferrable
 		assertTrue changes[0].initiallyDeferred
 		assertEquals 'CASCADE', changes[0].onDelete // set by deleteCascade: true
-		assertEquals 'RESTRICT', changes[0].onUpdate
-		assertPrinted("addForeignKeyConstraint's referencesUniqueColumn parameter has been deprecated")
+		assertEquals 'NO ACTION', changes[0].onUpdate
+		assertNoOutput()
 	}
 
 	/**
