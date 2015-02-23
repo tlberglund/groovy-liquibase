@@ -366,3 +366,4 @@ ALTER TABLE monkey_table DROP COLUMN angry;"""
 		}
 	}
 }
+

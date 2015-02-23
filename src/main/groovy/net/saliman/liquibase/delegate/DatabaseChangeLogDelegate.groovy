@@ -39,7 +39,7 @@ class DatabaseChangeLogDelegate {
     this([:], databaseChangeLog)
   }
 
-  
+
   DatabaseChangeLogDelegate(Map params, databaseChangeLog) {
     this.params = params
     this.databaseChangeLog = databaseChangeLog
@@ -111,7 +111,7 @@ class DatabaseChangeLogDelegate {
     closure.delegate = delegate
     closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.call()
-    
+
     databaseChangeLog.addChangeSet(changeSet)
   }
 
@@ -138,7 +138,7 @@ class DatabaseChangeLogDelegate {
 
 	  def physicalChangeLogLocation = databaseChangeLog.physicalFilePath.replace(System.getProperty("user.dir").toString() + "/", "")
     def relativeToChangelogFile = false
-    
+
     if (params.relativeToChangelogFile) {
       relativeToChangelogFile = params.relativeToChangelogFile
     }
@@ -216,7 +216,7 @@ class DatabaseChangeLogDelegate {
 	  }
     def dbms = params['dbms'] ?: null
     def changeLogParameters = databaseChangeLog.changeLogParameters
-    
+
     if (!params['file']) {
       changeLogParameters.set(params['name'], params['value'], context as ContextExpression, labels as Labels, dbms)
     } else {
@@ -235,7 +235,7 @@ class DatabaseChangeLogDelegate {
       }
     }
   }
-  
+
   def propertyMissing(String name) {
     def changeLogParameters = databaseChangeLog.changeLogParameters
     if (changeLogParameters.hasValue(name)) {

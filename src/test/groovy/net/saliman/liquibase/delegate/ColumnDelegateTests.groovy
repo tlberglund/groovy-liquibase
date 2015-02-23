@@ -476,7 +476,7 @@ class ColumnDelegateTests {
       closure.delegate = columnDelegate
       closure.resolveStrategy = Closure.DELEGATE_FIRST
       closure.call()
-      
+
       return columnDelegate
   }
 

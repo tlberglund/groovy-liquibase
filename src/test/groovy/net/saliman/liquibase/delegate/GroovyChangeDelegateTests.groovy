@@ -89,3 +89,4 @@ class GroovyChangeDelegateTests extends ChangeSetTests {
 
   }
 }
+

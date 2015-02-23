@@ -498,3 +498,4 @@ class CustomRefactoringTests extends ChangeSetTests {
 
 	}
 }
+

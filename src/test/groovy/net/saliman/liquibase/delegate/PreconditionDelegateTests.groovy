@@ -480,3 +480,4 @@ class PreconditionDelegateTests {
 		delegate.preconditions
 	}
 }
+

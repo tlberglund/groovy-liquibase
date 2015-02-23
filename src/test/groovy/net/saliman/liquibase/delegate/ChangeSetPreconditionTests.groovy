@@ -48,3 +48,4 @@ class ChangeSetPreconditionTests extends ChangeSetTests
 	  assertNoOutput()
   }
 }
+

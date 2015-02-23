@@ -36,3 +36,4 @@ class SqlVisitorSerializerTests
     ] as ReplaceSqlVisitor
   }
 }
+

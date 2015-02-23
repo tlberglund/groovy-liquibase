@@ -56,7 +56,7 @@ class ConstraintDelegate {
 		// deprecate it.
 		throw new ChangeLogParseException("Error: ChangeSet '${changeSetId}', ${changeName} change: Setting constraint attributes in nested closures is no longer supported. Use an attribute map instead.")
   }
-  
+
 
   def methodMissing(String name, params) {
     if ( constraint.hasProperty(name) ) {
@@ -65,5 +65,4 @@ class ConstraintDelegate {
 	    throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of constraint closures in ${changeName} changes")
     }
   }
-  
 }

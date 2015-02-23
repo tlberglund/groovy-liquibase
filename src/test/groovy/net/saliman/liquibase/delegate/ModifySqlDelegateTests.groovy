@@ -298,5 +298,5 @@ class ModifySqlDelegateTests {
 
 		return delegate.sqlVisitors
 	}
-
 }
+

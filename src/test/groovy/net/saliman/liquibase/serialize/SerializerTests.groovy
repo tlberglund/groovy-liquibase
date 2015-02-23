@@ -49,3 +49,4 @@ class SerializerTests {
     new Timestamp(sdf.parse(dateTimeString).time)
   }
 }
+

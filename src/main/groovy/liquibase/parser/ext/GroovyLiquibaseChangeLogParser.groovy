@@ -95,11 +95,11 @@ class GroovyLiquibaseChangeLogParser
   private def processDatabaseChangeLogRootElement(databaseChangeLog, resourceAccessor, args) {
     def delegate;
     def closure;
-    
+
     switch(args.size()) {
       case 0:
         throw new ChangeLogParseException("databaseChangeLog element cannot be empty")
-      
+
       case 1:
         closure = args[0]
         if(!(closure instanceof Closure)) {
@@ -107,7 +107,7 @@ class GroovyLiquibaseChangeLogParser
         }
         delegate = new DatabaseChangeLogDelegate(databaseChangeLog)
         break
-        
+
       case 2:
         def params = args[0]
         closure = args[1]
@@ -119,11 +119,11 @@ class GroovyLiquibaseChangeLogParser
         }
         delegate = new DatabaseChangeLogDelegate(params, databaseChangeLog)
         break
-        
+
       default:
         throw new ChangeLogParseException("databaseChangeLog element has too many parameters: ${args}")
     }
-    
+
     delegate.resourceAccessor = resourceAccessor
     closure.delegate = delegate
     closure.resolveStrategy = Closure.OWNER_FIRST

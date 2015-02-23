@@ -174,3 +174,4 @@ createView(replaceIfExists: true, schemaName: 'schema', viewName: 'monkey_view')
     assertEquals expectedText, serializedText
   }
 }
+

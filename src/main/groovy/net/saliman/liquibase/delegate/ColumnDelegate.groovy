@@ -94,3 +94,4 @@ class ColumnDelegate {
 		throw new ChangeLogParseException("ChangeSet '${changeSetId}': '${name}' is not a valid child element of ${changeName} changes")
 	}
 }
+

@@ -742,6 +742,5 @@ class NonRefactoringTransformationTests extends ChangeSetTests {
 		assertEquals 'STDOUT', changeSet.changes[0].target
 		assertNoOutput()
 	}
-
-
 }
+
