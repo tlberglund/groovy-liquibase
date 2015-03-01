@@ -6,7 +6,7 @@ repositories {
 }
 
 dependencies {
-  groovy 'org.codehaus.groovy:groovy:1.7.5'
+  runtime 'org.codehaus.groovy:groovy:1.8.6'
   runtime 'org.liquibase:liquibase-core:3.1.1'
   runtime 'mysql:mysql-connector-java:5.1.9'
 }
