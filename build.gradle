@@ -7,15 +7,15 @@ apply plugin: 'signing'
 
 group = 'net.saliman'
 archivesBaseName = 'groovy-liquibase-dsl'
-version = '1.0.1-SNAPSHOT'
+version = '1.0.1'
 ext.isSnapshot = version.endsWith('SNAPSHOT')
 
 if ( isSnapshot ) {
-  println "using snapshot"
-  ext.mavenCentralUploadUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+  println 'using snapshot'
+  ext.mavenCentralUploadUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
 } else {
-  println "using staging"
-  ext.mavenCentralUploadUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+  println 'using staging'
+  ext.mavenCentralUploadUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 }
 
 configurations {
@@ -30,13 +30,13 @@ repositories {
 
 
 dependencies {
-  compile 'org.codehaus.groovy:groovy:1.8.6'
-  testCompile 'junit:junit:4.8.2'
-//  compile 'org.liquibase:liquibase-core:3.2.0'
+  compile 'org.codehaus.groovy:groovy:2.4.1'
+  compile 'org.codehaus.groovy:groovy-sql:2.4.1'
   compile 'org.liquibase:liquibase-core:3.3.2'
-  testRuntime 'com.h2database:h2:1.3.159'
-  archives "org.apache.maven.wagon:wagon-ssh:2.2"
-  archives "org.apache.maven.wagon:wagon-ssh-external:2.2"
+  testCompile 'junit:junit:4.12'
+  testRuntime 'com.h2database:h2:1.4.185'
+  archives 'org.apache.maven.wagon:wagon-ssh:2.8'
+  archives 'org.apache.maven.wagon:wagon-ssh-external:2.8'
 }
 
 
@@ -67,29 +67,29 @@ signing {
 import org.gradle.plugins.signing.Sign
 gradle.taskGraph.whenReady { taskGraph ->
   tasks.withType(org.gradle.plugins.signing.Sign).all {
-    required = taskGraph.hasTask(":uploadArchives") && !isSnapshot
+    required = taskGraph.hasTask(':uploadArchives') && !isSnapshot
     if ( required ) {
       // Use Java's console to read from the console (no good for a CI
       // environment)
       Console console = System.console()
-      console.printf "\n\nWe have to sign some things in this build...\n\n"
+      console.printf '\n\nWe have to sign some things in this build...\n\n'
 
       if ( !project.hasProperty('signing.keyId') ) {
-        def id = console.readLine("PGP Public Key Id: ")
-        allprojects { ext."signing.keyId" = id }
+        def id = console.readLine('PGP Public Key Id: ')
+        allprojects { ext.'signing.keyId' = id }
       }
 
       if ( !project.hasProperty('signing.secretKeyRingFile') ) {
-        def file = console.readLine("PGP Secret Key Ring File (absolute path): ")
-        allprojects { ext."signing.secretKeyRingFile" = file }
+        def file = console.readLine('PGP Secret Key Ring File (absolute path): ')
+        allprojects { ext.'signing.secretKeyRingFile' = file }
       }
 
       if ( !project.hasProperty('signing.password') ) {
-        def password = console.readPassword("PGP Private Key Password: ")
-        allprojects { ext."signing.password" = password }
+        def password = console.readPassword('PGP Private Key Password: ')
+        allprojects { ext.'signing.password' = password }
       }
 
-      console.printf "\nThanks.\n\n"
+      console.printf '\nThanks.\n\n'
     }
   }
 }
@@ -98,20 +98,20 @@ uploadArchives {
   // We can't use taskGraph.whenReady because it doesn't resolve until after
   // configuration.  The startParameter is not as good, but it probably
   // good enough for our purposes.
-  if ( gradle.startParameter.taskNames.contains("uploadArchives") ) {
+  if ( gradle.startParameter.taskNames.contains('uploadArchives') ) {
     // Use Java's console to read from the console (no good for a CI
     // environment)
     Console console = System.console()
-    console.printf "\n\nWe have to upload some things in this build...\n\n"
+    console.printf '\n\nWe have to upload some things in this build...\n\n'
 
     if ( !project.hasProperty('mavenCentralUsername') ) {
-      def mavenCentralUsername = console.readLine("Maven Central Username: ")
-      allprojects { ext."mavenCentralUsername" = mavenCentralUsername }
+      def mavenCentralUsername = console.readLine('Maven Central Username: ')
+      allprojects { ext.'mavenCentralUsername' = mavenCentralUsername }
     }
 
     if ( !project.hasProperty('mavenCentralPassword') ) {
-      def mavenCentralPassword = console.readLine("Maven Central Password: ")
-      allprojects { ext."mavenCentralPassword" = mavenCentralPassword }
+      def mavenCentralPassword = console.readLine('Maven Central Password: ')
+      allprojects { ext.'mavenCentralPassword' = mavenCentralPassword }
     }
 
     repositories {
@@ -120,12 +120,12 @@ uploadArchives {
           beforeDeployment { signing.signPom(it) }
         }
         configuration = configurations.archives
-        //repository(url: "file://$buildDir/m2repo")
+        //repository(url: 'file://$buildDir/m2repo')
         repository(url: mavenCentralUploadUrl) {
           authentication(userName: mavenCentralUsername,
                   password: mavenCentralPassword)
-          releases(updatePolicy: "always")
-          snapshots(updatePolicy: "always")
+          releases(updatePolicy: 'always')
+          snapshots(updatePolicy: 'always')
         }
         pom.project(pomConfiguration)
       }

@@ -4,9 +4,9 @@ creation of changelogs in a Groovy DSL, rather than hurtful XML. If this DSL
 isn't reason enough to adopt Liquibase, then there is no hope for you.
 
 ## News
-###February 22, 2015
-I'm currently working on the 1.0.1 release, which will support Liquibase 3.3.2.
-I expect this to be released in the next week or so.
+###March 1, 2015
+The Liquibase Groovy DSL now supports Liquibase 3.3.2, and is built with Groovy
+2.4.1.
 
 ###June 15, 2014
 We are proud to announce the long awaited release of version 1.0.0 of the 

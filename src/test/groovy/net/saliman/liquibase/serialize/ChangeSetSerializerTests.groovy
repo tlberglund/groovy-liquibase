@@ -69,7 +69,7 @@ changeSet(id: 'drop-table', author: 'tlberglund') {
 
     def serializedText = serializer.serialize(changeSet, true)
     def expectedText = """\
-changeSet(id: 'drop-table', author: 'tlberglund', runAlways: true, runOnChange: true, context: 'staging,dev', dbms: 'oracle,mysql') {
+changeSet(id: 'drop-table', author: 'tlberglund', runAlways: true, runOnChange: true, context: 'dev,staging', dbms: 'oracle,mysql') {
   comment "${comment}"
   dropTable(schemaName: 'schema', tableName: 'monkey')
   addForeignKeyConstraint(baseColumnNames: 'emotion_id', baseTableName: 'monkey', baseTableSchemaName: 'base_schema', constraintName: 'fk_monkey_emotion', deferrable: true, initiallyDeferred: true, onDelete: 'CASCADE', onUpdate: 'CASCADE', referencedColumnNames: 'id', referencedTableName: 'emotions', referencedTableSchemaName: 'referenced_schema')
