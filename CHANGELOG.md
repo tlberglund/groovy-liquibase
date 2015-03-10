@@ -1,4 +1,4 @@
-Changes for 1.0.1
+Changes for 1.0.2
 =================
 - Recompiled with ```sourceCompatibility``` and ```targetCompatibility``` set
   so that the DSL works with older versions of Java (< JDK8)
