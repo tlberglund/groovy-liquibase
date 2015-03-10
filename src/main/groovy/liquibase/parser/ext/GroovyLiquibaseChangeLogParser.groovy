@@ -25,7 +25,13 @@ import liquibase.exception.ChangeLogParseException
 import net.saliman.liquibase.delegate.DatabaseChangeLogDelegate
 import org.codehaus.groovy.control.CompilerConfiguration
 
-
+/**
+ * This is the main parser class for the Liquibase Groovy DSL.  It is the
+ * integration point to Liquibase itself.  It must be in the
+ * liquibase.parser.ext package to be found by Liquibase at runtime.
+ *
+ * @author Tim Berglund
+ */
 class GroovyLiquibaseChangeLogParser
   implements ChangeLogParser {
 

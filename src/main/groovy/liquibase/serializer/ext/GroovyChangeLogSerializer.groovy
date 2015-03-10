@@ -28,7 +28,9 @@ import java.sql.Timestamp
 
 
 /**
- *
+ *  This class is the main Groovy DSL serializer.  It creates Groovy changelogs
+ *  for liquibase.  It must be in the liquibase.serializer.ext package to be
+ *  found by Liquibase at runtime.
  *
  * @author Tim Berglund
  */
