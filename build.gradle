@@ -8,9 +8,9 @@ apply plugin: 'signing'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
-group = 'net.saliman'
-archivesBaseName = 'groovy-liquibase-dsl'
-version = '1.0.2'
+group = 'org.liquibase'
+archivesBaseName = 'liquibase-groovy-dsl'
+version = '1.1.0'
 ext.isSnapshot = version.endsWith('SNAPSHOT')
 
 if ( isSnapshot ) {
@@ -149,11 +149,6 @@ def getPomConfiguration() {
       }
     }
     developers {
-      developer {
-        id('tlberglund')
-        name('Tim Berglund')
-        email('tlberglund@gmail.com')
-      }
       developer {
         id 'stevesaliman'
         name 'Steven C. Saliman'
