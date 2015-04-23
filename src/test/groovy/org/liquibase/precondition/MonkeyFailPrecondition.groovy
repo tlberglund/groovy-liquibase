@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,9 +21,7 @@ import liquibase.database.Database
 import liquibase.exception.CustomPreconditionFailedException
 
 
-class MonkeyFailPrecondition
-  implements CustomPrecondition
-{
+class MonkeyFailPrecondition implements CustomPrecondition {
 
   void check(Database database) {
     throw new CustomPreconditionFailedException('Stub precondition failed')

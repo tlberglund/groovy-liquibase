@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.saliman.liquibase.delegate
+package org.liquibase.groovy.delegate
 
 import liquibase.ContextExpression
 import liquibase.Contexts
@@ -29,7 +29,6 @@ import liquibase.util.PatchedObjectUtil
  * This delegate handles the Liquibase ModifySql element, which can be used
  * to tweak the SQL that Liquibase generates.
  *
- * @author Tim Berglund
  * @author Steven C. Saliman
  */
 class ModifySqlDelegate {

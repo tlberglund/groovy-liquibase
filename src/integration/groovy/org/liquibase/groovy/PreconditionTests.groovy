@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,15 +14,11 @@
  *  limitations under the License.
  */
 
-package net.saliman.liquibase
+package org.liquibase.groovy
 
-import org.junit.Test
 import org.junit.Before
-import static org.junit.Assert.*
-import groovy.sql.Sql
 
-
-class PreconditionTests { 
+class PreconditionTests {
 
   @Before
   void setupDatabase() { 

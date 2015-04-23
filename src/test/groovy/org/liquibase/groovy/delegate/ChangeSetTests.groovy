@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.saliman.liquibase.delegate
+package org.liquibase.groovy.delegate
 
 import org.junit.After
 import org.junit.Before
@@ -32,7 +32,6 @@ import static org.junit.Assert.assertTrue
  * This is the base class for all of the change set related tests.  It mostly
  * contains utility methods to help with testing.
  *
- * @author Tim Berglund
  * @author Steven C. Saliman
  */
 class ChangeSetTests {

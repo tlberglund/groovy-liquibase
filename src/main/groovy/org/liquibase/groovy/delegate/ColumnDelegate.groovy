@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.saliman.liquibase.delegate
+package org.liquibase.groovy.delegate
 
 import liquibase.change.ColumnConfig
 import liquibase.exception.ChangeLogParseException
@@ -36,6 +36,8 @@ import liquibase.util.PatchedObjectUtil;
  * <p>
  * This delegate will expand expressions to make databaseChangeLog property
  * substitutions.  It is important that the caller does not do it again.
+ *
+ * @author Steven C. Saliman
  */
 class ColumnDelegate {
 	def columns = []

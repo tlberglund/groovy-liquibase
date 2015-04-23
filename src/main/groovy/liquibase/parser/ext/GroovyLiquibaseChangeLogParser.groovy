@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import liquibase.changelog.ChangeLogParameters
 import liquibase.resource.ResourceAccessor
 import liquibase.exception.ChangeLogParseException
 
-import net.saliman.liquibase.delegate.DatabaseChangeLogDelegate
+import org.liquibase.groovy.delegate.DatabaseChangeLogDelegate
 import org.codehaus.groovy.control.CompilerConfiguration
 
 /**
@@ -31,6 +31,7 @@ import org.codehaus.groovy.control.CompilerConfiguration
  * liquibase.parser.ext package to be found by Liquibase at runtime.
  *
  * @author Tim Berglund
+ * @author Steven C. Saliman
  */
 class GroovyLiquibaseChangeLogParser
   implements ChangeLogParser {

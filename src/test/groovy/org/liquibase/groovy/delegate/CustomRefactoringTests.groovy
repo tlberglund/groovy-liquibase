@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.saliman.liquibase.delegate
+package org.liquibase.groovy.delegate
 
 import liquibase.sql.visitor.PrependSqlVisitor
 import org.junit.Test
@@ -60,7 +60,6 @@ import liquibase.resource.FileSystemResourceAccessor
  * least one column.  If a user tries it, they will get errors from Liquibase
  * itself.
  *
- * @author Tim Berglund
  * @author Steven C. Saliman
  */
 class CustomRefactoringTests extends ChangeSetTests {

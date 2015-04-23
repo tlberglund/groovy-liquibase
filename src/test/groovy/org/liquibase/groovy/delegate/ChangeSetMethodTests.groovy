@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.saliman.liquibase.delegate
+package org.liquibase.groovy.delegate
 
 import liquibase.change.CheckSum
 import liquibase.change.core.AddColumnChange
@@ -32,7 +32,6 @@ import static org.junit.Assert.*
  * This class tests the methods of a change set that are neither preconditions,
  * nor refactorings.  This includes things like {@code rollback}
  *
- * @author Tim Berglund
  * @author Steven C. Saliman
  */
 class ChangeSetMethodTests extends ChangeSetTests {

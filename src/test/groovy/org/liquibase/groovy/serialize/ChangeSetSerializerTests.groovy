@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package net.saliman.liquibase.serialize
+package org.liquibase.groovy.serialize
 
 import liquibase.changelog.DatabaseChangeLog
-import net.saliman.liquibase.serialize.SerializerTests
+import org.liquibase.groovy.serialize.SerializerTests
 import org.junit.Test
 import static org.junit.Assert.*
 import liquibase.changelog.ChangeSet

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,10 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-
-
-package net.saliman.liquibase.change
+package org.liquibase.groovy.change
 
 import liquibase.change.AbstractChange
 import liquibase.statement.SqlStatement
@@ -26,10 +23,9 @@ import liquibase.database.Database
  * <p></p>
  * 
  * @author Tim Berglund
+ * @author Steven C. Saliman
  */
-class GroovyChange
-  extends AbstractChange
-{
+class GroovyChange extends AbstractChange {
   def groovyChangeClosure
 
   

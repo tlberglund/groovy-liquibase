@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,9 +26,7 @@ import liquibase.database.Database
  * 
  * @author Tim Berglund
  */
-class MonkeyChange
-  implements CustomChange
-{
+class MonkeyChange implements CustomChange {
 
   String getConfirmationMessage() {
     "MonkeyChange confirmed"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2014 Tim Berglund and Steven C. Saliman
+ * Copyright 2011-2015 Tim Berglund and Steven C. Saliman
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.saliman.liquibase.delegate
+package org.liquibase.groovy.delegate
 
 import liquibase.change.core.OutputChange
 import liquibase.exception.ChangeLogParseException
@@ -32,13 +32,6 @@ import liquibase.change.core.StopChange
 import liquibase.resource.FileSystemResourceAccessor
 import liquibase.change.core.DeleteDataChange
 
-/**
- * This class tests ChangeSet refactoring changes that deal with data, such as
- * inserts and deletes.  The tests make sure the DSL can parse each change
- * correctly and handle all options supported by Liquibase.  It does not worry
- * about validating the change itself (making sure required attributes are
- * present for example), that is done by Liquibase itself.
- */
 /**
  * This is one of several classes that test the creation of refactoring changes
  * for ChangeSets. This particular class tests changes that deal with data, such as
@@ -74,7 +67,6 @@ import liquibase.change.core.DeleteDataChange
  * least one column.  If a user tries it, they will get errors from Liquibase
  * itself.
  *
- * @author Tim Berglund
  * @author Steven C. Saliman
  */
 class NonRefactoringTransformationTests extends ChangeSetTests {
