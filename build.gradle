@@ -156,9 +156,9 @@ def getPomConfiguration() {
       }
     }
     scm {
-      connection('scm:https://liquibase@github.com/liquibase/groovy-liquibase')
-      developerConnection('scm:git@github.com:liquibase/groovy-liquibase.git')
-      url('https://github.com/liquibase/groovy-liquibase')
+      connection('scm:https://liquibase@github.com/liquibase/liquibase-groovy-dsl')
+      developerConnection('scm:git@github.com:liquibase/liquibase-groovy-dsl.git')
+      url('https://github.com/liquibase/liquibase-groovy-dsl')
     }
   }
 }
