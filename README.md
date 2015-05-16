@@ -4,6 +4,18 @@ creation of changelogs in a Groovy DSL, rather than hurtful XML. If this DSL
 isn't reason enough to adopt Liquibase, then there is no hope for you.
 
 ## News
+###May 16, 2015
+We are proud to announce that the Liquibase Groovy DSL is now a part of the 
+Liquibase organization.  I will continue maintain the code, but bringing this 
+project into the Liquibase organization will help keep all things Liquibase 
+together in one place and make it easier for users to stay up to date with the
+latest releases and promote Liquibase adoption by making it easier for more 
+people to use.  As part of that move, the artifact name has changed from 
+```net.saliman:groovy-liquibase-dsl``` to
+```org.liquibase:liquibase-groovy-dsl``` to be consistent with the rest of the
+Liquibase artifacts.  A special thank you to Nathan Voxland for his help and 
+support in bringing the Liquibase project and the Groovy DSL into one home.
+ 
 ###March 9, 2015
 The Liquibase Groovy DSL now supports Liquibase 3.3.2, and is built with Groovy
 2.4.1.  Version 1.0.2 fixes a bug with version 1.0.1 that prevented it from
@@ -53,7 +65,9 @@ following procedure:
     checksums.
 
 ## Usage
-The DSL syntax is intended to mirror the [Liquibase XML]
+Simply include this project's jar file in your class path, and Liquibase can
+parse elegant Groovy changelogs instead of ugly XML ones. The DSL syntax is 
+intended to mirror the [Liquibase XML]
 (http://www.liquibase.org/documentation/databasechangelog.html) syntax directly,
 such that mapping elements and attributes from the Liquibase documentation to
 Groovy builder syntax will result in a valid changelog. Hence this DSL is not
