@@ -140,7 +140,7 @@ def getPomConfiguration() {
   return {
     name('Groovy Liquibase DSL')
     description('A Groovy-based DSL for the Liquibase database refactoring tool.')
-    url('https://github.com/liquibase/groovy-liquibase')
+    url('https://github.com/liquibase/liquibase-groovy-dsl')
     licenses {
       license {
         name 'The Apache Software License, Version 2.0'
