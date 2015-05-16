@@ -10,9 +10,9 @@ Saliman.
 We are proud to announce that the Liquibase Groovy DSL is now a part of the 
 Liquibase organization.  I will continue maintain the code, but bringing this 
 project into the Liquibase organization will help keep all things Liquibase 
-together in one place and make it easier for users to stay up to date with the
-latest releases and promote Liquibase adoption by making it easier for more 
-people to use.  As part of that move, the artifact name has changed from 
+together in one place.  This will help promote Liquibase adoption by making it
+easier for more people to use, and it will help people stay up to date with the
+latest releases.  As part of that move, the artifact name has changed from 
 ```net.saliman:groovy-liquibase-dsl``` to
 ```org.liquibase:liquibase-groovy-dsl``` to be consistent with the rest of the
 Liquibase artifacts.  A special thank you to Nathan Voxland for his help and 
