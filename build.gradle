@@ -1,17 +1,30 @@
 #!groovy
 // The above triggers groovy syntax highlighting in vim
 
+buildscript {
+  repositories {
+	  jcenter()
+		mavenCentral()
+	}
+	dependencies {
+	  classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.6'
+	}
+}
+
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'com.jfrog.bintray'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
+// Release version that won't conflict with the bintray plugin
+def releaseVersion = '1.1.0'
 group = 'org.liquibase'
 archivesBaseName = 'liquibase-groovy-dsl'
-version = '1.1.0'
-ext.isSnapshot = version.endsWith('SNAPSHOT')
+version = releaseVersion
+ext.isSnapshot = releaseVersion.endsWith('SNAPSHOT')
 
 if ( isSnapshot ) {
   println 'using snapshot'
@@ -159,6 +172,31 @@ def getPomConfiguration() {
       connection('scm:https://liquibase@github.com/liquibase/liquibase-groovy-dsl')
       developerConnection('scm:git@github.com:liquibase/liquibase-groovy-dsl.git')
       url('https://github.com/liquibase/liquibase-groovy-dsl')
+    }
+  }
+}
+
+bintray {
+  user = project.hasProperty('bintrayUsername') ? project.getProperty('bintrayUsername') : ''
+  key = project.hasProperty('bintrayApiKey') ? project.getProperty('bintrayApiKey') : ''
+
+  configurations = [ 'archives' ]
+
+  pkg {
+    // repo = 'gradle-plugins'
+    repo = 'maven'
+    name = 'liquibase-groovy-dsl'
+    desc = 'A parser that can parse Groovy change sets for the Liquibase database update tool.'
+    licenses = [ 'Apache-2.0' ]
+    websiteUrl = 'https://github.com/liquibase/liquibase-groovy-dsl'
+    issueTrackerUrl = 'https://github.com/liquibase/liquibase-groovy-dsl/issues'
+    vcsUrl = 'https://github.com/liquibase/liquibase-groovy-dsl.git'
+    labels = [ 'liquibase', 'groovy' ]
+    publicDownloadNumbers = true
+    version {
+      // name = version
+      // vcsTag = version
+      vcsTag = "Release_${releaseVersion}"
     }
   }
 }
