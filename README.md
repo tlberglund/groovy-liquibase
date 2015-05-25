@@ -10,4 +10,6 @@ Groovy DSL is https://github.com/liquibase/liquibase-groovy-dsl
 I'll update existing issues in this repository as they get addressed, but new
 issues should be reported in the new repository.
 
+Thank you all for your continued support,
+
 Steve Saliman
