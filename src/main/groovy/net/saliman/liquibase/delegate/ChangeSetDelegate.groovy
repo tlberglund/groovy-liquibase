@@ -268,6 +268,7 @@ class ChangeSetDelegate {
 
 	void createProcedure(Map params = [:], Closure closure) {
 		def change = makeChangeFromMap('createProcedure', CreateProcedureChange, params)
+		change.resourceAccessor = resourceAccessor
 		change.procedureText = DelegateUtil.expandExpressions(closure.call(), databaseChangeLog)
 		addChange(change)
 	}
@@ -277,6 +278,10 @@ class ChangeSetDelegate {
 		def change = new CreateProcedureChange()
 		change.procedureText = DelegateUtil.expandExpressions(storedProc, databaseChangeLog)
 		addChange(change)
+	}
+
+	void dropProcedure(Map params) {
+		addMapBasedChange('dropProcedure', DropProcedureChange, params)
 	}
 
 	void addLookupTable(Map params) {

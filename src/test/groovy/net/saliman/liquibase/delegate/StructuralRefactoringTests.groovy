@@ -17,6 +17,7 @@
 package net.saliman.liquibase.delegate
 
 import liquibase.change.core.AddColumnChange
+import liquibase.change.core.DropProcedureChange
 import liquibase.change.core.ModifyDataTypeChange
 import liquibase.exception.ChangeLogParseException
 import org.junit.Test
@@ -953,6 +954,49 @@ END;"""
 		buildChangeSet {
 			createStoredProcedure(comments: 'someComments') { sql }
 		}
+	}
+
+	/**
+	 * Test the dropProcedure changeSet with no attributes to make sure the
+	 * DSL doesn't try to set any defaults.
+	 */
+	@Test
+	void dropProcedureEmpty() {
+		buildChangeSet {
+			dropProcedure([:])
+		}
+
+		assertEquals 0, changeSet.getRollBackChanges().length
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof DropProcedureChange
+		assertNull changes[0].catalogName
+		assertNull changes[0].procedureName
+		assertNull changes[0].schemaName
+		assertNoOutput()
+	}
+
+	/**
+	 * Test the dropProcedure change set.
+	 */
+	@Test
+	void dropProcedureFull() {
+		buildChangeSet {
+			dropProcedure(catalogName: 'catalog',
+					procedureName: 'procedureName',
+					schemaName: 'schema')
+		}
+
+		assertEquals 0, changeSet.getRollBackChanges().length
+		def changes = changeSet.changes
+		assertNotNull changes
+		assertEquals 1, changes.size()
+		assertTrue changes[0] instanceof DropProcedureChange
+		assertEquals 'catalog', changes[0].catalogName
+		assertEquals 'procedureName', changes[0].procedureName
+		assertEquals 'schema', changes[0].schemaName
+		assertNoOutput()
 	}
 }
 
