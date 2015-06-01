@@ -13,17 +13,34 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.liquibase.groovy.change
 
-package org.liquibase.precondition
-
-import liquibase.precondition.CustomPrecondition
+import liquibase.change.AbstractChange
+import liquibase.statement.SqlStatement
 import liquibase.database.Database
-import liquibase.exception.CustomPreconditionFailedException
 
+/**
+ * <p></p>
+ * 
+ * @author Tim Berglund
+ * @author Steven C. Saliman
+ */
+class GroovyChange extends AbstractChange {
+  def groovyChangeClosure
 
-class MonkeyFailPrecondition implements CustomPrecondition {
+  
+  GroovyChange(groovyChangeClosure) {
+    super()
+    this.groovyChangeClosure = groovyChangeClosure
+  }
 
-  void check(Database database) {
-    throw new CustomPreconditionFailedException('Stub precondition failed')
+  
+  String getConfirmationMessage() {
+    "Custom Groovy change executed"
+  }
+
+  
+  SqlStatement[] generateStatements(Database database) {
+    return new SqlStatement[0];  //To change body of implemented methods use File | Settings | File Templates.
   }
 }
