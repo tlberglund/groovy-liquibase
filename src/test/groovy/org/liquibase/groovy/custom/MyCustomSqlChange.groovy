@@ -13,37 +13,43 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.liquibase.groovy.custom
 
-package org.liquibase.change.custom
-
-import liquibase.change.custom.CustomChange
-import liquibase.resource.ResourceAccessor
-import liquibase.exception.ValidationErrors
+import liquibase.change.custom.CustomSqlChange
 import liquibase.database.Database
+import liquibase.exception.ValidationErrors
+import liquibase.resource.ResourceAccessor
+import liquibase.statement.SqlStatement
+import liquibase.statement.core.RawSqlStatement
 
 /**
- * A dummy change class for unit testing of the custom change mechanism.
+ * A trivial liquibase CustomSqlChange that will be added to the DSL 
+ * through groovy metaprogramming
  * 
- * @author Tim Berglund
+ * @see groovy.runtime.metaclass.org.liquibase.groovy.delegate.ChangeSetDelegateMetaClass
+ * @author Jason Clawson
  */
-class MonkeyChange implements CustomChange {
+class MyCustomSqlChange 
+  implements CustomSqlChange {
 
   String getConfirmationMessage() {
-    "MonkeyChange confirmed"
+    return 'confirmation message here'
   }
-
 
   void setUp() {
-    
+    ;
   }
 
-
-  void setFileOpener(ResourceAccessor resourceAccessor) {
-
+  public void setFileOpener(ResourceAccessor resourceAccessor) {
+    ;
   }
-
 
   ValidationErrors validate(Database database) {
-    null
+    new ValidationErrors()
   }
+
+  SqlStatement[] generateStatements(Database database) {
+    [ new RawSqlStatement("SELECT * FROM monkey") ]
+  }
+
 }

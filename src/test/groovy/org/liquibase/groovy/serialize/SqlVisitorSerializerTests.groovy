@@ -14,16 +14,24 @@
  *  limitations under the License.
  */
 
-package org.liquibase.precondition
+package org.liquibase.groovy.serialize
 
-import liquibase.precondition.CustomPrecondition
-import liquibase.database.Database
-import liquibase.exception.CustomPreconditionFailedException
+import org.junit.Test
+import static org.junit.Assert.*
+import liquibase.sql.visitor.ReplaceSqlVisitor
 
+/**
+ * <p></p>
+ * 
+ * @author Steven C. Saliman
+ */
+class SqlVisitorSerializerTests extends SerializerTests {
 
-class MonkeyFailPrecondition implements CustomPrecondition {
-
-  void check(Database database) {
-    throw new CustomPreconditionFailedException('Stub precondition failed')
+  @Test
+  void testReplaceSqlVisitorSerialize() {
+    def visitor = [
+       
+    ] as ReplaceSqlVisitor
   }
 }
+

@@ -1,3 +1,7 @@
+Changes for 1.1.0
+=================
+- Refactored the project to fit into the Liquibase organization.
+
 Changes for 1.0.2
 =================
 - Recompiled with ```sourceCompatibility``` and ```targetCompatibility``` set

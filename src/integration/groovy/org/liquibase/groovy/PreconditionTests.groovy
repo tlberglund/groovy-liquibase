@@ -14,16 +14,15 @@
  *  limitations under the License.
  */
 
-package org.liquibase.precondition
+package org.liquibase.groovy
 
-import liquibase.precondition.CustomPrecondition
-import liquibase.database.Database
-import liquibase.exception.CustomPreconditionFailedException
+import org.junit.Before
 
+class PreconditionTests {
 
-class MonkeyFailPrecondition implements CustomPrecondition {
-
-  void check(Database database) {
-    throw new CustomPreconditionFailedException('Stub precondition failed')
+  @Before
+  void setupDatabase() { 
+    def createDatabase = this.class.classLoader.findResource('sql/CreateDefaultDB.sql')
+    println createDatabase
   }
 }

@@ -14,16 +14,19 @@
  *  limitations under the License.
  */
 
-package org.liquibase.precondition
+package org.liquibase.groovy
 
-import liquibase.precondition.CustomPrecondition
-import liquibase.database.Database
-import liquibase.exception.CustomPreconditionFailedException
+import liquibase.parser.ext.GroovyLiquibaseChangeLogParser
+import liquibase.parser.*
+import liquibase.resource.FileSystemResourceAccessor
 
 
-class MonkeyFailPrecondition implements CustomPrecondition {
+ChangeLogParserFactory.getInstance().register(new GroovyLiquibaseChangeLogParser())
 
-  void check(Database database) {
-    throw new CustomPreconditionFailedException('Stub precondition failed')
-  }
-}
+//changeLogFile = 'src/test/changelog/basic-changelog.groovy'
+//resourceAccessor = new FileSystemResourceAccessor(baseDirectory: '.')
+//parser = ChangeLogParserFactory.getInstance().getParser(changeLogFile, resourceAccessor)
+//
+//def changeLog = parser.parse(changeLogFile, null, resourceAccessor)
+//
+//println changeLog.changeSets
