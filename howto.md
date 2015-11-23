@@ -80,7 +80,7 @@ To use groovy-liquibase you'll need [Gradle](http://www.gradle.org/).
 
 ###Contexts
 
-You can use contexts just as in liquibase core. Use -Dliquibase.contexts after any command. See [liquibase](http://www.liquibase.org/manual/contexts) for full description .
+You can use contexts just as in liquibase core. Use -Dliquibase.contexts after any command. See [liquibase](http://www.liquibase.org/documentation/contexts.html) for full description .
 
 ###Running groovy-liquibase outside a specific directory
 
